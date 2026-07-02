@@ -1,0 +1,78 @@
+{
+  "prompt": {
+    "1": {
+      "class_type": "CheckpointLoaderSimple",
+      "inputs": {
+        "ckpt_name": "example-checkpoint.safetensors"
+      }
+    },
+    "2": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "text": "example positive prompt",
+        "clip": ["1", 1]
+      }
+    },
+    "3": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "text": "example negative prompt",
+        "clip": ["1", 1]
+      }
+    },
+    "4": {
+      "class_type": "EmptyLatentImage",
+      "inputs": {
+        "width": 768,
+        "height": 768,
+        "batch_size": 1
+      }
+    },
+    "5": {
+      "class_type": "KSampler",
+      "inputs": {
+        "model": ["1", 0],
+        "positive": ["2", 0],
+        "negative": ["3", 0],
+        "latent_image": ["4", 0],
+        "seed": 12345,
+        "steps": 20,
+        "cfg": 7.0,
+        "sampler_name": "euler",
+        "scheduler": "normal",
+        "denoise": 1.0
+      }
+    },
+    "6": {
+      "class_type": "VAEDecode",
+      "inputs": {
+        "samples": ["5", 0],
+        "vae": ["1", 2]
+      }
+    },
+    "7": {
+      "class_type": "SaveImageWithCivitaiMetadata",
+      "inputs": {
+        "images": ["6", 0],
+        "filename_prefix": "civitai_metadata/example",
+        "write_sidecar_json": true,
+        "strict_mode": false,
+        "include_workflow": true,
+        "include_civitai_manifest": true,
+        "enable_civitai_lookup": false,
+        "lookup_prefer_sha256": true,
+        "lookup_timeout_seconds": 4.0,
+        "lookup_cache_results": false,
+        "use_persistent_hash_cache": true
+      }
+    }
+  },
+  "workflow": {
+    "version": "example",
+    "nodes": [
+      {"id": 1, "type": "CheckpointLoaderSimple", "title": "Checkpoint"},
+      {"id": 5, "type": "KSampler", "title": "Sampler"},
+      {"id": 7, "type": "SaveImageWithCivitaiMetadata", "title": "Save"}
+    ]
+  }
+}

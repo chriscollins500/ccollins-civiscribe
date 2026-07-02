@@ -1,0 +1,21 @@
+# Default: normalize text files to LF in the repository
+* text=auto eol=lf
+
+# Windows command scripts should stay CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.zip binary
+*.7z binary
+*.exe binary
+*.dll binary
+*.pyd binary
+*.safetensors binary
+*.gguf binary

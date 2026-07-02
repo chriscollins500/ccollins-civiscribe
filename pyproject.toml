@@ -1,0 +1,66 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "comfyui-civitai-save-node"
+version = "0.9.17"
+description = "ComfyUI save-image custom node that writes A1111 and Civitai-compatible metadata."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [
+  { name = "comfyui-civitai-save-node contributors" }
+]
+dependencies = [
+  "Pillow>=10.0",
+  "numpy>=1.24",
+  "certifi>=2024.8.30"
+]
+
+[project.optional-dependencies]
+dev = [
+  "jsonschema>=4.23",
+  "ruff>=0.6"
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: GPU :: NVIDIA CUDA",
+  "Intended Audience :: End Users/Desktop",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Multimedia :: Graphics"
+]
+
+[tool.setuptools]
+packages = [
+  "save_node",
+  "save_node.civitai",
+  "save_node.comfy",
+  "save_node.hashing",
+  "save_node.io",
+  "save_node.metadata",
+  "save_node.security"
+]
+
+[tool.setuptools.package-data]
+save_node = ["config/*.json"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
+ignore = []
+
+[tool.ruff.lint.per-file-ignores]
+"tools/export_identity_cache.py" = ["E402"]
+"tools/import_identity_cache.py" = ["E402"]
+"tools/analyze_civitai_generator_metadata.py" = ["E402"]
+"tools/inspect_png_chunks.py" = ["E402"]
+"tools/make_civitai_metadata_recognition_variants.py" = ["E402"]
+"tools/inspect_png_metadata.py" = ["E402"]

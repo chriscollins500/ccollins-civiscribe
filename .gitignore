@@ -1,0 +1,35 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+build/
+dist/
+*.egg-info/
+
+# Local runtime outputs and private caches
+output/
+temp/
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.safetensors
+*.ckpt
+*.pt
+*.pth
+*.gguf
+save_node/config/civitai_identity_cache.json
+save_node/config/civitai_identity_cache.generated.json
+save_node/config/civitai_hash_cache.json
+*_civitai_recognition_variants/
+recognition_variants_manifest.json
+recognition_variants_manifest.csv
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

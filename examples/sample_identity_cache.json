@@ -1,0 +1,19 @@
+{
+  "formatVersion": "1",
+  "records": [
+    {
+      "air": "urn:air:sdxl:checkpoint:civitai:100000@200000",
+      "civitaiModelId": 100000,
+      "civitaiModelVersionId": 200000,
+      "modelName": "Example Checkpoint",
+      "modelVersionName": "Example Version",
+      "resourceType": "checkpoint",
+      "baseModel": "SDXL",
+      "triggerWords": ["exampletrigger"],
+      "hashes": {
+        "SHA256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "AutoV2": "aaaaaaaaaa"
+      }
+    }
+  ]
+}
