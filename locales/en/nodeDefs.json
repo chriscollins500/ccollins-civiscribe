@@ -1,0 +1,84 @@
+{
+  "CCollins_CiviScribe_SaveImage": {
+    "display_name": "CiviScribe - Save Image for Civitai",
+    "description": "Save PNG, JPEG, or WebP images with Civitai-compatible metadata.",
+    "inputs": {
+      "images": {
+        "name": "Images",
+        "tooltip": "Images to save."
+      },
+      "positive_prompt_override": {
+        "name": "Positive prompt override",
+        "tooltip": "Optional text connection that replaces automatic positive-prompt detection for metadata only."
+      },
+      "negative_prompt_override": {
+        "name": "Negative prompt override",
+        "tooltip": "Optional text connection that replaces automatic negative-prompt detection for metadata only."
+      },
+      "filename_prefix": {
+        "name": "Filename / subfolder pattern",
+        "tooltip": "Filename or safe subfolder prefix. Supports date, width, height, and batch-number tokens."
+      },
+      "output_format": {
+        "name": "Output format",
+        "tooltip": "Image format. PNG and WebP are lossless by default; JPEG is lossy."
+      },
+      "jpeg_quality": {
+        "name": "JPEG quality",
+        "tooltip": "JPEG fidelity. 100 is the maximum-fidelity default."
+      },
+      "jpeg_alpha_background": {
+        "name": "JPEG alpha background",
+        "tooltip": "RGB background used when JPEG must flatten transparent pixels."
+      },
+      "webp_lossless": {
+        "name": "Lossless WebP",
+        "tooltip": "Use decoded-pixel-preserving WebP encoding."
+      },
+      "webp_quality": {
+        "name": "WebP effort / quality",
+        "tooltip": "WebP compression effort or lossy quality."
+      },
+      "write_sidecar_json": {
+        "name": "Write sidecar JSON",
+        "tooltip": "Also write deterministic metadata JSON beside each saved image."
+      },
+      "include_workflow": {
+        "name": "Embed ComfyUI workflow",
+        "tooltip": "Include the sanitized ComfyUI workflow when metadata supports it."
+      },
+      "include_civitai_manifest": {
+        "name": "Embed Civitai manifest",
+        "tooltip": "Include the structured Civitai manifest in rich metadata and sidecars."
+      },
+      "enable_civitai_lookup": {
+        "name": "Enable Civitai lookup",
+        "tooltip": "Ask Civitai to identify active resources from hashes. Only hashes or a model-version ID are sent; images, prompts, workflows, and paths are not."
+      },
+      "preferred_primary_model_air": {
+        "name": "Preferred primary AIR or Civitai URL",
+        "tooltip": "Optional AIR, Civitai model URL, or model-version ID that pins the active primary model identity."
+      },
+      "hashing_mode": {
+        "name": "Hashing mode",
+        "tooltip": "cached_only reads no model bytes; cached_or_fast uses caches and fast hashes; full may read whole model files."
+      },
+      "lookup_timeout_seconds": {
+        "name": "Lookup timeout (seconds)",
+        "tooltip": "Maximum Civitai lookup wait. Saving continues after a timeout."
+      },
+      "lookup_cache_results": {
+        "name": "Cache successful lookup results",
+        "tooltip": "Store successful identities locally so later saves can resolve them without another request."
+      },
+      "advanced_manual_identities_enabled": {
+        "name": "Enable manual resource identities",
+        "tooltip": "Enable the advanced JSON mapping for pinning identities of multiple active resources."
+      },
+      "manual_resource_identities_json": {
+        "name": "Manual resource identities JSON",
+        "tooltip": "Advanced JSON list of explicit resource identity mappings. Invalid data is reported safely and never blocks image saving."
+      }
+    }
+  }
+}

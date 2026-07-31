@@ -1,0 +1,84 @@
+{
+  "CCollins_CiviScribe_SaveImage": {
+    "display_name": "CiviScribe - حفظ صورة لـ Civitai",
+    "description": "يحفظ صور PNG أو JPEG أو WebP مع بيانات وصفية متوافقة مع Civitai.",
+    "inputs": {
+      "images": {
+        "name": "الصور",
+        "tooltip": "الصور المراد حفظها."
+      },
+      "positive_prompt_override": {
+        "name": "تجاوز الموجّه الإيجابي",
+        "tooltip": "اتصال نصي اختياري يستبدل اكتشاف الموجّه الإيجابي تلقائيا داخل البيانات الوصفية فقط."
+      },
+      "negative_prompt_override": {
+        "name": "تجاوز الموجّه السلبي",
+        "tooltip": "اتصال نصي اختياري يستبدل اكتشاف الموجّه السلبي تلقائيا داخل البيانات الوصفية فقط."
+      },
+      "filename_prefix": {
+        "name": "نمط اسم الملف / المجلد الفرعي",
+        "tooltip": "اسم ملف أو بادئة مجلد فرعي آمنة. يدعم رموز التاريخ والعرض والارتفاع ورقم الدفعة."
+      },
+      "output_format": {
+        "name": "تنسيق الإخراج",
+        "tooltip": "تنسيق الصورة. PNG وWebP بلا فقد افتراضيا، بينما JPEG بفقد."
+      },
+      "jpeg_quality": {
+        "name": "جودة JPEG",
+        "tooltip": "دقة JPEG. القيمة 100 هي الإعداد الافتراضي لأقصى دقة."
+      },
+      "jpeg_alpha_background": {
+        "name": "خلفية شفافية JPEG",
+        "tooltip": "خلفية RGB المستخدمة عند دمج البكسلات الشفافة في JPEG."
+      },
+      "webp_lossless": {
+        "name": "WebP بلا فقد",
+        "tooltip": "يستخدم ترميز WebP يحافظ على البكسلات بعد فك الترميز."
+      },
+      "webp_quality": {
+        "name": "جهد / جودة WebP",
+        "tooltip": "جهد ضغط WebP أو الجودة ذات الفقد."
+      },
+      "write_sidecar_json": {
+        "name": "كتابة JSON جانبي",
+        "tooltip": "يكتب أيضا ملف JSON حتميا للبيانات الوصفية بجانب كل صورة محفوظة."
+      },
+      "include_workflow": {
+        "name": "تضمين سير عمل ComfyUI",
+        "tooltip": "يتضمن سير عمل ComfyUI المنقح عندما يدعم تنسيق البيانات الوصفية ذلك."
+      },
+      "include_civitai_manifest": {
+        "name": "تضمين بيان Civitai",
+        "tooltip": "يتضمن بيان Civitai المنظم في البيانات الوصفية الغنية والملفات الجانبية."
+      },
+      "enable_civitai_lookup": {
+        "name": "تمكين بحث Civitai",
+        "tooltip": "يطلب من Civitai تحديد الموارد النشطة عبر البصمات. ترسل البصمات أو معرّف إصدار النموذج فقط، ولا ترسل الصور أو الموجّهات أو سير العمل أو المسارات."
+      },
+      "preferred_primary_model_air": {
+        "name": "AIR الأساسي المفضل أو رابط Civitai",
+        "tooltip": "AIR أو رابط نموذج Civitai أو معرّف إصدار اختياري يثبت هوية النموذج الأساسي النشط."
+      },
+      "hashing_mode": {
+        "name": "وضع البصمة",
+        "tooltip": "cached_only لا يقرأ بيانات النموذج، وcached_or_fast يستخدم الذاكرة المؤقتة والبصمات السريعة، وfull قد يقرأ الملفات كاملة."
+      },
+      "lookup_timeout_seconds": {
+        "name": "مهلة البحث بالثواني",
+        "tooltip": "أقصى مدة لانتظار بحث Civitai. يستمر الحفظ بعد انتهاء المهلة."
+      },
+      "lookup_cache_results": {
+        "name": "تخزين نتائج البحث الناجحة",
+        "tooltip": "يخزن الهويات التي تم حلها محليا لاستخدامها لاحقا دون طلب جديد."
+      },
+      "advanced_manual_identities_enabled": {
+        "name": "تمكين هويات الموارد اليدوية",
+        "tooltip": "يمكّن تعيين JSON المتقدم لتثبيت هويات عدة موارد نشطة."
+      },
+      "manual_resource_identities_json": {
+        "name": "JSON لهويات الموارد اليدوية",
+        "tooltip": "قائمة JSON متقدمة لهويات الموارد الصريحة. تبلغ البيانات غير الصالحة بأمان ولا تمنع الحفظ أبدا."
+      }
+    }
+  }
+}

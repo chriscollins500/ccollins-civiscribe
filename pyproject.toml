@@ -1,66 +1,126 @@
 [build-system]
-requires = ["setuptools>=68"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
 
 [project]
-name = "comfyui-civitai-save-node"
-version = "0.9.17"
-description = "ComfyUI save-image custom node that writes A1111 and Civitai-compatible metadata."
+name = "ccollins-civiscribe"
+dynamic = ["version"]
+description = "Civitai-first image saving for current ComfyUI V3."
 readme = "README.md"
-requires-python = ">=3.10"
-license = { file = "LICENSE" }
+requires-python = ">=3.12"
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [
-  { name = "comfyui-civitai-save-node contributors" }
+  { name = "CCollins' CiviScribe contributors" }
 ]
 dependencies = [
-  "Pillow>=10.0",
-  "numpy>=1.24",
-  "certifi>=2024.8.30"
-]
-
-[project.optional-dependencies]
-dev = [
-  "jsonschema>=4.23",
-  "ruff>=0.6"
+  "Pillow>=12.3,<13",
+  "httpx>=0.28,<1",
+  "numpy>=2.2,<3",
+  "truststore>=0.10,<1; platform_system == 'Windows' or platform_system == 'Darwin'",
 ]
 classifiers = [
-  "Development Status :: 4 - Beta",
-  "Environment :: GPU :: NVIDIA CUDA",
+  "Development Status :: 2 - Pre-Alpha",
   "Intended Audience :: End Users/Desktop",
   "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
-  "Topic :: Multimedia :: Graphics"
+  "Topic :: Multimedia :: Graphics",
 ]
 
-[tool.setuptools]
-packages = [
-  "save_node",
-  "save_node.civitai",
-  "save_node.comfy",
-  "save_node.hashing",
-  "save_node.io",
-  "save_node.metadata",
-  "save_node.security"
+[dependency-groups]
+dev = [
+  "build>=1.2,<2",
+  "check-wheel-contents>=0.6,<1",
+  "hypothesis>=6.120,<7",
+  "jsonschema>=4.23,<5",
+  "mypy>=1.15,<2",
+  "nox>=2025.2.9",
+  "pytest>=8.3,<10",
+  "pytest-benchmark>=5.2,<6",
+  "pytest-cov>=6,<8",
+  "pytest-randomly>=3.15,<4",
+  "pytest-socket>=0.7,<1",
+  "pytest-timeout>=2.3,<3",
+  "pytest-xdist>=3.6,<4",
+  "ruff>=0.11,<1",
+  "types-jsonschema>=4.23,<5",
 ]
 
-[tool.setuptools.package-data]
-save_node = ["config/*.json"]
+[tool.hatch.version]
+path = "civiscribe/version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["civiscribe"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/__init__.py",
+  "/civiscribe",
+  "/locales",
+  "/web/dist",
+  "/LICENSE",
+  "/README.md",
+]
+artifacts = ["/web/dist/*.js"]
+
+[tool.pytest.ini_options]
+addopts = [
+  "-ra",
+  "--strict-config",
+  "--strict-markers",
+  "--import-mode=importlib",
+]
+testpaths = ["tests"]
 
 [tool.ruff]
-line-length = 120
-target-version = "py310"
+line-length = 100
+target-version = "py312"
 
 [tool.ruff.lint]
-select = ["E4", "E7", "E9", "F"]
-ignore = []
+select = [
+  "A",
+  "ANN",
+  "B",
+  "C4",
+  "E",
+  "F",
+  "FA",
+  "I",
+  "N",
+  "PERF",
+  "PIE",
+  "PL",
+  "PTH",
+  "RUF",
+  "S",
+  "SIM",
+  "T20",
+  "UP",
+]
 
 [tool.ruff.lint.per-file-ignores]
-"tools/export_identity_cache.py" = ["E402"]
-"tools/import_identity_cache.py" = ["E402"]
-"tools/analyze_civitai_generator_metadata.py" = ["E402"]
-"tools/inspect_png_chunks.py" = ["E402"]
-"tools/make_civitai_metadata_recognition_variants.py" = ["E402"]
-"tools/inspect_png_metadata.py" = ["E402"]
+"**/*.py" = ["N999"]
+"__init__.py" = ["PLC0415"]
+"tests/**/*.py" = ["S101"]
+"tools/**/*.py" = ["T201"]
+"typing_stubs/**/*.pyi" = ["A002", "ANN401"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+explicit_package_bases = true
+mypy_path = "typing_stubs"
+packages = ["civiscribe"]
+files = ["tools", "tests"]
+exclude = ["web"]
+
+[tool.coverage.run]
+branch = true
+source = ["civiscribe"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+fail_under = 100

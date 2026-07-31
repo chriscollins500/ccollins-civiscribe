@@ -1,0 +1,84 @@
+{
+  "CCollins_CiviScribe_SaveImage": {
+    "display_name": "CiviScribe - Guardar imagen para Civitai",
+    "description": "Guarda imágenes PNG, JPEG o WebP con metadatos compatibles con Civitai.",
+    "inputs": {
+      "images": {
+        "name": "Imágenes",
+        "tooltip": "Imágenes que se guardarán."
+      },
+      "positive_prompt_override": {
+        "name": "Reemplazo del prompt positivo",
+        "tooltip": "Conexión de texto opcional que reemplaza la detección automática del prompt positivo solo en los metadatos."
+      },
+      "negative_prompt_override": {
+        "name": "Reemplazo del prompt negativo",
+        "tooltip": "Conexión de texto opcional que reemplaza la detección automática del prompt negativo solo en los metadatos."
+      },
+      "filename_prefix": {
+        "name": "Patrón de archivo / subcarpeta",
+        "tooltip": "Nombre de archivo o prefijo de subcarpeta seguro. Admite tokens de fecha, ancho, alto y número de lote."
+      },
+      "output_format": {
+        "name": "Formato de salida",
+        "tooltip": "Formato de imagen. PNG y WebP son sin pérdida de forma predeterminada; JPEG tiene pérdida."
+      },
+      "jpeg_quality": {
+        "name": "Calidad JPEG",
+        "tooltip": "Fidelidad JPEG. 100 es el valor predeterminado de máxima fidelidad."
+      },
+      "jpeg_alpha_background": {
+        "name": "Fondo alfa de JPEG",
+        "tooltip": "Fondo RGB usado cuando JPEG debe aplanar píxeles transparentes."
+      },
+      "webp_lossless": {
+        "name": "WebP sin pérdida",
+        "tooltip": "Usa codificación WebP que conserva los píxeles decodificados."
+      },
+      "webp_quality": {
+        "name": "Esfuerzo / calidad WebP",
+        "tooltip": "Esfuerzo de compresión o calidad con pérdida de WebP."
+      },
+      "write_sidecar_json": {
+        "name": "Escribir JSON adicional",
+        "tooltip": "También escribe JSON de metadatos determinista junto a cada imagen guardada."
+      },
+      "include_workflow": {
+        "name": "Incrustar flujo de ComfyUI",
+        "tooltip": "Incluye el flujo de ComfyUI saneado cuando el formato de metadatos lo permite."
+      },
+      "include_civitai_manifest": {
+        "name": "Incrustar manifiesto de Civitai",
+        "tooltip": "Incluye el manifiesto estructurado de Civitai en metadatos enriquecidos y archivos adicionales."
+      },
+      "enable_civitai_lookup": {
+        "name": "Activar consulta a Civitai",
+        "tooltip": "Pide a Civitai identificar recursos activos mediante hashes. Solo se envían hashes o un ID de versión; nunca imágenes, prompts, flujos ni rutas."
+      },
+      "preferred_primary_model_air": {
+        "name": "AIR principal o URL de Civitai preferido",
+        "tooltip": "AIR, URL de modelo de Civitai o ID de versión opcional que fija la identidad del modelo principal activo."
+      },
+      "hashing_mode": {
+        "name": "Modo de hash",
+        "tooltip": "cached_only no lee bytes del modelo; cached_or_fast usa cachés y hashes rápidos; full puede leer archivos completos."
+      },
+      "lookup_timeout_seconds": {
+        "name": "Tiempo límite de consulta (segundos)",
+        "tooltip": "Espera máxima de la consulta a Civitai. El guardado continúa tras agotarse el tiempo."
+      },
+      "lookup_cache_results": {
+        "name": "Guardar consultas correctas en caché",
+        "tooltip": "Guarda identidades resueltas localmente para reutilizarlas sin otra consulta."
+      },
+      "advanced_manual_identities_enabled": {
+        "name": "Activar identidades manuales",
+        "tooltip": "Activa el mapa JSON avanzado para fijar identidades de varios recursos activos."
+      },
+      "manual_resource_identities_json": {
+        "name": "JSON de identidades manuales",
+        "tooltip": "Lista JSON avanzada de identidades explícitas. Los datos no válidos se notifican de forma segura y nunca impiden guardar."
+      }
+    }
+  }
+}

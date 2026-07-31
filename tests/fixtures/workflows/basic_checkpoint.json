@@ -1,0 +1,71 @@
+{
+  "expected": {
+    "activeNodeIds": ["1", "2", "3", "4", "5", "6"],
+    "negative": "low quality",
+    "positive": "a lighthouse at dawn",
+    "primaryResourceKey": "1:ckpt_name",
+    "resourceFilenames": ["basic_sdxl.safetensors"],
+    "selectedStageNodeId": "5",
+    "workflowKind": "txt2img"
+  },
+  "prompt": {
+    "1": {
+      "class_type": "CheckpointLoaderSimple",
+      "inputs": {
+        "ckpt_name": "checkpoints/basic_sdxl.safetensors"
+      }
+    },
+    "2": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "clip": ["1", 1],
+        "text": "a lighthouse at dawn"
+      }
+    },
+    "3": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "clip": ["1", 1],
+        "text": "low quality"
+      }
+    },
+    "4": {
+      "class_type": "EmptyLatentImage",
+      "inputs": {
+        "batch_size": 1,
+        "height": 768,
+        "width": 1024
+      }
+    },
+    "5": {
+      "class_type": "KSampler",
+      "inputs": {
+        "cfg": 7.0,
+        "denoise": 1.0,
+        "latent_image": ["4", 0],
+        "model": ["1", 0],
+        "negative": ["3", 0],
+        "positive": ["2", 0],
+        "sampler_name": "euler",
+        "scheduler": "normal",
+        "seed": 123,
+        "steps": 20
+      }
+    },
+    "6": {
+      "class_type": "VAEDecode",
+      "inputs": {
+        "samples": ["5", 0],
+        "vae": ["1", 2]
+      }
+    },
+    "7": {
+      "class_type": "CCollins_CiviScribe_SaveImage",
+      "inputs": {
+        "images": ["6", 0]
+      }
+    }
+  },
+  "schemaName": "ccollins-civiscribe.workflow-fixture",
+  "schemaVersion": "1.0.0"
+}

@@ -1,0 +1,84 @@
+{
+  "CCollins_CiviScribe_SaveImage": {
+    "display_name": "CiviScribe - Enregistrer l'image pour Civitai",
+    "description": "Enregistre des images PNG, JPEG ou WebP avec des métadonnées compatibles avec Civitai.",
+    "inputs": {
+      "images": {
+        "name": "Images",
+        "tooltip": "Images à enregistrer."
+      },
+      "positive_prompt_override": {
+        "name": "Remplacement du prompt positif",
+        "tooltip": "Connexion texte facultative qui remplace la détection automatique du prompt positif uniquement dans les métadonnées."
+      },
+      "negative_prompt_override": {
+        "name": "Remplacement du prompt négatif",
+        "tooltip": "Connexion texte facultative qui remplace la détection automatique du prompt négatif uniquement dans les métadonnées."
+      },
+      "filename_prefix": {
+        "name": "Modèle de fichier / sous-dossier",
+        "tooltip": "Nom de fichier ou préfixe de sous-dossier sûr. Accepte les jetons de date, largeur, hauteur et numéro de lot."
+      },
+      "output_format": {
+        "name": "Format de sortie",
+        "tooltip": "Format d'image. PNG et WebP sont sans perte par défaut ; JPEG est avec perte."
+      },
+      "jpeg_quality": {
+        "name": "Qualité JPEG",
+        "tooltip": "Fidélité JPEG. 100 est la valeur par défaut de fidélité maximale."
+      },
+      "jpeg_alpha_background": {
+        "name": "Arrière-plan alpha JPEG",
+        "tooltip": "Arrière-plan RVB utilisé lorsque JPEG doit aplatir les pixels transparents."
+      },
+      "webp_lossless": {
+        "name": "WebP sans perte",
+        "tooltip": "Utilise un encodage WebP qui préserve les pixels décodés."
+      },
+      "webp_quality": {
+        "name": "Effort / qualité WebP",
+        "tooltip": "Effort de compression ou qualité avec perte de WebP."
+      },
+      "write_sidecar_json": {
+        "name": "Écrire le JSON associé",
+        "tooltip": "Écrit aussi un JSON de métadonnées déterministe à côté de chaque image."
+      },
+      "include_workflow": {
+        "name": "Intégrer le workflow ComfyUI",
+        "tooltip": "Inclut le workflow ComfyUI assaini lorsque le format de métadonnées le permet."
+      },
+      "include_civitai_manifest": {
+        "name": "Intégrer le manifeste Civitai",
+        "tooltip": "Inclut le manifeste Civitai structuré dans les métadonnées riches et les fichiers associés."
+      },
+      "enable_civitai_lookup": {
+        "name": "Activer la recherche Civitai",
+        "tooltip": "Demande à Civitai d'identifier les ressources actives par leurs empreintes. Seules les empreintes ou un ID de version sont envoyés, jamais les images, prompts, workflows ou chemins."
+      },
+      "preferred_primary_model_air": {
+        "name": "AIR principal ou URL Civitai préféré",
+        "tooltip": "AIR, URL de modèle Civitai ou ID de version facultatif qui fixe l'identité du modèle principal actif."
+      },
+      "hashing_mode": {
+        "name": "Mode d'empreinte",
+        "tooltip": "cached_only ne lit aucun octet du modèle ; cached_or_fast utilise les caches et empreintes rapides ; full peut lire les fichiers entiers."
+      },
+      "lookup_timeout_seconds": {
+        "name": "Délai de recherche (secondes)",
+        "tooltip": "Attente maximale de la recherche Civitai. L'enregistrement continue après expiration."
+      },
+      "lookup_cache_results": {
+        "name": "Mettre en cache les recherches réussies",
+        "tooltip": "Stocke localement les identités résolues afin de les réutiliser sans nouvelle requête."
+      },
+      "advanced_manual_identities_enabled": {
+        "name": "Activer les identités manuelles",
+        "tooltip": "Active le mappage JSON avancé pour fixer l'identité de plusieurs ressources actives."
+      },
+      "manual_resource_identities_json": {
+        "name": "JSON des identités manuelles",
+        "tooltip": "Liste JSON avancée d'identités explicites. Les données invalides sont signalées sans jamais empêcher l'enregistrement."
+      }
+    }
+  }
+}

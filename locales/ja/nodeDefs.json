@@ -1,0 +1,84 @@
+{
+  "CCollins_CiviScribe_SaveImage": {
+    "display_name": "CiviScribe - Civitai 用に画像を保存",
+    "description": "Civitai 互換メタデータ付きの PNG、JPEG、WebP 画像を保存します。",
+    "inputs": {
+      "images": {
+        "name": "画像",
+        "tooltip": "保存する画像です。"
+      },
+      "positive_prompt_override": {
+        "name": "ポジティブプロンプト上書き",
+        "tooltip": "メタデータ内の自動ポジティブプロンプト検出だけを置き換える任意のテキスト接続です。"
+      },
+      "negative_prompt_override": {
+        "name": "ネガティブプロンプト上書き",
+        "tooltip": "メタデータ内の自動ネガティブプロンプト検出だけを置き換える任意のテキスト接続です。"
+      },
+      "filename_prefix": {
+        "name": "ファイル名 / サブフォルダー形式",
+        "tooltip": "ファイル名または安全なサブフォルダー接頭辞です。日付、幅、高さ、バッチ番号のトークンに対応します。"
+      },
+      "output_format": {
+        "name": "出力形式",
+        "tooltip": "画像形式です。PNG と WebP は既定で可逆、JPEG は非可逆です。"
+      },
+      "jpeg_quality": {
+        "name": "JPEG 品質",
+        "tooltip": "JPEG の忠実度です。100 が最高忠実度の既定値です。"
+      },
+      "jpeg_alpha_background": {
+        "name": "JPEG アルファ背景",
+        "tooltip": "JPEG で透明ピクセルを合成するときに使う RGB 背景です。"
+      },
+      "webp_lossless": {
+        "name": "可逆 WebP",
+        "tooltip": "復号後のピクセルを保持する WebP エンコードを使用します。"
+      },
+      "webp_quality": {
+        "name": "WebP 圧縮強度 / 品質",
+        "tooltip": "WebP の圧縮強度または非可逆品質です。"
+      },
+      "write_sidecar_json": {
+        "name": "サイドカー JSON を書き込む",
+        "tooltip": "各保存画像の隣に決定論的なメタデータ JSON も書き込みます。"
+      },
+      "include_workflow": {
+        "name": "ComfyUI ワークフローを埋め込む",
+        "tooltip": "メタデータ形式が対応する場合、サニタイズ済み ComfyUI ワークフローを含めます。"
+      },
+      "include_civitai_manifest": {
+        "name": "Civitai マニフェストを埋め込む",
+        "tooltip": "構造化 Civitai マニフェストを詳細メタデータとサイドカーに含めます。"
+      },
+      "enable_civitai_lookup": {
+        "name": "Civitai 検索を有効化",
+        "tooltip": "ハッシュで有効なリソースを識別するよう Civitai に問い合わせます。送信するのはハッシュまたはモデルバージョン ID だけで、画像、プロンプト、ワークフロー、パスは送信しません。"
+      },
+      "preferred_primary_model_air": {
+        "name": "優先する主モデル AIR または Civitai URL",
+        "tooltip": "有効な主モデルの識別情報を固定する任意の AIR、Civitai モデル URL、モデルバージョン ID です。"
+      },
+      "hashing_mode": {
+        "name": "ハッシュモード",
+        "tooltip": "cached_only はモデルを読みません。cached_or_fast はキャッシュと高速ハッシュを使い、full はファイル全体を読む場合があります。"
+      },
+      "lookup_timeout_seconds": {
+        "name": "検索タイムアウト（秒）",
+        "tooltip": "Civitai 検索の最大待ち時間です。タイムアウト後も保存は続行します。"
+      },
+      "lookup_cache_results": {
+        "name": "成功した検索結果をキャッシュ",
+        "tooltip": "解決済みの識別情報をローカル保存し、次回は問い合わせなしで使用します。"
+      },
+      "advanced_manual_identities_enabled": {
+        "name": "手動リソース識別情報を有効化",
+        "tooltip": "複数の有効なリソースを固定する高度な JSON マッピングを有効にします。"
+      },
+      "manual_resource_identities_json": {
+        "name": "手動リソース識別情報 JSON",
+        "tooltip": "明示的リソース識別情報の高度な JSON リストです。無効なデータは安全に報告され、保存を妨げません。"
+      }
+    }
+  }
+}

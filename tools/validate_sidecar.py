@@ -1,165 +1,232 @@
-"""Validate comfyui-civitai-save-node JSON sidecars without network or mutation."""
+"""Validate one CiviScribe V2 sidecar without mutating it."""
 
 from __future__ import annotations
 
 import argparse
-from dataclasses import dataclass, field
 import json
+import re
+from collections.abc import Iterator
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import cast
 
+from jsonschema import Draft202012Validator
+from jsonschema.exceptions import SchemaError
 
-REQUIRED_TOP_LEVEL = (
-    "sidecarFormat",
-    "sidecarSchemaVersion",
-    "generator",
-    "image",
-    "pngMetadata",
-    "civitai",
-    "resourceLifecycle",
-    "warnings",
-    "errors",
-    "privacy",
+from civiscribe.schemas import sidecar_schema_path
+
+_ABSOLUTE_PATH = re.compile(r"(?i)(?:[a-z]:[\\/]|\\\\|/(?:Users|home)/)")
+_BEARER_SECRET = re.compile(r"(?i)\bBearer\s+[A-Za-z0-9._~+/=-]{8,}")
+_SENSITIVE_KEYS = frozenset(
+    {
+        "accesstoken",
+        "apikey",
+        "authorization",
+        "bearer",
+        "password",
+        "refreshtoken",
+        "secret",
+        "token",
+    }
 )
-EXPECTED_FORMAT = "comfyui-civitai-save-node.sidecar"
+_REDACTED_VALUES = frozenset({"", "<redacted-secret>"})
+_FORMAT_FACTS = {
+    "png": ({"png"}, "image/png"),
+    "jpeg": ({"jpg", "jpeg"}, "image/jpeg"),
+    "webp": ({"webp"}, "image/webp"),
+}
+_MODE_CHANNELS = {"L": 1, "RGB": 3, "RGBA": 4}
+
+type JsonScalar = None | bool | int | float | str
+type JsonValue = JsonScalar | list[JsonValue] | dict[str, JsonValue]
 
 
-@dataclass(frozen=True)
-class SidecarValidationReport:
-    file_name: str
-    ok: bool
-    messages: tuple[str, ...] = field(default_factory=tuple)
-    schema_validation: str = "skipped"
+@dataclass(frozen=True, slots=True)
+class SidecarValidationResult:
+    """Deterministic validation result with privacy-safe error codes."""
 
-    def to_text(self) -> str:
-        lines = [
-            f"sidecar: {self.file_name}",
-            "json: ok"
-            if self.ok or not any(message.startswith("json: failed") for message in self.messages)
-            else "json: failed",
-        ]
-        lines.extend(self.messages)
-        lines.append(f"jsonSchema: {self.schema_validation}")
-        lines.append(f"result: {'ok' if self.ok else 'failed'}")
-        return "\n".join(_sanitize_line(line) for line in lines)
+    errors: tuple[str, ...]
+
+    @property
+    def valid(self) -> bool:
+        return not self.errors
 
 
-def validate_sidecar_file(path: Path, *, schema_path: Path | None = None) -> SidecarValidationReport:
-    file_name = Path(path).name
-    messages: list[str] = []
-    schema_status = "skipped"
+def _reject_duplicate_keys(pairs: list[tuple[str, JsonValue]]) -> dict[str, JsonValue]:
+    result: dict[str, JsonValue] = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate_key")
+        result[key] = value
+    return result
 
-    try:
-        raw = Path(path).read_bytes()
-    except OSError as exc:
-        return SidecarValidationReport(
-            file_name=file_name,
-            ok=False,
-            messages=(f"read: failed: {_sanitize_exception(exc)}",),
-            schema_validation=schema_status,
-        )
 
-    try:
-        text = raw.decode("utf-8")
-    except UnicodeDecodeError as exc:
-        return SidecarValidationReport(
-            file_name=file_name,
-            ok=False,
-            messages=(f"utf8: failed: {_sanitize_exception(exc)}",),
-            schema_validation=schema_status,
-        )
-    messages.append("utf8: ok")
-
-    if raw.endswith(b"\n"):
-        messages.append("newlineAtEof: ok")
-    else:
-        messages.append("newlineAtEof: missing")
-
-    try:
-        data = _loads_strict_json(text)
-    except ValueError as exc:
-        return SidecarValidationReport(
-            file_name=file_name,
-            ok=False,
-            messages=(*messages, f"json: failed: {_sanitize_exception(exc)}"),
-            schema_validation=schema_status,
-        )
-    messages.append("json: strict-ok")
-
-    missing = [key for key in REQUIRED_TOP_LEVEL if key not in data]
-    if missing:
-        messages.append(f"requiredFields: missing {', '.join(missing)}")
-    else:
-        messages.append("requiredFields: ok")
-
-    if data.get("sidecarFormat") == EXPECTED_FORMAT:
-        messages.append("sidecarFormat: ok")
-    else:
-        messages.append("sidecarFormat: unexpected")
-
-    schema_file = schema_path or _default_schema_path()
-    schema_ok = True
-    if schema_file.exists():
-        try:
-            import jsonschema
-        except ImportError:
-            schema_status = "skipped: jsonschema not installed"
-        else:
-            try:
-                schema = _loads_strict_json(schema_file.read_text(encoding="utf-8"))
-                jsonschema.Draft202012Validator(schema).validate(data)
-                schema_status = "ok"
-            except Exception as exc:
-                schema_ok = False
-                schema_status = f"failed: {_sanitize_exception(exc)}"
-    else:
-        schema_status = "skipped: schema file not found"
-
-    ok = not missing and data.get("sidecarFormat") == EXPECTED_FORMAT and schema_ok
-    return SidecarValidationReport(
-        file_name=file_name,
-        ok=ok,
-        messages=tuple(messages),
-        schema_validation=schema_status,
+def _load_json(path: Path) -> JsonValue:
+    return cast(
+        JsonValue,
+        json.loads(
+            path.read_text(encoding="utf-8"),
+            object_pairs_hook=_reject_duplicate_keys,
+        ),
     )
 
 
-def _loads_strict_json(text: str) -> Any:
-    return json.loads(
-        text,
-        parse_constant=lambda value: (_ for _ in ()).throw(ValueError(f"non-finite JSON value {value}")),
-    )
+def _normalized_sensitive_key(value: str) -> str:
+    return "".join(character for character in value.casefold() if character.isalnum())
 
 
-def _default_schema_path() -> Path:
-    return Path(__file__).resolve().parents[1] / "schemas" / "comfyui-civitai-save-node-sidecar.schema.json"
+def _sensitive_value_is_redacted(value: JsonValue) -> bool:
+    return value is None or (isinstance(value, str) and value in _REDACTED_VALUES)
 
 
-def _sanitize_exception(exc: BaseException) -> str:
-    return _sanitize_line(str(exc.__class__.__name__) + ": " + str(exc))
+def _privacy_errors(value: JsonValue) -> Iterator[str]:
+    if isinstance(value, str):
+        if _ABSOLUTE_PATH.search(value) is not None:
+            yield "privacy:absolute_path"
+        if _BEARER_SECRET.search(value) is not None:
+            yield "privacy:bearer_secret"
+        return
+    if isinstance(value, list):
+        for item in value:
+            yield from _privacy_errors(item)
+        return
+    if not isinstance(value, dict):
+        return
+    for key, item in value.items():
+        if _normalized_sensitive_key(key) in _SENSITIVE_KEYS and not _sensitive_value_is_redacted(
+            item
+        ):
+            yield "privacy:sensitive_value"
+        yield from _privacy_errors(item)
 
 
-def _sanitize_line(value: str) -> str:
-    text = value.replace("\\", "/")
-    for marker in ("token=", "api_key=", "apikey=", "authorization="):
-        lower = text.lower()
-        index = lower.find(marker)
-        if index >= 0:
-            end = text.find(" ", index)
-            if end < 0:
-                end = len(text)
-            text = text[: index + len(marker)] + "<redacted_secret>" + text[end:]
-    return text
+def _schema_errors(payload: JsonValue, schema: JsonValue) -> Iterator[str]:
+    if not isinstance(schema, dict):
+        yield "schema:not_object"
+        return
+    try:
+        Draft202012Validator.check_schema(schema)
+    except SchemaError:
+        yield "schema:definition_invalid"
+        return
+    validator = Draft202012Validator(schema)
+    for error in sorted(
+        validator.iter_errors(payload),
+        key=lambda item: (
+            tuple(str(part) for part in item.absolute_path),
+            str(item.validator),
+        ),
+    ):
+        path = ".".join(str(part) for part in error.absolute_path) or "$"
+        yield f"schema:{path}:{error.validator}"
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Validate a comfyui-civitai-save-node JSON sidecar")
-    parser.add_argument("sidecar", type=Path, help="Sidecar JSON file to validate")
+def _semantic_errors(payload: JsonValue) -> Iterator[str]:
+    if not isinstance(payload, dict):
+        return
+    artifact = payload.get("artifact")
+    if not isinstance(artifact, dict):
+        return
+    output_format = artifact.get("format")
+    filename = artifact.get("fileName")
+    mime_type = artifact.get("mimeType")
+    if isinstance(output_format, str) and output_format in _FORMAT_FACTS:
+        extensions, expected_mime = _FORMAT_FACTS[output_format]
+        if (
+            not isinstance(filename, str)
+            or filename.rpartition(".")[2].casefold() not in extensions
+            or mime_type != expected_mime
+        ):
+            yield "semantic:artifact_format_mismatch"
+
+    sidecar_filename = artifact.get("sidecarFileName")
+    if (
+        isinstance(filename, str)
+        and isinstance(sidecar_filename, str)
+        and (
+            sidecar_filename.rpartition(".")[2].casefold() != "json"
+            or sidecar_filename.rpartition(".")[0] != filename.rpartition(".")[0]
+        )
+    ):
+        yield "semantic:sidecar_filename_mismatch"
+
+    subfolder = artifact.get("subfolder")
+    if isinstance(subfolder, str) and subfolder:
+        parts = subfolder.split("/")
+        if (
+            subfolder.startswith("/")
+            or subfolder.endswith("/")
+            or "\\" in subfolder
+            or ":" in subfolder
+            or "\x00" in subfolder
+            or any(part in {"", ".", ".."} for part in parts)
+        ):
+            yield "semantic:subfolder_unsafe"
+
+    mode = artifact.get("mode")
+    channels = artifact.get("channels")
+    has_alpha = artifact.get("hasAlpha")
+    if (
+        isinstance(mode, str)
+        and mode in _MODE_CHANNELS
+        and (channels != _MODE_CHANNELS[mode] or has_alpha != (mode == "RGBA"))
+    ):
+        yield "semantic:artifact_mode_mismatch"
+
+    generation_record = payload.get("generationRecord")
+    if not isinstance(generation_record, dict):
+        return
+    record_image = generation_record.get("image")
+    if not isinstance(record_image, dict):
+        return
+    for key in ("format", "width", "height", "batchIndex"):
+        if record_image.get(key) != artifact.get(key):
+            yield "semantic:generation_image_mismatch"
+            return
+
+
+def validate_sidecar(
+    path: Path,
+    *,
+    schema_path: Path | None = None,
+) -> SidecarValidationResult:
+    """Validate strict JSON, the packaged schema, and privacy invariants."""
+
+    try:
+        payload = _load_json(path)
+    except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as exc:
+        return SidecarValidationResult((f"sidecar_unreadable:{type(exc).__name__}",))
+
+    try:
+        schema = _load_json(schema_path or sidecar_schema_path())
+    except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as exc:
+        return SidecarValidationResult((f"schema_unreadable:{type(exc).__name__}",))
+
+    schema_errors = tuple(_schema_errors(payload, schema))
+    if any(error in {"schema:not_object", "schema:definition_invalid"} for error in schema_errors):
+        return SidecarValidationResult(tuple(sorted(set(schema_errors))))
+    errors = sorted({*schema_errors, *_semantic_errors(payload), *_privacy_errors(payload)})
+    return SidecarValidationResult(tuple(errors))
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("sidecar", type=Path)
+    parser.add_argument("--schema", type=Path, default=None)
     args = parser.parse_args()
-    report = validate_sidecar_file(args.sidecar)
-    print(report.to_text())
-    raise SystemExit(0 if report.ok else 1)
+    result = validate_sidecar(args.sidecar, schema_path=args.schema)
+    print(
+        json.dumps(
+            {
+                "errors": list(result.errors),
+                "valid": result.valid,
+            },
+            ensure_ascii=False,
+            sort_keys=True,
+        )
+    )
+    return 0 if result.valid else 1
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

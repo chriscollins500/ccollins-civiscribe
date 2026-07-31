@@ -1,0 +1,84 @@
+{
+  "CCollins_CiviScribe_SaveImage": {
+    "display_name": "CiviScribe - Civitai용 이미지 저장",
+    "description": "Civitai 호환 메타데이터와 함께 PNG, JPEG 또는 WebP 이미지를 저장합니다.",
+    "inputs": {
+      "images": {
+        "name": "이미지",
+        "tooltip": "저장할 이미지입니다."
+      },
+      "positive_prompt_override": {
+        "name": "긍정 프롬프트 재정의",
+        "tooltip": "메타데이터에서만 자동 긍정 프롬프트 감지를 대체하는 선택적 텍스트 연결입니다."
+      },
+      "negative_prompt_override": {
+        "name": "부정 프롬프트 재정의",
+        "tooltip": "메타데이터에서만 자동 부정 프롬프트 감지를 대체하는 선택적 텍스트 연결입니다."
+      },
+      "filename_prefix": {
+        "name": "파일명 / 하위 폴더 패턴",
+        "tooltip": "파일명 또는 안전한 하위 폴더 접두사입니다. 날짜, 너비, 높이 및 배치 번호 토큰을 지원합니다."
+      },
+      "output_format": {
+        "name": "출력 형식",
+        "tooltip": "이미지 형식입니다. PNG와 WebP는 기본적으로 무손실이며 JPEG는 손실 형식입니다."
+      },
+      "jpeg_quality": {
+        "name": "JPEG 품질",
+        "tooltip": "JPEG 충실도입니다. 100이 최고 충실도 기본값입니다."
+      },
+      "jpeg_alpha_background": {
+        "name": "JPEG 알파 배경",
+        "tooltip": "JPEG가 투명 픽셀을 평면화할 때 사용하는 RGB 배경입니다."
+      },
+      "webp_lossless": {
+        "name": "무손실 WebP",
+        "tooltip": "디코딩된 픽셀을 보존하는 WebP 인코딩을 사용합니다."
+      },
+      "webp_quality": {
+        "name": "WebP 압축 강도 / 품질",
+        "tooltip": "WebP 압축 강도 또는 손실 품질입니다."
+      },
+      "write_sidecar_json": {
+        "name": "사이드카 JSON 쓰기",
+        "tooltip": "각 저장 이미지 옆에 결정론적 메타데이터 JSON도 기록합니다."
+      },
+      "include_workflow": {
+        "name": "ComfyUI 워크플로 임베드",
+        "tooltip": "메타데이터 형식이 지원할 때 정리된 ComfyUI 워크플로를 포함합니다."
+      },
+      "include_civitai_manifest": {
+        "name": "Civitai 매니페스트 임베드",
+        "tooltip": "구조화된 Civitai 매니페스트를 상세 메타데이터와 사이드카에 포함합니다."
+      },
+      "enable_civitai_lookup": {
+        "name": "Civitai 조회 활성화",
+        "tooltip": "해시로 활성 리소스를 식별하도록 Civitai에 요청합니다. 해시 또는 모델 버전 ID만 보내며 이미지, 프롬프트, 워크플로 및 경로는 보내지 않습니다."
+      },
+      "preferred_primary_model_air": {
+        "name": "선호 주 모델 AIR 또는 Civitai URL",
+        "tooltip": "활성 주 모델 식별 정보를 고정하는 선택적 AIR, Civitai 모델 URL 또는 모델 버전 ID입니다."
+      },
+      "hashing_mode": {
+        "name": "해시 모드",
+        "tooltip": "cached_only는 모델 바이트를 읽지 않고, cached_or_fast는 캐시와 빠른 해시를 사용하며, full은 전체 파일을 읽을 수 있습니다."
+      },
+      "lookup_timeout_seconds": {
+        "name": "조회 제한 시간(초)",
+        "tooltip": "Civitai 조회 최대 대기 시간입니다. 시간이 초과되어도 저장은 계속됩니다."
+      },
+      "lookup_cache_results": {
+        "name": "성공한 조회 결과 캐시",
+        "tooltip": "해결된 식별 정보를 로컬에 저장하여 다음 저장에서 다시 조회하지 않습니다."
+      },
+      "advanced_manual_identities_enabled": {
+        "name": "수동 리소스 식별 정보 활성화",
+        "tooltip": "여러 활성 리소스의 식별 정보를 고정하는 고급 JSON 매핑을 활성화합니다."
+      },
+      "manual_resource_identities_json": {
+        "name": "수동 리소스 식별 정보 JSON",
+        "tooltip": "명시적 리소스 식별 정보의 고급 JSON 목록입니다. 잘못된 데이터는 안전하게 보고되며 저장을 막지 않습니다."
+      }
+    }
+  }
+}

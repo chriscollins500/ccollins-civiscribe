@@ -1,0 +1,117 @@
+{
+  "expected": {
+    "activeNodeIds": ["1", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
+    "excludedResourceFilenames": [
+      "z_image_turbo_bf16.safetensors",
+      "4x-UltraSharp.pth"
+    ],
+    "negativeBranchPresent": true,
+    "negativeText": null,
+    "primaryResourceKey": "1:unet_name",
+    "selectedVaeResourceKey": "5:vae_name",
+    "resourceFilenames": [
+      "swiftFastAndDetailed_neo.gguf",
+      "Qwen3-4B-BF16.gguf",
+      "ae.safetensors",
+      "ProjectRealismPhotoLora_v1.safetensors"
+    ]
+  },
+  "prompt": {
+    "1": {
+      "class_type": "UnetLoaderGGUF",
+      "inputs": {
+        "unet_name": "diffusion_models/swiftFastAndDetailed_neo.gguf"
+      }
+    },
+    "2": {
+      "class_type": "UNETLoader",
+      "inputs": {
+        "unet_name": "diffusion_models/z_image_turbo_bf16.safetensors"
+      }
+    },
+    "3": {
+      "class_type": "UpscaleModelLoader",
+      "inputs": {
+        "model_name": "upscale_models/4x-UltraSharp.pth"
+      }
+    },
+    "4": {
+      "class_type": "CLIPLoaderGGUF",
+      "inputs": {
+        "clip_name": "text_encoders/Qwen3-4B-BF16.gguf"
+      }
+    },
+    "5": {
+      "class_type": "VAELoader",
+      "inputs": {
+        "vae_name": "vae/ae.safetensors"
+      }
+    },
+    "6": {
+      "class_type": "LoraLoaderModelOnly",
+      "inputs": {
+        "lora_name": "loras/ProjectRealismPhotoLora_v1.safetensors",
+        "model": ["1", 0],
+        "strength_model": 1.0
+      }
+    },
+    "7": {
+      "class_type": "ModelSamplingAuraFlow",
+      "inputs": {
+        "model": ["6", 0],
+        "shift": 3.0
+      }
+    },
+    "8": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "clip": ["4", 0],
+        "text": "portrait with Unicode snow: 雪"
+      }
+    },
+    "9": {
+      "class_type": "ConditioningZeroOut",
+      "inputs": {
+        "conditioning": ["8", 0]
+      }
+    },
+    "10": {
+      "class_type": "EmptySD3LatentImage",
+      "inputs": {
+        "batch_size": 1,
+        "height": 1216,
+        "width": 832
+      }
+    },
+    "11": {
+      "class_type": "ClownsharKSampler_Beta",
+      "inputs": {
+        "cfg": 1.0,
+        "denoise": 1.0,
+        "latent_image": ["10", 0],
+        "model": ["7", 0],
+        "negative": ["9", 0],
+        "positive": ["8", 0],
+        "sampler_name": "multistep/res_2m",
+        "scheduler": "bong_tangent",
+        "seed": 802430822721759,
+        "steps": 12
+      }
+    },
+    "12": {
+      "class_type": "VAEDecode",
+      "inputs": {
+        "samples": ["11", 0],
+        "vae": ["5", 0]
+      }
+    },
+    "13": {
+      "class_type": "CCollins_CiviScribe_SaveImage",
+      "inputs": {
+        "images": ["12", 0]
+      }
+    }
+  },
+  "schemaName": "ccollins-civiscribe.workflow-fixture",
+  "schemaVersion": "1.0.0"
+}

@@ -1,0 +1,84 @@
+{
+  "CCollins_CiviScribe_SaveImage": {
+    "display_name": "CiviScribe - 為 Civitai 儲存影像",
+    "description": "儲存帶有 Civitai 相容中繼資料的 PNG、JPEG 或 WebP 影像。",
+    "inputs": {
+      "images": {
+        "name": "影像",
+        "tooltip": "要儲存的影像。"
+      },
+      "positive_prompt_override": {
+        "name": "正向提示詞覆寫",
+        "tooltip": "選用文字連線，只在中繼資料中取代自動偵測的正向提示詞。"
+      },
+      "negative_prompt_override": {
+        "name": "負向提示詞覆寫",
+        "tooltip": "選用文字連線，只在中繼資料中取代自動偵測的負向提示詞。"
+      },
+      "filename_prefix": {
+        "name": "檔名 / 子資料夾樣式",
+        "tooltip": "檔名或安全的子資料夾前綴。支援日期、寬度、高度及批次編號標記。"
+      },
+      "output_format": {
+        "name": "輸出格式",
+        "tooltip": "影像格式。PNG 與 WebP 預設為無損；JPEG 為有損格式。"
+      },
+      "jpeg_quality": {
+        "name": "JPEG 品質",
+        "tooltip": "JPEG 保真度。100 是最高保真度的預設值。"
+      },
+      "jpeg_alpha_background": {
+        "name": "JPEG 透明背景色",
+        "tooltip": "JPEG 平坦化透明像素時使用的 RGB 背景色。"
+      },
+      "webp_lossless": {
+        "name": "無損 WebP",
+        "tooltip": "使用保留解碼像素的 WebP 編碼。"
+      },
+      "webp_quality": {
+        "name": "WebP 壓縮強度 / 品質",
+        "tooltip": "WebP 壓縮強度或有損品質。"
+      },
+      "write_sidecar_json": {
+        "name": "寫入 JSON 附檔",
+        "tooltip": "在每個已儲存影像旁寫入確定性的中繼資料 JSON。"
+      },
+      "include_workflow": {
+        "name": "嵌入 ComfyUI 工作流程",
+        "tooltip": "中繼資料格式支援時，嵌入經過清理的 ComfyUI 工作流程。"
+      },
+      "include_civitai_manifest": {
+        "name": "嵌入 Civitai 清單",
+        "tooltip": "在豐富中繼資料及附檔中包含結構化 Civitai 清單。"
+      },
+      "enable_civitai_lookup": {
+        "name": "啟用 Civitai 查詢",
+        "tooltip": "請 Civitai 透過雜湊識別作用中的資源。只傳送雜湊或模型版本 ID，絕不傳送影像、提示詞、工作流程或路徑。"
+      },
+      "preferred_primary_model_air": {
+        "name": "偏好的主模型 AIR 或 Civitai URL",
+        "tooltip": "選用 AIR、Civitai 模型 URL 或模型版本 ID，用來固定作用中主模型的身分。"
+      },
+      "hashing_mode": {
+        "name": "雜湊模式",
+        "tooltip": "cached_only 不讀取模型位元組；cached_or_fast 使用快取及快速雜湊；full 可能讀取完整模型檔案。"
+      },
+      "lookup_timeout_seconds": {
+        "name": "查詢逾時（秒）",
+        "tooltip": "等待 Civitai 查詢的最長時間。逾時後仍會繼續儲存。"
+      },
+      "lookup_cache_results": {
+        "name": "快取成功的查詢結果",
+        "tooltip": "在本機儲存已解析身分，讓之後不必再次查詢。"
+      },
+      "advanced_manual_identities_enabled": {
+        "name": "啟用手動資源身分",
+        "tooltip": "啟用進階 JSON 對應，以固定多個作用中資源的身分。"
+      },
+      "manual_resource_identities_json": {
+        "name": "手動資源身分 JSON",
+        "tooltip": "明確資源身分的進階 JSON 清單。無效資料會安全回報，絕不阻止儲存。"
+      }
+    }
+  }
+}

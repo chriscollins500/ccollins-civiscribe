@@ -1,0 +1,45 @@
+{
+  "exifUserComment": {
+    "encoding": "UTF-16BE",
+    "prefix": "UNICODE",
+    "style": "a1111_parameters"
+  },
+  "fixtureId": "phase6-png-metadata-carriers-v1",
+  "forbiddenCarriers": [
+    {
+      "keyword": "parameters",
+      "type": "iTXt"
+    }
+  ],
+  "requiredCarriers": [
+    {
+      "keyword": "parameters",
+      "type": "tEXt"
+    },
+    {
+      "keyword": "Software",
+      "type": "tEXt"
+    },
+    {
+      "keyword": "parameters_utf8",
+      "type": "iTXt"
+    },
+    {
+      "keyword": "prompt",
+      "type": "iTXt"
+    },
+    {
+      "keyword": "workflow",
+      "type": "iTXt"
+    },
+    {
+      "keyword": "civitai",
+      "type": "iTXt"
+    },
+    {
+      "keyword": null,
+      "type": "eXIf"
+    }
+  ],
+  "semanticContract": "Exact PNG metadata carrier types and Unicode fallback behavior for a rich CiviScribe save."
+}

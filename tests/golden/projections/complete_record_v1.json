@@ -1,0 +1,15 @@
+{
+  "a1111": {
+    "sha256": "22c4948f279ff23d83eae1cd00a74882641e2b934a8146cc9db124a645cfe736",
+    "utf8Bytes": 1890
+  },
+  "fixtureId": "phase5-complete-record-v1",
+  "manifest": {
+    "schemaName": "ccollins-civiscribe.civitai-manifest",
+    "schemaVersion": "1.0.0",
+    "sha256": "bf49a88d0014a9bc412c6ac021de55925af4f960f64e6934a2f055ef4e07a6cf",
+    "utf8Bytes": 7348
+  },
+  "schemaName": "ccollins-civiscribe.projection-golden",
+  "schemaVersion": "1.0.0"
+}

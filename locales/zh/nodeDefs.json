@@ -1,0 +1,84 @@
+{
+  "CCollins_CiviScribe_SaveImage": {
+    "display_name": "CiviScribe - 为 Civitai 保存图像",
+    "description": "保存带有 Civitai 兼容元数据的 PNG、JPEG 或 WebP 图像。",
+    "inputs": {
+      "images": {
+        "name": "图像",
+        "tooltip": "要保存的图像。"
+      },
+      "positive_prompt_override": {
+        "name": "正向提示词覆盖",
+        "tooltip": "可选文本连接，仅在元数据中替代自动检测到的正向提示词。"
+      },
+      "negative_prompt_override": {
+        "name": "负向提示词覆盖",
+        "tooltip": "可选文本连接，仅在元数据中替代自动检测到的负向提示词。"
+      },
+      "filename_prefix": {
+        "name": "文件名 / 子文件夹模式",
+        "tooltip": "文件名或安全的子文件夹前缀。支持日期、宽度、高度和批次编号标记。"
+      },
+      "output_format": {
+        "name": "输出格式",
+        "tooltip": "图像格式。PNG 和 WebP 默认无损；JPEG 为有损格式。"
+      },
+      "jpeg_quality": {
+        "name": "JPEG 质量",
+        "tooltip": "JPEG 保真度。100 是最高保真度默认值。"
+      },
+      "jpeg_alpha_background": {
+        "name": "JPEG 透明背景色",
+        "tooltip": "JPEG 展平透明像素时使用的 RGB 背景色。"
+      },
+      "webp_lossless": {
+        "name": "无损 WebP",
+        "tooltip": "使用保留解码像素的 WebP 编码。"
+      },
+      "webp_quality": {
+        "name": "WebP 压缩强度 / 质量",
+        "tooltip": "WebP 压缩强度或有损质量。"
+      },
+      "write_sidecar_json": {
+        "name": "写入 JSON 边车文件",
+        "tooltip": "在每个已保存图像旁写入确定性的元数据 JSON。"
+      },
+      "include_workflow": {
+        "name": "嵌入 ComfyUI 工作流",
+        "tooltip": "在元数据格式支持时嵌入经过清理的 ComfyUI 工作流。"
+      },
+      "include_civitai_manifest": {
+        "name": "嵌入 Civitai 清单",
+        "tooltip": "在丰富元数据和边车文件中包含结构化 Civitai 清单。"
+      },
+      "enable_civitai_lookup": {
+        "name": "启用 Civitai 查询",
+        "tooltip": "请求 Civitai 通过哈希识别活动资源。只发送哈希或模型版本 ID，绝不发送图像、提示词、工作流或路径。"
+      },
+      "preferred_primary_model_air": {
+        "name": "首选主模型 AIR 或 Civitai URL",
+        "tooltip": "可选 AIR、Civitai 模型 URL 或模型版本 ID，用于固定活动主模型的身份。"
+      },
+      "hashing_mode": {
+        "name": "哈希模式",
+        "tooltip": "cached_only 不读取模型字节；cached_or_fast 使用缓存和快速哈希；full 可能读取完整模型文件。"
+      },
+      "lookup_timeout_seconds": {
+        "name": "查询超时（秒）",
+        "tooltip": "等待 Civitai 查询的最长时间。超时后仍会继续保存。"
+      },
+      "lookup_cache_results": {
+        "name": "缓存成功的查询结果",
+        "tooltip": "在本地保存已解析身份，以便以后无需再次查询。"
+      },
+      "advanced_manual_identities_enabled": {
+        "name": "启用手动资源身份",
+        "tooltip": "启用高级 JSON 映射，以固定多个活动资源的身份。"
+      },
+      "manual_resource_identities_json": {
+        "name": "手动资源身份 JSON",
+        "tooltip": "显式资源身份的高级 JSON 列表。无效数据会被安全报告，绝不会阻止保存。"
+      }
+    }
+  }
+}

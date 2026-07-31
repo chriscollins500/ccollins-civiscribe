@@ -1,10 +1,22 @@
-"""ComfyUI entrypoint for the Civitai metadata save node package."""
+"""Native ComfyUI V3 entry point for CCollins' CiviScribe."""
 
-try:
-    from .save_node import NODE_CLASS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS
-except ImportError:
-    from save_node import NODE_CLASS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS
+from __future__ import annotations
 
-WEB_DIRECTORY = "./js"
+from typing import TYPE_CHECKING
 
-__all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS", "WEB_DIRECTORY"]
+if TYPE_CHECKING:
+    from .civiscribe.extension import CiviScribeExtension
+
+
+WEB_DIRECTORY = "./web/dist"
+
+
+async def comfy_entrypoint() -> CiviScribeExtension:
+    """Create the V3 extension without importing ComfyUI during package inspection."""
+
+    from .civiscribe.extension import CiviScribeExtension
+
+    return CiviScribeExtension()
+
+
+__all__ = ["WEB_DIRECTORY", "comfy_entrypoint"]

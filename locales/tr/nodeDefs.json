@@ -1,0 +1,84 @@
+{
+  "CCollins_CiviScribe_SaveImage": {
+    "display_name": "CiviScribe - Civitai için Görüntü Kaydet",
+    "description": "PNG, JPEG veya WebP görüntülerini Civitai uyumlu meta verilerle kaydeder.",
+    "inputs": {
+      "images": {
+        "name": "Görüntüler",
+        "tooltip": "Kaydedilecek görüntüler."
+      },
+      "positive_prompt_override": {
+        "name": "Pozitif istem geçersiz kılma",
+        "tooltip": "Yalnızca meta verilerde otomatik pozitif istem algılamasının yerine geçen isteğe bağlı metin bağlantısı."
+      },
+      "negative_prompt_override": {
+        "name": "Negatif istem geçersiz kılma",
+        "tooltip": "Yalnızca meta verilerde otomatik negatif istem algılamasının yerine geçen isteğe bağlı metin bağlantısı."
+      },
+      "filename_prefix": {
+        "name": "Dosya / alt klasör deseni",
+        "tooltip": "Dosya adı veya güvenli alt klasör öneki. Tarih, genişlik, yükseklik ve toplu numara belirteçlerini destekler."
+      },
+      "output_format": {
+        "name": "Çıktı biçimi",
+        "tooltip": "Görüntü biçimi. PNG ve WebP varsayılan olarak kayıpsızdır; JPEG kayıplıdır."
+      },
+      "jpeg_quality": {
+        "name": "JPEG kalitesi",
+        "tooltip": "JPEG doğruluğu. 100, en yüksek doğruluk varsayılanıdır."
+      },
+      "jpeg_alpha_background": {
+        "name": "JPEG alfa arka planı",
+        "tooltip": "JPEG saydam pikselleri düzleştirirken kullanılan RGB arka plan."
+      },
+      "webp_lossless": {
+        "name": "Kayıpsız WebP",
+        "tooltip": "Kodu çözülmüş pikselleri koruyan WebP kodlamasını kullanır."
+      },
+      "webp_quality": {
+        "name": "WebP çabası / kalitesi",
+        "tooltip": "WebP sıkıştırma çabası veya kayıplı kalite."
+      },
+      "write_sidecar_json": {
+        "name": "Yan JSON yaz",
+        "tooltip": "Her kaydedilen görüntünün yanına belirlenimci meta veri JSON dosyası da yazar."
+      },
+      "include_workflow": {
+        "name": "ComfyUI iş akışını göm",
+        "tooltip": "Meta veri biçimi desteklediğinde temizlenmiş ComfyUI iş akışını ekler."
+      },
+      "include_civitai_manifest": {
+        "name": "Civitai bildirimini göm",
+        "tooltip": "Yapılandırılmış Civitai bildirimini zengin meta verilere ve yan dosyalara ekler."
+      },
+      "enable_civitai_lookup": {
+        "name": "Civitai aramasını etkinleştir",
+        "tooltip": "Civitai'den etkin kaynakları karmalarla tanımlamasını ister. Yalnızca karmalar veya model sürüm kimliği gönderilir; görüntüler, istemler, iş akışları ve yollar gönderilmez."
+      },
+      "preferred_primary_model_air": {
+        "name": "Tercih edilen birincil AIR veya Civitai URL'si",
+        "tooltip": "Etkin birincil model kimliğini sabitleyen isteğe bağlı AIR, Civitai model URL'si veya model sürüm kimliği."
+      },
+      "hashing_mode": {
+        "name": "Karma modu",
+        "tooltip": "cached_only model baytlarını okumaz; cached_or_fast önbellekleri ve hızlı karmaları kullanır; full tüm dosyaları okuyabilir."
+      },
+      "lookup_timeout_seconds": {
+        "name": "Arama zaman aşımı (saniye)",
+        "tooltip": "Civitai araması için en uzun bekleme süresi. Zaman aşımından sonra kaydetme devam eder."
+      },
+      "lookup_cache_results": {
+        "name": "Başarılı aramaları önbelleğe al",
+        "tooltip": "Çözümlenen kimlikleri daha sonra yeni istek olmadan kullanmak üzere yerel olarak saklar."
+      },
+      "advanced_manual_identities_enabled": {
+        "name": "Elle kaynak kimliklerini etkinleştir",
+        "tooltip": "Birden çok etkin kaynak kimliğini sabitlemek için gelişmiş JSON eşlemesini etkinleştirir."
+      },
+      "manual_resource_identities_json": {
+        "name": "Elle kaynak kimlikleri JSON'u",
+        "tooltip": "Açık kaynak kimliklerinin gelişmiş JSON listesi. Geçersiz veriler güvenle bildirilir ve kaydetmeyi asla engellemez."
+      }
+    }
+  }
+}

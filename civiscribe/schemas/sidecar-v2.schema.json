@@ -1,0 +1,870 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.ccollins-civiscribe.invalid/sidecar-v2.schema.json",
+  "title": "CCollins' CiviScribe V2 Sidecar",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaName",
+    "schemaVersion",
+    "artifact",
+    "generationRecord",
+    "payloads",
+    "projections",
+    "save"
+  ],
+  "properties": {
+    "schemaName": {
+      "const": "ccollins-civiscribe.sidecar"
+    },
+    "schemaVersion": {
+      "const": "2.0.0"
+    },
+    "artifact": {
+      "$ref": "#/$defs/artifact"
+    },
+    "generationRecord": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/generationRecord"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "payloads": {
+      "$ref": "#/$defs/payloads"
+    },
+    "projections": {
+      "$ref": "#/$defs/projections"
+    },
+    "save": {
+      "$ref": "#/$defs/save"
+    }
+  },
+  "$defs": {
+    "nullableString": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "nullableInteger": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "nullableNumber": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fileName",
+        "sidecarFileName",
+        "subfolder",
+        "format",
+        "mimeType",
+        "width",
+        "height",
+        "batchIndex",
+        "mode",
+        "channels",
+        "hasAlpha",
+        "incomingTensorDtype",
+        "declaredSourceBitDepth",
+        "measuredEffectiveBitDepth",
+        "encodedSampleBits",
+        "precisionConverted",
+        "precisionConversionReason",
+        "fileSizeBytes",
+        "metadataStatus"
+      ],
+      "properties": {
+        "fileName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255,
+          "pattern": "^[^/\\\\]+$"
+        },
+        "sidecarFileName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255,
+          "pattern": "^[^/\\\\]+\\.json$"
+        },
+        "subfolder": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "format": {
+          "enum": [
+            "png",
+            "jpeg",
+            "webp"
+          ]
+        },
+        "mimeType": {
+          "enum": [
+            "image/png",
+            "image/jpeg",
+            "image/webp"
+          ]
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "batchIndex": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "mode": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "channels": {
+          "enum": [
+            1,
+            3,
+            4
+          ]
+        },
+        "hasAlpha": {
+          "type": "boolean"
+        },
+        "incomingTensorDtype": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "declaredSourceBitDepth": {
+          "$ref": "#/$defs/nullableInteger"
+        },
+        "measuredEffectiveBitDepth": {
+          "$ref": "#/$defs/nullableInteger"
+        },
+        "encodedSampleBits": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "precisionConverted": {
+          "type": "boolean"
+        },
+        "precisionConversionReason": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "fileSizeBytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "metadataStatus": {
+          "enum": [
+            "complete",
+            "partial",
+            "minimal"
+          ]
+        }
+      }
+    },
+    "generationRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "generator",
+        "image",
+        "workflowType",
+        "prompts",
+        "settings",
+        "resources",
+        "primaryResourceKey",
+        "selectedVaeResourceKey",
+        "diagnostics"
+      ],
+      "properties": {
+        "generator": {
+          "$ref": "#/$defs/generator"
+        },
+        "image": {
+          "$ref": "#/$defs/recordImage"
+        },
+        "workflowType": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "txt2img",
+            "img2img",
+            null
+          ]
+        },
+        "prompts": {
+          "$ref": "#/$defs/prompts"
+        },
+        "settings": {
+          "$ref": "#/$defs/settings"
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/resource"
+          }
+        },
+        "primaryResourceKey": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "selectedVaeResourceKey": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "diagnostics": {
+          "$ref": "#/$defs/recordDiagnostics"
+        }
+      }
+    },
+    "generator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "version",
+        "comfyuiVersion"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "version": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "comfyuiVersion": {
+          "$ref": "#/$defs/nullableString"
+        }
+      }
+    },
+    "recordImage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "format",
+        "width",
+        "height",
+        "batchIndex"
+      ],
+      "properties": {
+        "format": {
+          "enum": [
+            "png",
+            "jpeg",
+            "webp"
+          ]
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "batchIndex": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "prompts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "positive",
+        "negative"
+      ],
+      "properties": {
+        "positive": {
+          "$ref": "#/$defs/promptField"
+        },
+        "negative": {
+          "$ref": "#/$defs/promptField"
+        }
+      }
+    },
+    "promptField": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "text",
+        "branchPresent",
+        "sourceNodeIds",
+        "candidates"
+      ],
+      "properties": {
+        "text": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "branchPresent": {
+          "type": "boolean"
+        },
+        "sourceNodeIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "candidates": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "settings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "seed",
+        "steps",
+        "sampler",
+        "scheduler",
+        "cfgScale",
+        "guidance",
+        "denoise",
+        "width",
+        "height",
+        "batchSize",
+        "clipSkip"
+      ],
+      "properties": {
+        "seed": {
+          "$ref": "#/$defs/nullableInteger"
+        },
+        "steps": {
+          "$ref": "#/$defs/nullableInteger"
+        },
+        "sampler": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "scheduler": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "cfgScale": {
+          "$ref": "#/$defs/nullableNumber"
+        },
+        "guidance": {
+          "$ref": "#/$defs/nullableNumber"
+        },
+        "denoise": {
+          "$ref": "#/$defs/nullableNumber"
+        },
+        "width": {
+          "$ref": "#/$defs/nullableInteger"
+        },
+        "height": {
+          "$ref": "#/$defs/nullableInteger"
+        },
+        "batchSize": {
+          "$ref": "#/$defs/nullableInteger"
+        },
+        "clipSkip": {
+          "$ref": "#/$defs/nullableInteger"
+        }
+      }
+    },
+    "hashes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "AutoV1",
+        "AutoV2",
+        "AutoV3",
+        "SHA256",
+        "CRC32",
+        "BLAKE3"
+      ],
+      "properties": {
+        "AutoV1": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "AutoV2": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "AutoV3": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "SHA256": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "CRC32": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "BLAKE3": {
+          "$ref": "#/$defs/nullableString"
+        }
+      }
+    },
+    "strengths": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "weight",
+        "model",
+        "clip"
+      ],
+      "properties": {
+        "weight": {
+          "$ref": "#/$defs/nullableNumber"
+        },
+        "model": {
+          "$ref": "#/$defs/nullableNumber"
+        },
+        "clip": {
+          "$ref": "#/$defs/nullableNumber"
+        }
+      }
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "rawAir",
+        "canonicalAir",
+        "ecosystem",
+        "type",
+        "airSource",
+        "id",
+        "version",
+        "modelId",
+        "modelVersionId",
+        "fileId",
+        "format",
+        "fileType",
+        "filePrimary",
+        "baseModel",
+        "modelName",
+        "modelVersionName"
+      ],
+      "properties": {
+        "source": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "rawAir": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "canonicalAir": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "ecosystem": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "type": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "airSource": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "id": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "version": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "modelId": {
+          "$ref": "#/$defs/nullableInteger"
+        },
+        "modelVersionId": {
+          "$ref": "#/$defs/nullableInteger"
+        },
+        "fileId": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "format": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "fileType": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "filePrimary": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "baseModel": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "modelName": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "modelVersionName": {
+          "$ref": "#/$defs/nullableString"
+        }
+      }
+    },
+    "lookupDiagnostics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "attemptedHashTypes",
+        "reason",
+        "httpStatus",
+        "retryable",
+        "retryAfterSeconds",
+        "tlsSource",
+        "candidateCount",
+        "compatibleCandidateCount"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "not_attempted",
+            "skipped_lookup_disabled",
+            "skipped_no_hash",
+            "resolved",
+            "resolved_by_cache",
+            "failed",
+            "conflict"
+          ]
+        },
+        "attemptedHashTypes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "SHA256",
+              "BLAKE3",
+              "AutoV2",
+              "AutoV3",
+              "CRC32",
+              "AutoV1"
+            ]
+          }
+        },
+        "reason": {
+          "enum": [
+            null,
+            "certificate_verify_failed",
+            "dns_error",
+            "hash_identity_conflict",
+            "http_error",
+            "identity_conflict",
+            "lookup_diagnostic_redacted",
+            "lookup_exception",
+            "malformed_json",
+            "model_version_not_found",
+            "multiple_compatible_candidates",
+            "multiple_compatible_candidates_conflict",
+            "network_error",
+            "no_hash_match",
+            "no_matching_result",
+            "no_role_compatible_shared_hash_candidate",
+            "proxy_error",
+            "rate_limit_cooldown",
+            "rate_limited",
+            "redirect_rejected",
+            "resource_type_mismatch",
+            "response_candidate_limit_exceeded",
+            "response_schema_invalid",
+            "response_too_large",
+            "server_error",
+            "timeout"
+          ]
+        },
+        "httpStatus": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 100,
+              "maximum": 599
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "retryable": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "retryAfterSeconds": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 86400
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "tlsSource": {
+          "enum": [
+            null,
+            "system_default",
+            "truststore",
+            "certifi",
+            "fallback",
+            "test"
+          ]
+        },
+        "candidateCount": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "compatibleCandidateCount": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "resource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "role",
+        "type",
+        "filename",
+        "selectedValue",
+        "nodeId",
+        "nodeClass",
+        "active",
+        "detectionRuleId",
+        "strengths",
+        "hashes",
+        "hashStatus",
+        "identity",
+        "identityScope",
+        "parserFacing",
+        "parserExclusionReason",
+        "status",
+        "lookupStatus",
+        "resolved",
+        "unresolvedReason"
+      ],
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "role": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "filename": {
+          "type": "string"
+        },
+        "selectedValue": {
+          "type": "string"
+        },
+        "nodeId": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "nodeClass": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "active": {
+          "type": "boolean"
+        },
+        "detectionRuleId": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "strengths": {
+          "$ref": "#/$defs/strengths"
+        },
+        "hashes": {
+          "$ref": "#/$defs/hashes"
+        },
+        "hashStatus": {
+          "type": "string"
+        },
+        "identity": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/identity"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "identityScope": {
+          "enum": [
+            null,
+            "model_version",
+            "exact_file"
+          ]
+        },
+        "parserFacing": {
+          "type": "boolean"
+        },
+        "parserExclusionReason": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "status": {
+          "type": "string"
+        },
+        "lookupStatus": {
+          "type": "string"
+        },
+        "lookupDiagnostics": {
+          "$ref": "#/$defs/lookupDiagnostics"
+        },
+        "resolved": {
+          "type": "boolean"
+        },
+        "unresolvedReason": {
+          "$ref": "#/$defs/nullableString"
+        }
+      }
+    },
+    "issue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "severity",
+        "nodeId",
+        "inputName"
+      ],
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "warning",
+            "error"
+          ]
+        },
+        "nodeId": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "inputName": {
+          "$ref": "#/$defs/nullableString"
+        }
+      }
+    },
+    "recordDiagnostics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "warnings",
+        "errors"
+      ],
+      "properties": {
+        "warnings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/issue"
+          }
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/issue"
+          }
+        }
+      }
+    },
+    "payloads": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "prompt",
+        "workflow"
+      ],
+      "properties": {
+        "prompt": {},
+        "workflow": {}
+      }
+    },
+    "projections": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "parameters",
+        "civitai"
+      ],
+      "properties": {
+        "parameters": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "civitai": {
+          "type": [
+            "object",
+            "null"
+          ]
+        }
+      }
+    },
+    "saveWarning": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "batchIndex"
+      ],
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "batchIndex": {
+          "$ref": "#/$defs/nullableInteger"
+        }
+      }
+    },
+    "save": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sidecarStatus",
+        "payloadRedactionCount",
+        "warnings"
+      ],
+      "properties": {
+        "sidecarStatus": {
+          "const": "written"
+        },
+        "payloadRedactionCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/saveWarning"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "declaration": false,
+    "exactOptionalPropertyTypes": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "ES2022",
+    "moduleResolution": "Bundler",
+    "noEmitOnError": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noUncheckedIndexedAccess": true,
+    "outDir": "web/dist",
+    "rootDir": "web/src",
+    "strict": true,
+    "target": "ES2022"
+  },
+  "include": ["web/src/**/*.ts"]
+}

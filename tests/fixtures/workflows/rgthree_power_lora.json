@@ -1,0 +1,91 @@
+{
+  "expected": {
+    "excludedResourceFilenames": ["disabled.safetensors"],
+    "resourceFilenames": [
+      "base.safetensors",
+      "enabled.safetensors",
+      "legacy-enabled.safetensors"
+    ]
+  },
+  "prompt": {
+    "1": {
+      "class_type": "CheckpointLoaderSimple",
+      "inputs": {
+        "ckpt_name": "checkpoints/base.safetensors"
+      }
+    },
+    "2": {
+      "class_type": "Power Lora Loader (rgthree)",
+      "inputs": {
+        "clip": ["1", 1],
+        "lora_1": {
+          "lora": "loras/disabled.safetensors",
+          "on": false,
+          "strength": 0.9
+        },
+        "lora_2": {
+          "lora": "loras/enabled.safetensors",
+          "on": true,
+          "strength": 0.75,
+          "strengthTwo": 0.5
+        },
+        "lora_3": {
+          "lora": "loras/legacy-enabled.safetensors",
+          "strength": 0.25
+        },
+        "model": ["1", 0]
+      }
+    },
+    "3": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "clip": ["2", 1],
+        "text": "three LoRA entries"
+      }
+    },
+    "4": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "clip": ["2", 1],
+        "text": "artifact"
+      }
+    },
+    "5": {
+      "class_type": "EmptyLatentImage",
+      "inputs": {
+        "batch_size": 1,
+        "height": 512,
+        "width": 512
+      }
+    },
+    "6": {
+      "class_type": "KSampler",
+      "inputs": {
+        "cfg": 6.0,
+        "latent_image": ["5", 0],
+        "model": ["2", 0],
+        "negative": ["4", 0],
+        "positive": ["3", 0],
+        "sampler_name": "euler",
+        "scheduler": "normal",
+        "seed": 77,
+        "steps": 18
+      }
+    },
+    "7": {
+      "class_type": "VAEDecode",
+      "inputs": {
+        "samples": ["6", 0],
+        "vae": ["1", 2]
+      }
+    },
+    "8": {
+      "class_type": "CCollins_CiviScribe_SaveImage",
+      "inputs": {
+        "images": ["7", 0]
+      }
+    }
+  },
+  "schemaName": "ccollins-civiscribe.workflow-fixture",
+  "schemaVersion": "1.0.0"
+}

@@ -1,1 +1,0 @@
-"""Civitai metadata helpers."""

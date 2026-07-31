@@ -1,1 +1,1 @@
-"""Unit tests for the ComfyUI save node package."""
+"""CiviScribe V2 test package."""

@@ -1,0 +1,123 @@
+{
+  "fixtures": [
+    {
+      "byteEqualityContract": false,
+      "expected": {
+        "format": "PNG",
+        "height": 2,
+        "metadataKeys": [],
+        "mode": "RGB",
+        "width": 3
+      },
+      "id": "png-rgb-pixels-v1",
+      "licenseOrConsent": "Project-authored synthetic fixture released with the test suite.",
+      "path": "png/rgb_reference.png",
+      "sha256": "7132f22b8368965f86e0ea0c7a37f6ffff0ed3da782b4406fe91a289eb09bbb7",
+      "sizeBytes": 79,
+      "sourceClass": "synthetic",
+      "updateReason": "Initial V2 pixels-only RGB PNG semantic contract."
+    },
+    {
+      "byteEqualityContract": false,
+      "expected": {
+        "format": "PNG",
+        "height": 2,
+        "metadataKeys": [],
+        "mode": "RGBA",
+        "width": 2
+      },
+      "id": "png-rgba-pixels-v1",
+      "licenseOrConsent": "Project-authored synthetic fixture released with the test suite.",
+      "path": "png/rgba_reference.png",
+      "sha256": "fb07c0b50eb51e4f9f0f977ef503b243cda9004feb8f0d90365c0623fff618fa",
+      "sizeBytes": 81,
+      "sourceClass": "synthetic",
+      "updateReason": "Initial V2 pixels-only RGBA PNG semantic contract."
+    },
+    {
+      "byteEqualityContract": false,
+      "expected": {
+        "format": "JPEG",
+        "height": 2,
+        "metadataKeys": ["exif"],
+        "mode": "RGB",
+        "userCommentEncoding": "UTF-16BE",
+        "width": 3
+      },
+      "id": "jpeg-rich-metadata-v1",
+      "licenseOrConsent": "Project-authored synthetic fixture released with the test suite.",
+      "path": "jpeg/rich_reference.jpg",
+      "sha256": "9a102c6fdf04601710518de776a103b9433000d93c818ae845795efca165d868",
+      "sizeBytes": 4275,
+      "sourceClass": "synthetic",
+      "updateReason": "Phase 8 maximum-fidelity JPEG pixels and rich EXIF semantic contract."
+    },
+    {
+      "byteEqualityContract": false,
+      "expected": {
+        "alphaPreserved": true,
+        "format": "WEBP",
+        "height": 2,
+        "lossless": true,
+        "metadataKeys": ["exif"],
+        "mode": "RGBA",
+        "userCommentEncoding": "UTF-16BE",
+        "width": 2
+      },
+      "id": "webp-rich-metadata-v1",
+      "licenseOrConsent": "Project-authored synthetic fixture released with the test suite.",
+      "path": "webp/rich_rgba_reference.webp",
+      "sha256": "f8d12d387c614b169104efda0e9e61f5268f2c0fd2f6c078964ba838da650e6b",
+      "sizeBytes": 3968,
+      "sourceClass": "synthetic",
+      "updateReason": "Phase 8 lossless exact RGBA WebP pixels and rich EXIF semantic contract."
+    },
+    {
+      "byteEqualityContract": true,
+      "expected": {
+        "a1111Sha256": "22c4948f279ff23d83eae1cd00a74882641e2b934a8146cc9db124a645cfe736",
+        "civitaiManifestSha256": "bf49a88d0014a9bc412c6ac021de55925af4f960f64e6934a2f055ef4e07a6cf",
+        "fixtureId": "phase5-complete-record-v1"
+      },
+      "id": "phase5-complete-projection-v1",
+      "licenseOrConsent": "Project-authored synthetic metadata fixture released with the test suite.",
+      "path": "projections/complete_record_v1.json",
+      "sha256": "f2baf1c62c99b9305d5b20f9b9d5286f7140cd7e8e6922a4f50b1e445ae6c4fd",
+      "sizeBytes": 467,
+      "sourceClass": "synthetic",
+      "updateReason": "Structured resources now expose exact identity scope and parser-facing inclusion diagnostics."
+    },
+    {
+      "byteEqualityContract": true,
+      "expected": {
+        "fixtureId": "phase6-png-metadata-carriers-v1",
+        "parametersChunkType": "tEXt",
+        "userCommentEncoding": "UTF-16BE"
+      },
+      "id": "phase6-png-metadata-carriers-v1",
+      "licenseOrConsent": "Project-authored synthetic metadata fixture released with the test suite.",
+      "path": "png/metadata_carriers_v1.json",
+      "sha256": "eaf9a1cacfaef5eb92186f399d8810b5d18635edb8202805683ca749022540d2",
+      "sizeBytes": 845,
+      "sourceClass": "synthetic",
+      "updateReason": "Initial V2 rich PNG carrier and EXIF UserComment semantic contract."
+    },
+    {
+      "byteEqualityContract": true,
+      "expected": {
+        "fixtureId": "phase9-complete-sidecar-v2",
+        "schemaName": "ccollins-civiscribe.sidecar",
+        "schemaVersion": "2.0.0"
+      },
+      "id": "phase9-complete-sidecar-v2",
+      "licenseOrConsent": "Project-authored synthetic metadata fixture released with the test suite.",
+      "path": "sidecar/complete_v2.json",
+      "sha256": "0c7a267e2e89fe9fdde154e48c25306986fb0354ede27d98e5100a2292189e53",
+      "sizeBytes": 16056,
+      "sourceClass": "synthetic",
+      "updateReason": "Sidecars now preserve sanitized API context, lookup cooldown diagnostics, and parser-facing resource decisions."
+    }
+  ],
+  "schemaName": "ccollins-civiscribe.golden-manifest",
+  "schemaVersion": "1.0.0"
+}

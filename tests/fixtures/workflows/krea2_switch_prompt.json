@@ -1,0 +1,152 @@
+{
+  "expected": {
+    "activeNodeIds": ["1", "2", "3", "4", "8", "9", "11", "12", "13", "14", "15", "16", "17"],
+    "inactiveNodeIds": ["5", "6"],
+    "negative": null,
+    "positive": "a detective reviewing evidence in a sunlit office, ",
+    "primaryResourceKey": "1:unet_name",
+    "resourceFilenames": [
+      "krea2_turbo_int8_convrot.safetensors",
+      "qwen3vl_4b_fp8_scaled.safetensors",
+      "qwen_image_vae.safetensors"
+    ],
+    "selectedStageNodeId": "16",
+    "selectedVaeResourceKey": "3:vae_name",
+    "workflowKind": "txt2img"
+  },
+  "prompt": {
+    "1": {
+      "class_type": "UNETLoader",
+      "inputs": {
+        "unet_name": "krea2_turbo_int8_convrot.safetensors",
+        "weight_dtype": "default"
+      }
+    },
+    "2": {
+      "class_type": "CLIPLoader",
+      "inputs": {
+        "clip_name": "qwen3vl_4b_fp8_scaled.safetensors",
+        "device": "default",
+        "type": "krea2"
+      }
+    },
+    "3": {
+      "class_type": "VAELoader",
+      "inputs": {
+        "vae_name": "qwen_image_vae.safetensors"
+      }
+    },
+    "4": {
+      "class_type": "PrimitiveStringMultiline",
+      "inputs": {
+        "value": "a detective reviewing evidence in a sunlit office"
+      }
+    },
+    "5": {
+      "class_type": "PrimitiveStringMultiline",
+      "inputs": {
+        "value": "inactive prompt-engineering instructions"
+      }
+    },
+    "6": {
+      "class_type": "TextGenerate",
+      "inputs": {
+        "clip": ["2", 0],
+        "prompt": ["5", 0]
+      }
+    },
+    "7": {
+      "class_type": "PrimitiveBoolean",
+      "inputs": {
+        "value": false
+      }
+    },
+    "8": {
+      "class_type": "ComfySwitchNode",
+      "inputs": {
+        "on_false": ["4", 0],
+        "on_true": ["6", 0],
+        "switch": ["7", 0]
+      }
+    },
+    "9": {
+      "class_type": "PreviewAny",
+      "inputs": {
+        "source": ["8", 0]
+      }
+    },
+    "10": {
+      "class_type": "PrimitiveBoolean",
+      "inputs": {
+        "value": true
+      }
+    },
+    "11": {
+      "class_type": "StringConcatenate",
+      "inputs": {
+        "delimiter": ", ",
+        "string_a": ["9", 0],
+        "string_b": ""
+      }
+    },
+    "12": {
+      "class_type": "ComfySwitchNode",
+      "inputs": {
+        "on_false": ["9", 0],
+        "on_true": ["11", 0],
+        "switch": ["10", 0]
+      }
+    },
+    "13": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "clip": ["2", 0],
+        "text": ["12", 0]
+      }
+    },
+    "14": {
+      "class_type": "ConditioningZeroOut",
+      "inputs": {
+        "conditioning": ["13", 0]
+      }
+    },
+    "15": {
+      "class_type": "EmptyLatentImage",
+      "inputs": {
+        "batch_size": 1,
+        "height": 1024,
+        "width": 768
+      }
+    },
+    "16": {
+      "class_type": "ClownsharKSampler_Beta",
+      "inputs": {
+        "cfg": 1.0,
+        "denoise": 1.0,
+        "latent_image": ["15", 0],
+        "model": ["1", 0],
+        "negative": ["14", 0],
+        "positive": ["13", 0],
+        "sampler_name": "fully_implicit/gauss-legendre_5s",
+        "scheduler": "bong_tangent",
+        "seed": 313984405421863,
+        "steps": 8
+      }
+    },
+    "17": {
+      "class_type": "VAEDecode",
+      "inputs": {
+        "samples": ["16", 0],
+        "vae": ["3", 0]
+      }
+    },
+    "18": {
+      "class_type": "CCollins_CiviScribe_SaveImage",
+      "inputs": {
+        "images": ["17", 0]
+      }
+    }
+  },
+  "schemaName": "ccollins-civiscribe.workflow-fixture",
+  "schemaVersion": "1.0.0"
+}

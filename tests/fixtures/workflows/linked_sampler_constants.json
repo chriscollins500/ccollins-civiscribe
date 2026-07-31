@@ -1,0 +1,92 @@
+{
+  "expected": {
+    "activeNodeIds": ["1", "2", "3", "4", "5", "6", "8", "9", "10", "11"],
+    "height": 832,
+    "seed": 987654321,
+    "steps": 35,
+    "width": 640
+  },
+  "prompt": {
+    "1": {
+      "class_type": "CheckpointLoaderSimple",
+      "inputs": {
+        "ckpt_name": "linked/constants.safetensors"
+      }
+    },
+    "2": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "clip": ["1", 1],
+        "text": "linked controls"
+      }
+    },
+    "3": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "clip": ["1", 1],
+        "text": ""
+      }
+    },
+    "4": {
+      "class_type": "EmptyLatentImage",
+      "inputs": {
+        "batch_size": 1,
+        "height": ["9", 0],
+        "width": ["8", 0]
+      }
+    },
+    "5": {
+      "class_type": "KSamplerAdvanced",
+      "inputs": {
+        "cfg": 5.5,
+        "latent_image": ["4", 0],
+        "model": ["1", 0],
+        "negative": ["3", 0],
+        "noise_seed": ["11", 0],
+        "positive": ["2", 0],
+        "sampler_name": "dpmpp_2m",
+        "scheduler": "karras",
+        "steps": ["10", 0]
+      }
+    },
+    "6": {
+      "class_type": "VAEDecode",
+      "inputs": {
+        "samples": ["5", 0],
+        "vae": ["1", 2]
+      }
+    },
+    "7": {
+      "class_type": "CCollins_CiviScribe_SaveImage",
+      "inputs": {
+        "images": ["6", 0]
+      }
+    },
+    "8": {
+      "class_type": "PrimitiveInt",
+      "inputs": {
+        "value": 640
+      }
+    },
+    "9": {
+      "class_type": "PrimitiveInt",
+      "inputs": {
+        "value": 832
+      }
+    },
+    "10": {
+      "class_type": "PrimitiveInt",
+      "inputs": {
+        "value": 35
+      }
+    },
+    "11": {
+      "class_type": "PrimitiveInt",
+      "inputs": {
+        "value": 987654321
+      }
+    }
+  },
+  "schemaName": "ccollins-civiscribe.workflow-fixture",
+  "schemaVersion": "1.0.0"
+}
