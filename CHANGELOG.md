@@ -4,6 +4,8 @@ All notable CiviScribe changes are documented here.
 
 ## Unreleased
 
+- Rebuilt the public README as a friendly product introduction with clear
+  installation, one-minute usage, format, privacy, and troubleshooting guides.
 - Fixed release packaging from clean checkouts by tracking the compiled
   ComfyUI V3 frontend while continuing to ignore root build artifacts.
 - Made native cache-lock tests cover both Windows and POSIX adapters on every

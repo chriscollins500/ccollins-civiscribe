@@ -1,213 +1,293 @@
+<div align="center">
+
 # CCollins' CiviScribe
 
-This repository contains the clean CiviScribe V2 implementation. The original
-prototype is preserved in Git history as a behavioral reference, but it is not
-part of the runtime or release package.
+### Your image should remember how it was made.
 
-Runtime code may not import the prototype's `save_node` package or copy a
-prototype module as a compatibility layer.
+**CiviScribe is a friendly Save Image node for ComfyUI that gives Civitai the
+prompt, settings, resources, hashes, and workflow information it needs to
+understand your image.**
 
-## Current State
+[![Validation](https://img.shields.io/github/actions/workflow/status/chriscollins500/ccollins-civiscribe/validation.yml?branch=main&style=for-the-badge&label=Validation)](https://github.com/chriscollins500/ccollins-civiscribe/actions/workflows/validation.yml)
+[![ComfyUI](https://img.shields.io/badge/ComfyUI-Current_V3-18A058?style=for-the-badge)](https://www.comfy.org/)
+[![Formats](https://img.shields.io/badge/Images-PNG_%7C_JPEG_%7C_WebP-4C7DFF?style=for-the-badge)](#image-formats)
+[![License](https://img.shields.io/badge/License-MIT-7D5FFF?style=for-the-badge)](LICENSE)
 
-- The native ComfyUI V3 root entry point registers one public CiviScribe node.
-- The V3 node accepts a current ComfyUI `IMAGE` batch and
-  returns previews for the exact committed files.
-- The format-aware save transaction supports PNG, JPEG, and WebP through three
-  thin Pillow adapters without changing the accepted PNG carrier contract.
-- PNG and lossless WebP preserve decoded 8-bit samples; WebP also preserves
-  alpha and RGB beneath transparent pixels. JPEG defaults to quality 100,
-  optimized coding, and 4:4:4 chroma, with explicit alpha flattening over
-  white.
-- Filename templates support current ComfyUI `%date:FORMAT%`,
-  `%Node name.widget_name%`, time, dimension, and batch replacements, plus
-  CiviScribe `%model%`, `%seed%`, and `%sampler%` aliases. Expanded paths are
-  normalized below ComfyUI's configured output directory; unsafe absolute,
-  traversal, device-name, colon, symlink, and unresolved-token paths are
-  rejected.
-- Completed temporary files are flushed and published without overwriting
-  existing numbered outputs. A safe root-level fallback is attempted when a
-  custom template or custom output location fails.
-- Synthetic RGB and RGBA PNG goldens define the initial decoded-pixel contract.
-- The phase-four workflow scanner normalizes untrusted API prompts into immutable,
-  bounded graph values; starts from this save node's `images` input; follows the
-  selected active upstream branch; and excludes disconnected resources.
-- Scanner output includes selected-stage lineage, txt2img/img2img classification,
-  positive and negative prompt facts, common and Flux-style sampler settings,
-  active resource records, primary-model and final-decode VAE selection, and
-  sanitized diagnostics.
-- Exact rules cover current common ComfyUI loaders, GGUF and integrated loaders,
-  rgthree Power Lora Loader entries, Nunchaku resources, Impact Pack sampler
-  pipes, Wan/Step1X/RES4LYF families, antrobots base/refiner sampling, linked
-  scalar widgets, and conservative topology-backed custom samplers. Unknown
-  data remains unknown.
-- Project-authored workflow fixtures plus malformed, cyclic, oversized,
-  Unicode, routing, duplicate-resource, and property-based cases enforce the
-  scanner contract at 100% line and branch coverage.
-- One immutable `GenerationRecord` now feeds deterministic A1111 parameters and
-  a lean structured Civitai manifest. Both projections share model, VAE,
-  resource, identity, and hash facts so parser-facing values cannot disagree.
-- The A1111 projection preserves an explicit negative-prompt line, uses actual
-  final image dimensions, distinguishes Flux guidance from CFG, and omits
-  unresolved identities from `Civitai resources`.
-- The structured manifest retains active unresolved resources, null unknowns,
-  sanitized validation diagnostics, and strict deterministic UTF-8 JSON.
-- A project-authored projection golden pins the exact UTF-8 output digests.
-- The scanner and shared projections now feed the save transaction through
-  current ComfyUI V3 hidden prompt, workflow, and unique-node values.
-- Rich PNG output writes `parameters` and `Software` as classic `tEXt`,
-  `prompt`, optional `workflow`, optional `civitai`, and Unicode fallback
-  `parameters_utf8` as uncompressed UTF-8 `iTXt`, plus an EXIF UserComment in
-  the PNG `eXIf` chunk.
-- A parser-safe Latin-1 `parameters` value remains available when the full
-  parameters text contains Unicode. The full text is preserved separately in
-  UTF-8 and EXIF carriers.
-- The save transaction retries every image with reduced parser-compatible
-  metadata and then pixels only before trying the safe root-level output
-  fallback. Metadata, scanning, serialization, EXIF, and post-write
-  verification failures therefore cannot discard writable pixels.
-- The phase-six golden contract pins the exact PNG carrier types and explicitly
-  forbids an iTXt-only `parameters` field.
-- Phase seven resolves only scanner-selected files beneath current ComfyUI
-  model roots. Absolute, traversing, malformed, missing, and symlink-escaping
-  selections are rejected without reading arbitrary files.
-- Separate bounded JSON stores provide cache-first model hashes and local
-  identities. Cache keys contain only a model category, Comfy-relative
-  selection, size, and nanosecond modification time; cache records reject
-  absolute paths and secret-bearing fields.
-- Hashing modes are typed as `cached_only`, `cached_or_fast`, and `full`.
-  Ordinary saves use cache-first fast work and never force an uncached
-  full-file pass. Full mode computes SHA-256, derives AutoV2, and computes
-  safetensors payload AutoV3 in one bounded pass.
-- AIR parsing accepts canonical and documented abbreviated forms, emits a
-  canonical `urn:air:` value, preserves raw input, and never invents Civitai
-  IDs. Manual mappings, preferred-primary identity, workflow identity, local
-  cache, optional API lookup, and unresolved status follow one deterministic
-  precedence chain.
-- The HTTPX Civitai client is disabled by default. When explicitly enabled it
-  uses verified HTTPS, bounded GET requests containing only a hash or model
-  version ID, operating-system trust first, sanitized failures, and official
-  API AIR as the authority.
-- HTTP 429 responses start a bounded process-local cooldown instead of sleeping
-  or retrying in the save path. Safe lookup diagnostics retain the delay and
-  failure class while pixels continue saving.
-- Current Site API hash capabilities, model/file enums, file-specific AIR
-  qualifiers, and parser-facing resource rules are centralized in one
-  conservative contract. SHA256-only bulk lookup may disambiguate exact
-  auxiliary files without promoting their parent checkpoint or LoRA into a
-  misleading second parser-facing resource.
-- Structured resources distinguish model-version from exact-file identity,
-  explain parser-facing inclusion/exclusion, and preserve API `baseModel` only
-  as diagnostic context.
-- Hash, cache, AIR, manual identity, and lookup failures remain metadata
-  warnings. They cannot prevent the rich, reduced, or pixels-only save ladder
-  from publishing writable pixels.
-- JPEG and WebP consume the same immutable generation record and A1111
-  projection as PNG. Rich and reduced metadata are carried through EXIF
-  UserComment; rich output adds only truthful Software and final-dimension
-  fields.
-- Rich JPEG EXIF also writes the complete required compressed-image field set:
-  ExifVersion, ComponentsConfiguration, FlashpixVersion, ColorSpace,
-  PixelXDimension, PixelYDimension, and YCbCrPositioning.
-- Extension-aware temporary files, counter discovery, atomic publication,
-  post-write verification, safe root fallback, and exact committed-file
-  previews now apply uniformly to all three formats.
-- Project-authored JPEG and WebP goldens enforce maximum-fidelity JPEG decode,
-  exact lossless RGBA WebP decode, EXIF round trips, and transparent-RGB
-  preservation.
-- Optional sidecars are deterministic strict UTF-8 JSON validated by a packaged
-  Draft 2020-12 schema. They contain the complete canonical record, one copy of
-  the sanitized prompt and optional workflow payloads, parser projections,
-  truthful committed-file facts, and stable save diagnostics.
-- Sidecars are disabled by default and begin only after the final image is
-  committed. Projection, serialization, flush, race, and filesystem failures
-  cannot remove or retry the saved image.
-- Sidecar publication is atomic and no-overwrite. The validator rejects
-  duplicate JSON keys, schema or artifact inconsistencies, absolute paths, and
-  secrets without echoing private values.
-- The phase-ten native V3 schema exposes the implemented Civitai identity
-  policy without adding a competing UI data model. Lookup stays off,
-  cache-first hashing stays the default, prompt overrides are optional sockets,
-  and the manual multi-resource JSON editor remains native-advanced and
-  explicitly gated.
-- Format, lookup, and manual-identity controls use value-preserving progressive
-  disclosure. Visibility updates never reorder widgets or resize the node.
-- The exact committed-file preview uses ComfyUI's native saved-image widget. A
-  new untouched node receives one larger default preview allowance; user-sized
-  and loaded-workflow dimensions are then persistent.
-- English plus all 11 other current ComfyUI Desktop locales ship through native
-  `nodeDefs.json` catalogs. Strict validation rejects duplicate keys, parity
-  drift, blanks, control characters, bidi controls, and placeholder changes.
-- Python, TypeScript, build, test, immutable-fixture, independent media
-  conformance, and deterministic release-package foundations are active.
-- Phase 11 validated and registered the public node through the exact packaged
-  custom-node root in live ComfyUI, Edge, and Chrome.
+**Save once. Share with context. No metadata expertise required.**
 
-## Development
+</div>
 
-From this directory:
+---
 
-```powershell
-$env:UV_CACHE_DIR = (Join-Path (Resolve-Path "..") ".tmp\v2-uv-cache")
-uv --system-certs sync --all-groups
-uv --system-certs run pytest
-uv --system-certs run ruff check .
-uv --system-certs run mypy civiscribe tools tests
-uv --system-certs run python tools/audit_civitai_api_contract.py
-uv --system-certs run python tools/audit_civitai_api_contract.py --model-version-id 2734704
-$env:NODE_USE_SYSTEM_CA = "1"
-npm ci
-npm run check
+## What is CiviScribe?
+
+[ComfyUI](https://www.comfy.org/) is a visual, node-based app for creating AI
+images. CiviScribe is the final node in that workflow: connect your finished
+image, press **Run**, and it saves an upload-ready PNG, JPEG, or WebP.
+
+Along with the image, CiviScribe records the useful details that normally get
+lost between ComfyUI and Civitai:
+
+- your positive and negative prompts;
+- seed, steps, sampler, scheduler, guidance or CFG, denoise, and image size;
+- the model, LoRAs and strengths, VAE, text encoders, ControlNet, IPAdapter,
+  and upscalers that actually contributed to the saved image;
+- hashes, AIR identifiers, and Civitai model/version IDs when they are known;
+- the ComfyUI prompt and reloadable workflow for PNG files; and
+- a human-readable A1111-style parameters block used by common image tools.
+
+You do not need to understand any of those formats. CiviScribe scans the active
+workflow, writes the compatible metadata, and keeps unresolved information
+honest instead of guessing.
+
+> **You make the image. CiviScribe handles the paperwork.**
+
+## Why use it?
+
+| What you want                                 | What CiviScribe does                                                                     |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Civitai to recognize your generation settings | Writes a parser-friendly A1111 parameters block                                          |
+| The correct model and LoRAs                   | Follows the active path to the saved image instead of listing every loader on the canvas |
+| A workflow you can reopen later               | Embeds the ComfyUI prompt and workflow in PNG when enabled                               |
+| Strong resource identification                | Uses safe hashes, AIR data, local identity records, and optional Civitai lookup          |
+| No invented model IDs                         | Leaves uncertain resources unresolved and explains why                                   |
+| Your image even when metadata fails           | Saves the pixels first, then adds as much metadata as it safely can                      |
+| A private local workflow                      | Never uploads your image, prompt, workflow, model, or sidecar                            |
+
+```mermaid
+flowchart LR
+    A["Your ComfyUI workflow"] --> B["Final IMAGE"]
+    B --> C["CiviScribe"]
+    C --> D["PNG, JPEG, or WebP"]
+    D --> E["Civitai-ready metadata"]
 ```
 
-`--system-certs` and `NODE_USE_SYSTEM_CA=1` preserve TLS verification while
-using the Windows trust store, including a locally installed HTTPS-inspection
-certificate. Other platforms may omit those Windows-specific settings.
-The Civitai contract audit is an explicit, anonymous, read-only drift check and
-is not part of ordinary image saving.
+## Install
 
-For a controlled manual upload test, capture the public Civitai image response
-and compare recognition offline:
+### ComfyUI Manager
 
-```powershell
-python tools/compare_civitai_parser_result.py `
-  path\to\image.sidecar.json `
-  path\to\civitai-image-response.json `
-  --image-id 123456
-```
+Open **ComfyUI Manager**, search for **CiviScribe**, open the node-pack card,
+and select **Install**. Restart ComfyUI when installation finishes.
 
-See
-[`docs/dev/civitai_parser_validation.md`](docs/dev/civitai_parser_validation.md)
-for privacy boundaries and interpretation rules.
+If CiviScribe is not visible in your Manager channel yet, use the manual method
+below. The current Manager UI only installs packages that have reached its
+registry.
 
-Nox is the provider-independent orchestration layer:
+### Manual installation
+
+Open a terminal in your ComfyUI `custom_nodes` folder and run:
 
 ```powershell
-uv run nox -s python frontend build
+git clone https://github.com/chriscollins500/ccollins-civiscribe.git
+cd ccollins-civiscribe
+python -m pip install .
 ```
 
-`nox -s e2e` targets an already-running isolated ComfyUI selected with
-`CIVISCRIBE_E2E_BASE_URL`; `CIVISCRIBE_E2E_CHANNEL` selects `msedge` or
-`chrome`. `nox -s conformance -- ...` forwards explicit image and validator
-arguments to the independent conformance tool.
+Use the same Python environment that launches ComfyUI, then restart ComfyUI.
+The official [ComfyUI custom-node installation guide](https://docs.comfy.org/installation/install_custom_node)
+includes environment-specific instructions for Desktop, portable, and manual
+installations.
 
-### Node Coverage Audit
+### Requirements
 
-The development-only node coverage auditor can combine live `/object_info`, a
-local Manager extension map, and any number of workflow roots without retaining
-prompts, model values, workflow filenames, source URLs, or local paths:
+- the current ComfyUI Desktop release and native ComfyUI V3 API;
+- Python 3.12 or newer; and
+- no Civitai account, token, or API key for ordinary saving.
+
+## Use It In One Minute
+
+1. Add **CCollins / CiviScribe / CiviScribe - Save Image for Civitai** to your
+   workflow.
+2. Connect the workflow's final `IMAGE` output to CiviScribe's `images` input.
+3. Leave the defaults alone for the easiest, most compatible setup.
+4. Choose PNG, JPEG, or WebP and set a filename pattern if desired.
+5. Queue the workflow.
+6. Upload the saved image to Civitai.
+
+For most people, that is the entire setup.
+
+### Recommended everyday settings
+
+| Setting                | Recommended value | Why                                                          |
+| ---------------------- | ----------------- | ------------------------------------------------------------ |
+| Output format          | `PNG`             | Lossless pixels and the richest ComfyUI metadata support     |
+| Embed ComfyUI workflow | On                | Lets compatible tools reload the workflow                    |
+| Embed Civitai manifest | On                | Keeps a structured record of resources and identities        |
+| Enable Civitai lookup  | Off               | Normal saves stay completely local                           |
+| Hashing mode           | `cached_or_fast`  | Reuses cached results without forcing large full-file hashes |
+| Write sidecar JSON     | Off               | Enable only when you want a detailed audit/debug record      |
+
+## What Civitai Can Receive
+
+CiviScribe gives Civitai the strongest truthful information available for the
+active generation path:
+
+- positive and negative prompts;
+- txt2img or img2img classification when the graph proves it;
+- steps, sampler, scheduler, seed, size, CFG, Flux guidance, and denoise;
+- primary checkpoint, diffusion model, UNET, or GGUF model;
+- LoRAs with model and CLIP strengths;
+- VAE, text encoder, embedding, ControlNet, IPAdapter, and upscaler resources;
+- Civitai resources with AIR and model/version IDs when safely resolved; and
+- AutoV1, AutoV2, AutoV3, and SHA-256 hashes when available.
+
+Civitai controls its own parser and resource catalog, so not every resource is
+guaranteed to appear on every upload. CiviScribe records unresolved active
+resources in its structured metadata rather than attaching the wrong listing.
+
+## Image Formats
+
+| Format   | Default behavior                                           | Best for                                                        |
+| -------- | ---------------------------------------------------------- | --------------------------------------------------------------- |
+| **PNG**  | Lossless; A1111, ComfyUI, Civitai, and EXIF metadata       | Maximum compatibility and reloadable workflows                  |
+| **JPEG** | Quality 100, optimized coding, 4:4:4 chroma; EXIF metadata | Smaller, widely shareable files when transparency is not needed |
+| **WebP** | Lossless by default; preserves alpha and EXIF metadata     | Compact lossless images and transparency                        |
+
+JPEG is inherently lossy. CiviScribe uses high-fidelity defaults, but PNG or
+lossless WebP is the better choice when decoded-pixel preservation matters.
+
+## Friendly Filenames And Folders
+
+CiviScribe supports ComfyUI filename tokens plus simple aliases for common
+generation values.
+
+```text
+%date:yyyy-MM-dd%/%date:hhmmss%_%model%
+```
+
+That pattern creates a dated subfolder and names the image with its save time
+and active model. You can also use `%seed%`, `%sampler%`, `%width%`, `%height%`,
+`%batch_num%`, and current ComfyUI `%Node name.widget_name%` replacements.
+
+All expanded paths are checked before writing. Absolute paths, traversal,
+unsafe Windows names, unresolved tokens, and escapes outside ComfyUI's output
+folder are rejected.
+
+## When Automatic Detection Needs Help
+
+Most workflows need no extra configuration. The optional controls are there
+for unusual or highly customized graphs:
+
+- **Positive/negative prompt override** supplies metadata text when a custom
+  prompt node cannot be understood automatically. It does not change the image.
+- **Enable Civitai lookup** asks Civitai to identify unknown resources using
+  hashes. Only a hash or explicit model-version ID is sent.
+- **Preferred primary AIR or Civitai URL** pins the active primary model to the
+  intended Civitai listing when mirrors or quantized files are ambiguous.
+- **Manual resource identities** lets advanced users pin several resources.
+- **Sidecar JSON** writes a detailed, machine-readable audit beside the image.
+
+The interface reveals these controls only when they are relevant, so normal
+use stays compact.
+
+## Privacy And Safety
+
+CiviScribe is local-first by design.
+
+- Civitai lookup is **off by default**.
+- It never uploads images, prompts, workflows, sidecars, or model files.
+- Optional lookup sends only an exact hash or explicit model-version ID over
+  verified HTTPS.
+- It does not store API tokens because it does not need them.
+- Model files are read only after an active resource resolves beneath a
+  ComfyUI-approved model folder.
+- Output stays inside ComfyUI's configured output directory.
+- Paths and secret-like values are removed from metadata and diagnostics.
+- Metadata, lookup, cache, EXIF, and sidecar failures never discard writable
+  image pixels.
+
+See the [security policy](SECURITY.md) for the complete trust boundary.
+
+## Frequently Asked Questions
+
+### Do I need a Civitai API key?
+
+No. Saving works locally without an account, key, or network connection.
+
+### Does CiviScribe upload my image?
+
+No. It only saves files to ComfyUI's configured output folder. You decide what
+to upload and where.
+
+### Why is a resource unresolved?
+
+CiviScribe could not prove its identity from the workflow, cache, available
+hashes, or optional API response. It will not guess from a filename. Enable
+lookup, run full hashing when appropriate, or provide a preferred AIR for a
+known resource.
+
+### Can I reload the workflow from an image?
+
+PNG files include the ComfyUI prompt and, when enabled, workflow metadata used
+by compatible ComfyUI tools. JPEG and WebP carry A1111/Civitai metadata in
+EXIF, but are not presented as full ComfyUI workflow containers.
+
+### What happens if metadata writing fails?
+
+CiviScribe tries rich metadata, reduced compatible metadata, and finally a
+pixels-only save. A valid writable image takes priority over optional metadata.
+
+### Does it support video or audio?
+
+No. CiviScribe is deliberately focused on Civitai-compatible still images:
+PNG, JPEG, and WebP.
+
+<details>
+<summary><strong>Technical metadata layout</strong></summary>
+
+### PNG
+
+- `parameters` and `Software` use classic PNG `tEXt` chunks.
+- `prompt`, optional `workflow`, and optional `civitai` use UTF-8 `iTXt`.
+- EXIF UserComment provides an additional A1111/Civitai-compatible carrier.
+- Unicode parameters retain a parser-safe text form and a full UTF-8 form.
+
+### JPEG and WebP
+
+- Both use the same immutable generation record and A1111/Civitai projection
+  as PNG.
+- Compatible generation text is stored in EXIF UserComment.
+- Only truthful software and final-dimension fields are authored.
+
+Every output is derived from one immutable generation record so the A1111
+parameters, Civitai manifest, EXIF, filename, sidecar, and preview do not keep
+competing versions of the same fact.
+
+</details>
+
+<details>
+<summary><strong>Development and verification</strong></summary>
+
+CiviScribe uses a locked Python and TypeScript toolchain. The complete local
+gate is:
 
 ```powershell
-python tools/audit_comfyui_node_coverage.py `
-  --object-info-url http://127.0.0.1:8000/object_info `
-  --workflow-root .\tests\fixtures\workflows `
-  --output .\.tmp\comfyui-node-coverage.json
+.\.venv\Scripts\python.exe -m nox -s python frontend build
 ```
 
-`--workflow-root` may be repeated. Its actionable and broad classifications are
-review queues, not scanner-support claims. See
-[`docs/dev/comfyui_node_coverage_audit.md`](docs/dev/comfyui_node_coverage_audit.md)
-for limits, privacy rules, current observations, and interpretation guidance.
-Manual resource identities can resolve an identity only after a resource is
-detected; they do not substitute for graph reachability or a scanner rule.
+It runs formatting, linting, strict typing, locale and golden-fixture
+validation, schema checks, Python tests with 100 percent statement and branch
+coverage, frontend tests, dependency auditing, wheel/source builds, and the
+private release-package audit.
 
-The authoritative product and architecture documents are under [`docs/`](docs/).
+Architecture and implementation documents are available in [`docs/`](docs/).
+Contributor guidance is in [CONTRIBUTING.md](CONTRIBUTING.md).
+
+</details>
+
+## Support The Project
+
+Found a workflow CiviScribe does not understand? Open a
+[GitHub issue](https://github.com/chriscollins500/ccollins-civiscribe/issues)
+with the node class names and a safely redacted workflow or sidecar. Never post
+private prompts, local paths, tokens, or images you do not want to share.
+
+CiviScribe is available under the [MIT License](LICENSE).
+
+<div align="center">
+
+**CCollins' CiviScribe**
+
+_Better metadata. Honest resources. Your pixels come first._
+
+</div>
