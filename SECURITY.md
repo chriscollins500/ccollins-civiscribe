@@ -2,8 +2,7 @@
 
 ## Supported version
 
-CiviScribe is unreleased. Security fixes apply to the current V2 development
-line only.
+Security fixes apply to the current CiviScribe 2.x release line.
 
 ## Reporting
 

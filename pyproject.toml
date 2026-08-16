@@ -20,7 +20,7 @@ dependencies = [
   "truststore>=0.10,<1; platform_system == 'Windows' or platform_system == 'Darwin'",
 ]
 classifiers = [
-  "Development Status :: 2 - Pre-Alpha",
+  "Development Status :: 4 - Beta",
   "Intended Audience :: End Users/Desktop",
   "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
@@ -28,6 +28,19 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
   "Topic :: Multimedia :: Graphics",
 ]
+
+[project.urls]
+Repository = "https://github.com/chriscollins500/ccollins-civiscribe"
+Documentation = "https://github.com/chriscollins500/ccollins-civiscribe#readme"
+"Bug Tracker" = "https://github.com/chriscollins500/ccollins-civiscribe/issues"
+
+[tool.comfy]
+PublisherId = "chrisecollins500"
+DisplayName = "CCollins' CiviScribe"
+requires-comfyui = ">=0.33.1"
+
+[tool.comfy.version]
+path = "civiscribe/version.py"
 
 [dependency-groups]
 dev = [

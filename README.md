@@ -69,9 +69,8 @@ flowchart LR
 Open **ComfyUI Manager**, search for **CiviScribe**, open the node-pack card,
 and select **Install**. Restart ComfyUI when installation finishes.
 
-If CiviScribe is not visible in your Manager channel yet, use the manual method
-below. The current Manager UI only installs packages that have reached its
-registry.
+You can also use the manual method below when you prefer to install directly
+from the source repository.
 
 ### Manual installation
 

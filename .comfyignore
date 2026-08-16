@@ -1,5 +1,8 @@
 .git/
 .github/
+.gitattributes
+.gitignore
+.comfyignore
 .agents/
 .codex/
 .venv/
@@ -11,13 +14,14 @@
 .tmp/
 .npm-cache/
 .uv-cache/
-build/
-dist/
+/build/
+/dist/
 docs/
 tests/
 tools/
 typing_stubs/
 node_modules/
+web/src/
 CHANGELOG.md
 CONTRIBUTING.md
 SECURITY.md

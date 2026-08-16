@@ -4,6 +4,8 @@ All notable CiviScribe changes are documented here.
 
 ## Unreleased
 
+## 2.0.0 - 2026-08-16
+
 - Rebuilt the public README as a friendly product introduction with clear
   installation, one-minute usage, format, privacy, and troubleshooting guides.
 - Fixed release packaging from clean checkouts by tracking the compiled
@@ -11,9 +13,6 @@ All notable CiviScribe changes are documented here.
 - Made native cache-lock tests cover both Windows and POSIX adapters on every
   CI operating system while retaining the 100 percent coverage gate.
 - Updated the pinned GitHub checkout action to its current Node.js 24 release.
-
-## 2.0.0.dev0 - 2026-07-30
-
 - Rebuilt the unreleased prototype as one current ComfyUI V3 image-save node.
 - Added PNG, JPEG, and WebP writers with shared A1111 and Civitai projections.
 - Added active workflow scanning, prompt extraction, resource detection, and
