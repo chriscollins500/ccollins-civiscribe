@@ -52,7 +52,7 @@ honest instead of guessing.
 | Strong resource identification                | Uses safe hashes, AIR data, local identity records, and optional Civitai lookup          |
 | No invented model IDs                         | Leaves uncertain resources unresolved and explains why                                   |
 | Your image even when metadata fails           | Saves the pixels first, then adds as much metadata as it safely can                      |
-| A private local workflow                      | Never uploads your image, prompt, workflow, model, or sidecar                            |
+| Local-first operation                         | Saves locally; optional lookup sends only a hash or explicit model-version ID            |
 
 ```mermaid
 flowchart LR
