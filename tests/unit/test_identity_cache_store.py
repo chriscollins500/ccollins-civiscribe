@@ -193,20 +193,27 @@ def test_cache_write_failure_is_nonfatal(
     assert [issue.code for issue in result.issues] == ["cache_write_failed"]
 
 
-def test_platform_lock_helpers_cover_posix_and_unsupported_platforms(
+def test_platform_lock_helpers_cover_native_and_unsupported_platforms(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    calls: list[tuple[int, int]] = []
+    calls: list[tuple[str, int]] = []
     locking = SimpleNamespace(
+        LK_NBLCK=8,
+        LK_UNLCK=16,
         LOCK_EX=1,
         LOCK_NB=2,
         LOCK_UN=4,
-        flock=lambda descriptor, operation: calls.append((descriptor, operation)),
+        locking=lambda _descriptor, operation, _length: calls.append(("nt", operation)),
+        flock=lambda _descriptor, operation: calls.append(("posix", operation)),
     )
     monkeypatch.setattr(cache_store, "_LOCKING_MODULE", locking)
 
     with (tmp_path / "platform.lock").open("a+b") as handle:
+        monkeypatch.setattr(cache_store, "os", SimpleNamespace(name="nt"))
+        cache_store._lock_byte(handle)
+        cache_store._unlock_byte(handle)
+
         monkeypatch.setattr(cache_store, "os", SimpleNamespace(name="posix"))
         cache_store._lock_byte(handle)
         cache_store._unlock_byte(handle)
@@ -217,7 +224,7 @@ def test_platform_lock_helpers_cover_posix_and_unsupported_platforms(
         assert exc_info.value.errno == errno.ENOTSUP
         cache_store._unlock_byte(handle)
 
-    assert [operation for _descriptor, operation in calls] == [3, 4]
+    assert calls == [("nt", 8), ("nt", 16), ("posix", 3), ("posix", 4)]
 
 
 def test_platform_lock_retries_contention_then_unlocks(

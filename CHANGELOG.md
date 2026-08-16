@@ -6,6 +6,8 @@ All notable CiviScribe changes are documented here.
 
 - Fixed release packaging from clean checkouts by tracking the compiled
   ComfyUI V3 frontend while continuing to ignore root build artifacts.
+- Made native cache-lock tests cover both Windows and POSIX adapters on every
+  CI operating system while retaining the 100 percent coverage gate.
 - Updated the pinned GitHub checkout action to its current Node.js 24 release.
 
 ## 2.0.0.dev0 - 2026-07-30
