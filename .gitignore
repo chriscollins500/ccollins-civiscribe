@@ -31,9 +31,9 @@ web/dist/*.map
 !web/dist/
 !web/dist/*.js
 
-# Build artifacts
-build/
-dist/
+# Root build artifacts
+/build/
+/dist/
 
 # Local app/editor state
 .agents/

@@ -4,7 +4,9 @@ All notable CiviScribe changes are documented here.
 
 ## Unreleased
 
-No unreleased changes.
+- Fixed release packaging from clean checkouts by tracking the compiled
+  ComfyUI V3 frontend while continuing to ignore root build artifacts.
+- Updated the pinned GitHub checkout action to its current Node.js 24 release.
 
 ## 2.0.0.dev0 - 2026-07-30
 
