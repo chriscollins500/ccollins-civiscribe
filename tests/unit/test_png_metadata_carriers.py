@@ -144,7 +144,7 @@ def test_rich_projection_can_omit_optional_workflow_and_manifest(
     path = tmp_path / "lean-rich.png"
     PngWriter().write(_frame(), path, projection)
     pairs = _chunk_pairs(path)
-    assert (b"iTXt", "prompt") in pairs
+    assert (b"iTXt", "prompt") not in pairs
     assert (b"iTXt", "workflow") not in pairs
     assert (b"iTXt", "civitai") not in pairs
     assert (b"eXIf", None) in pairs
@@ -162,6 +162,20 @@ def test_manifest_workflow_ref_is_null_when_workflow_is_unavailable() -> None:
         "prompt": "pnginfo:prompt",
         "workflow": None,
     }
+
+
+def test_disabled_workflow_embedding_omits_both_graphs_and_refs() -> None:
+    projection = build_rich_png_projection(
+        complete_record(),
+        prompt={"10": {"class_type": "KSampler"}},
+        workflow={"nodes": [{"id": 10, "type": "KSampler"}]},
+        include_workflow=False,
+    )
+    assert projection.prompt_json is None
+    assert projection.workflow_json is None
+    assert projection.civitai_json is not None
+    manifest = json.loads(projection.civitai_json)
+    assert manifest["workflowRefs"] == {"prompt": None, "workflow": None}
 
 
 def test_projection_reports_redaction_without_exposing_private_values() -> None:

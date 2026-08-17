@@ -1,0 +1,123 @@
+{
+  "expected": {
+    "excludedResourceFilenames": [
+      "disabled.safetensors",
+      "zero-strength.safetensors"
+    ],
+    "loraStrengths": [
+      [
+        0.8,
+        0.4
+      ],
+      [
+        0.25,
+        0.25
+      ]
+    ],
+    "resourceFilenames": [
+      "base.safetensors",
+      "cinematic.safetensors",
+      "detail.safetensors"
+    ]
+  },
+  "prompt": {
+    "1": {
+      "class_type": "CheckpointLoaderSimple",
+      "inputs": {
+        "ckpt_name": "checkpoints/base.safetensors"
+      }
+    },
+    "2": {
+      "class_type": "NdSuperLoraLoader",
+      "inputs": {
+        "clip": [
+          "1",
+          1
+        ],
+        "lora_bundle": "[{\"lora\":\"styles/cinematic.safetensors\",\"enabled\":true,\"strength\":0.8,\"strengthClip\":0.4,\"triggerWords\":\"cinematic\"},{\"lora\":\"detail.safetensors\",\"enabled\":true,\"strength\":0.25},{\"lora\":\"disabled.safetensors\",\"enabled\":false,\"strength\":1.0},{\"lora\":\"zero-strength.safetensors\",\"enabled\":true,\"strength\":0.0,\"strengthClip\":0.0}]",
+        "model": [
+          "1",
+          0
+        ]
+      }
+    },
+    "3": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "clip": [
+          "2",
+          1
+        ],
+        "text": "ND Super LoRA prompt"
+      }
+    },
+    "4": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "clip": [
+          "2",
+          1
+        ],
+        "text": "artifact"
+      }
+    },
+    "5": {
+      "class_type": "EmptyLatentImage",
+      "inputs": {
+        "batch_size": 1,
+        "height": 512,
+        "width": 512
+      }
+    },
+    "6": {
+      "class_type": "KSampler",
+      "inputs": {
+        "cfg": 6.0,
+        "latent_image": [
+          "5",
+          0
+        ],
+        "model": [
+          "2",
+          0
+        ],
+        "negative": [
+          "4",
+          0
+        ],
+        "positive": [
+          "3",
+          0
+        ],
+        "sampler_name": "euler",
+        "scheduler": "normal",
+        "seed": 78,
+        "steps": 18
+      }
+    },
+    "7": {
+      "class_type": "VAEDecode",
+      "inputs": {
+        "samples": [
+          "6",
+          0
+        ],
+        "vae": [
+          "1",
+          2
+        ]
+      }
+    },
+    "8": {
+      "class_type": "CCollins_CiviScribe_SaveImage",
+      "inputs": {
+        "images": [
+          "7",
+          0
+        ]
+      }
+    }
+  },
+  "schemaName": "ccollins-civiscribe.workflow-fixture",
+  "schemaVersion": "1.0.0"
+}

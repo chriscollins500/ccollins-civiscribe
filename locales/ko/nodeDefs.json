@@ -45,7 +45,7 @@
       },
       "include_workflow": {
         "name": "ComfyUI 워크플로 임베드",
-        "tooltip": "메타데이터 형식이 지원할 때 정리된 ComfyUI 워크플로를 포함합니다."
+        "tooltip": "켜면 정리된 ComfyUI API 프롬프트 그래프와 UI 워크플로 그래프를 임베드합니다. 끄면 이미지와 사이드카에서 두 그래프를 모두 제외합니다."
       },
       "include_civitai_manifest": {
         "name": "Civitai 매니페스트 임베드",

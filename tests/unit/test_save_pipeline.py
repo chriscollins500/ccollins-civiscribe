@@ -408,6 +408,36 @@ def test_prompt_overrides_feed_all_metadata_projections(tmp_path: Path) -> None:
     }
 
 
+def test_disabled_workflow_embedding_omits_api_and_ui_graph_payloads(tmp_path: Path) -> None:
+    metadata = replace(_metadata_request(), include_workflow=False)
+    outcome = save_image_batch(
+        SaveRequest(
+            images=(_frame(),),
+            output_root=tmp_path,
+            filename_prefix="private-graphs",
+            write_sidecar_json=True,
+            metadata=metadata,
+        )
+    )
+
+    saved = outcome.saved_images[0]
+    image_path = tmp_path / saved.filename
+    with Image.open(image_path) as image:
+        text = cast(Mapping[str, str], getattr(image, "text", {}))
+        manifest = cast(dict[str, object], json.loads(text["civitai"]))
+    assert "prompt" not in text
+    assert "workflow" not in text
+    assert text["parameters"].startswith("a lighthouse at dawn\nNegative prompt:")
+    assert manifest["workflowRefs"] == {"prompt": None, "workflow": None}
+
+    sidecar_path = tmp_path / cast(str, saved.sidecar_filename)
+    sidecar = cast(dict[str, object], json.loads(sidecar_path.read_text(encoding="utf-8")))
+    assert sidecar["payloads"] == {"prompt": None, "workflow": None}
+    sidecar_projections = cast(dict[str, object], sidecar["projections"])
+    sidecar_manifest = cast(dict[str, object], sidecar_projections["civitai"])
+    assert sidecar_manifest["workflowRefs"] == {"prompt": None, "workflow": None}
+
+
 def test_krea2_switch_prompt_reaches_png_parameters_and_manifest(tmp_path: Path) -> None:
     fixture_path = (
         Path(__file__).resolve().parents[1] / "fixtures" / "workflows" / "krea2_switch_prompt.json"

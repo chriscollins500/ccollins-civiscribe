@@ -4,6 +4,17 @@ All notable CiviScribe changes are documented here.
 
 ## Unreleased
 
+## 2.0.1 - 2026-08-16
+
+- Added bounded, source-contract-compatible resource extraction for active ND
+  Super LoRA Loader bundles, including enable state and separate model/CLIP
+  strengths.
+- Fixed the workflow-embedding toggle so disabling it omits both the ComfyUI
+  API prompt graph and UI workflow graph from image metadata and sidecars.
+- Updated GitHub validation to Node.js 24.19 and current Node 24 action
+  runtimes, and replaced the stale publishing wrapper with the same Registry
+  operation through pinned `comfy-cli` 1.16.0.
+
 ## 2.0.0 - 2026-08-16
 
 - Rebuilt the public README as a friendly product introduction with clear

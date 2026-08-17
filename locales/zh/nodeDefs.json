@@ -45,7 +45,7 @@
       },
       "include_workflow": {
         "name": "嵌入 ComfyUI 工作流",
-        "tooltip": "在元数据格式支持时嵌入经过清理的 ComfyUI 工作流。"
+        "tooltip": "开启时嵌入经过清理的 ComfyUI API 提示词图和界面工作流图；关闭时从图像和旁车文件中同时省略两者。"
       },
       "include_civitai_manifest": {
         "name": "嵌入 Civitai 清单",

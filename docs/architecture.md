@@ -292,6 +292,11 @@ Each projection is deterministic and side-effect-free:
 - `build_exif_user_comment(record) -> bytes`
 - `build_sidecar_projection(record, artifact, policy) -> SidecarProjection`
 
+The workflow-embedding policy treats the ComfyUI API prompt graph and UI
+workflow graph as one privacy boundary. When disabled, neither graph payload is
+projected into the image or sidecar; prompt text and generation facts already
+present in `GenerationRecord` remain available to A1111 and Civitai projections.
+
 Projection validation checks:
 
 - primary model/hash agreement;

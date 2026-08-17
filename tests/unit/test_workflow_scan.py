@@ -174,6 +174,22 @@ def test_rgthree_power_lora_fixture_honors_enabled_state_and_strengths() -> None
     ]
 
 
+def test_nd_super_lora_fixture_decodes_active_bundle_entries() -> None:
+    prompt, expected = _load_fixture("nd_super_lora_loader.json")
+
+    result = scan_workflow(prompt)
+    filenames = [resource.filename for resource in result.resources]
+    loras = [resource for resource in result.resources if resource.role is ResourceRole.LORA]
+
+    assert filenames == expected["resourceFilenames"]
+    assert set(filenames).isdisjoint(cast(list[str], expected["excludedResourceFilenames"]))
+    assert [[item.strengths.model, item.strengths.clip] for item in loras] == expected[
+        "loraStrengths"
+    ]
+    assert {item.detection_rule_id for item in loras} == {"nd_super_lora_bundle"}
+    assert "unknown_active_node_class" not in {issue.code for issue in result.issues}
+
+
 def _simple_tail(
     *,
     model: list[object],

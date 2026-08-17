@@ -62,6 +62,7 @@ from civiscribe.workflow.lineage import (
 )
 from civiscribe.workflow.model import FrozenValue
 from civiscribe.workflow.resources import (
+    _MAX_ND_SUPER_LORA_BUNDLE_CHARS,
     _bool_value,
     _direct_resources,
     _float_value,
@@ -69,6 +70,9 @@ from civiscribe.workflow.resources import (
     _inline_lora_resources,
     _lora_record,
     _LoraRecordSpec,
+    _nd_super_float,
+    _nd_super_lora_entries,
+    _nd_super_lora_resources,
     _power_lora_resources,
     _safe_resource_value,
     _stack_candidates,
@@ -863,6 +867,126 @@ def test_structured_text_and_indexed_resources_cover_edge_contracts() -> None:
             input_name="loras_3",
         ),
     )
+
+
+@pytest.mark.parametrize(
+    ("value", "default", "expected"),
+    [
+        (None, 0.5, 0.5),
+        (True, 0.5, None),
+        (2, 0.5, 2.0),
+        (0.25, 0.5, 0.25),
+        (" 0.75 ", 0.5, 0.75),
+        ("not-a-number", 0.5, None),
+        (float("inf"), 0.5, None),
+        (object(), 0.5, None),
+    ],
+)
+def test_nd_super_float_matches_source_numeric_contract(
+    value: object,
+    default: float,
+    expected: float | None,
+) -> None:
+    assert _nd_super_float(value, default=default) == expected
+
+
+def test_nd_super_lora_bundle_is_bounded_strict_and_source_compatible() -> None:
+    assert _nd_super_lora_resources(_node("0", "LoraLoader")) == ((), ())
+
+    node = _node(
+        "1",
+        "NdSuperLoraLoader",
+        {
+            "lora_bundle": (
+                '[null,{"lora":"loras/first.safetensors","enabled":true,'
+                '"strength":"0.75","strengthTwo":"0.25"},'
+                '{"lora":"second.safetensors","on":true},'
+                '{"lora":"disabled.safetensors","enabled":false},'
+                '{"lora":"zero.safetensors","enabled":true,"strength":0,'
+                '"strengthClip":0},{"enabled":true},'
+                '{"lora":"bad-strength.safetensors","enabled":true,'
+                '"strength":"bad"},{"lora":"../private.safetensors",'
+                '"enabled":true}]'
+            )
+        },
+    )
+
+    records, issues = _nd_super_lora_resources(node)
+
+    assert [record.filename for record in records] == ["first.safetensors", "second.safetensors"]
+    assert [
+        (record.strengths.weight, record.strengths.model, record.strengths.clip)
+        for record in records
+    ] == [(0.75, 0.75, 0.0), (1.0, 1.0, 0.0)]
+    assert issues == (
+        ScanIssue(
+            "nd_super_lora_strength_invalid",
+            node_id="1",
+            input_name="lora_bundle_7",
+        ),
+        ScanIssue(
+            "resource_value_unsafe_or_invalid",
+            node_id="1",
+            input_name="lora_bundle_8",
+        ),
+    )
+
+    malformed_entries, malformed_issues = _nd_super_lora_entries(
+        _node("2", "NdSuperLoraLoader", {"lora_bundle": "[{"})
+    )
+    assert malformed_entries == ()
+    assert malformed_issues == (ScanIssue("nd_super_lora_bundle_invalid", node_id="2"),)
+
+    constant_entries, constant_issues = _nd_super_lora_entries(
+        _node("3", "NdSuperLoraLoader", {"lora_bundle": "[NaN]"})
+    )
+    assert constant_entries == ()
+    assert constant_issues == (ScanIssue("nd_super_lora_bundle_invalid", node_id="3"),)
+
+    object_entries, object_issues = _nd_super_lora_entries(
+        _node("4", "NdSuperLoraLoader", {"lora_bundle": "{}"})
+    )
+    assert object_entries == ()
+    assert object_issues == (ScanIssue("nd_super_lora_bundle_not_list", node_id="4"),)
+
+    large_entries, large_issues = _nd_super_lora_entries(
+        _node(
+            "5",
+            "NdSuperLoraLoader",
+            {"lora_bundle": " " + "x" * _MAX_ND_SUPER_LORA_BUNDLE_CHARS},
+        )
+    )
+    assert large_entries == ()
+    assert large_issues == (ScanIssue("nd_super_lora_bundle_too_large", node_id="5"),)
+
+
+def test_nd_super_lora_legacy_mapping_remains_supported() -> None:
+    records, issues = _nd_super_lora_resources(
+        _node(
+            "6",
+            "NdSuperLoraLoader",
+            {
+                "clip": _frozen(["1", 1]),
+                "lora_bundle": "",
+                "lora_2": _frozen(
+                    {
+                        "lora": "legacy.safetensors",
+                        "enabled": True,
+                        "strength": 0.6,
+                        "strengthClip": 0.4,
+                    }
+                ),
+                "not_a_lora": _frozen({"lora": "ignored.safetensors", "enabled": True}),
+            },
+        )
+    )
+    assert issues == ()
+    assert [
+        (record.filename, record.strengths.model, record.strengths.clip) for record in records
+    ] == [("legacy.safetensors", 0.6, 0.4)]
+
+
+def test_text_and_indexed_resources_cover_edge_contracts() -> None:
     assert _text_lora_resources(_node("2", "ttN pipeLoader")) == ((), ())
 
     tags = " ".join(f"<lora:loras/item-{index}.safetensors:0.5>" for index in range(1, 67))

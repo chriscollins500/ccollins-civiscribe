@@ -110,7 +110,7 @@ For most people, that is the entire setup.
 | Setting                | Recommended value | Why                                                          |
 | ---------------------- | ----------------- | ------------------------------------------------------------ |
 | Output format          | `PNG`             | Lossless pixels and the richest ComfyUI metadata support     |
-| Embed ComfyUI workflow | On                | Lets compatible tools reload the workflow                    |
+| Embed ComfyUI workflow | On                | Embeds both sanitized ComfyUI graph payloads for reloading    |
 | Embed Civitai manifest | On                | Keeps a structured record of resources and identities        |
 | Enable Civitai lookup  | Off               | Normal saves stay completely local                           |
 | Hashing mode           | `cached_or_fast`  | Reuses cached results without forcing large full-file hashes |
@@ -125,7 +125,7 @@ active generation path:
 - txt2img or img2img classification when the graph proves it;
 - steps, sampler, scheduler, seed, size, CFG, Flux guidance, and denoise;
 - primary checkpoint, diffusion model, UNET, or GGUF model;
-- LoRAs with model and CLIP strengths;
+- LoRAs with model and CLIP strengths, including active ND Super bundles;
 - VAE, text encoder, embedding, ControlNet, IPAdapter, and upscaler resources;
 - Civitai resources with AIR and model/version IDs when safely resolved; and
 - AutoV1, AutoV2, AutoV3, and SHA-256 hashes when available.
@@ -217,9 +217,11 @@ known resource.
 
 ### Can I reload the workflow from an image?
 
-PNG files include the ComfyUI prompt and, when enabled, workflow metadata used
-by compatible ComfyUI tools. JPEG and WebP carry A1111/Civitai metadata in
-EXIF, but are not presented as full ComfyUI workflow containers.
+When **Embed ComfyUI workflow** is enabled, PNG files include both the
+sanitized ComfyUI API prompt graph and UI workflow graph used by compatible
+ComfyUI tools. Turning it off omits both graph payloads from the image and
+sidecar. JPEG and WebP carry A1111/Civitai metadata in EXIF, but are not
+presented as full ComfyUI workflow containers.
 
 ### What happens if metadata writing fails?
 
@@ -237,7 +239,8 @@ PNG, JPEG, and WebP.
 ### PNG
 
 - `parameters` and `Software` use classic PNG `tEXt` chunks.
-- `prompt`, optional `workflow`, and optional `civitai` use UTF-8 `iTXt`.
+- Optional `prompt`, `workflow`, and `civitai` values use UTF-8 `iTXt`. The
+  workflow setting controls both ComfyUI graph payloads.
 - EXIF UserComment provides an additional A1111/Civitai-compatible carrier.
 - Unicode parameters retain a parser-safe text form and a full UTF-8 form.
 

@@ -45,7 +45,7 @@
       },
       "include_workflow": {
         "name": "ComfyUI iş akışını göm",
-        "tooltip": "Meta veri biçimi desteklediğinde temizlenmiş ComfyUI iş akışını ekler."
+        "tooltip": "Açıldığında temizlenmiş ComfyUI API istem grafiğini ve arayüz iş akışı grafiğini gömer. Kapatıldığında ikisini de görüntüden ve yan dosyadan çıkarır."
       },
       "include_civitai_manifest": {
         "name": "Civitai bildirimini göm",

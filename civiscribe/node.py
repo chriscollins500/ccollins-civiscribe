@@ -121,7 +121,10 @@ class CiviScribeSaveImage(io.ComfyNode):
                     "include_workflow",
                     display_name="Embed ComfyUI workflow",
                     default=True,
-                    tooltip="Include the sanitized ComfyUI workflow when metadata supports it.",
+                    tooltip=(
+                        "Embed the sanitized ComfyUI API prompt graph and UI workflow graph. "
+                        "Turn this off to omit both graph payloads from the image and sidecar."
+                    ),
                 ),
                 io.Boolean.Input(
                     "include_civitai_manifest",

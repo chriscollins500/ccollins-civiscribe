@@ -45,7 +45,7 @@
       },
       "include_workflow": {
         "name": "嵌入 ComfyUI 工作流程",
-        "tooltip": "中繼資料格式支援時，嵌入經過清理的 ComfyUI 工作流程。"
+        "tooltip": "開啟時嵌入經過清理的 ComfyUI API 提示詞圖與介面工作流程圖；關閉時從影像和附加檔案中同時省略兩者。"
       },
       "include_civitai_manifest": {
         "name": "嵌入 Civitai 清單",

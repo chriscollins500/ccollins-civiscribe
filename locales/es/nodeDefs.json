@@ -45,7 +45,7 @@
       },
       "include_workflow": {
         "name": "Incrustar flujo de ComfyUI",
-        "tooltip": "Incluye el flujo de ComfyUI saneado cuando el formato de metadatos lo permite."
+        "tooltip": "Al activarlo, incrusta los grafos saneados de la solicitud API y del flujo de trabajo de ComfyUI. Al desactivarlo, omite ambos de la imagen y del archivo JSON asociado."
       },
       "include_civitai_manifest": {
         "name": "Incrustar manifiesto de Civitai",

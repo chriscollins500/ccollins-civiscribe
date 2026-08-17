@@ -66,17 +66,20 @@ def build_rich_png_projection(
     """Build normal PNG tEXt/iTXt/eXIf values from one canonical record."""
 
     parameters = _parameters(record)
-    prompt_json, prompt_redacted = _json_carrier(prompt)
+    prompt_json: str | None = None
+    prompt_redacted = False
     workflow_json: str | None = None
     workflow_redacted = False
-    if include_workflow and workflow is not None:
-        workflow_json, workflow_redacted = _json_carrier(workflow)
+    if include_workflow:
+        prompt_json, prompt_redacted = _json_carrier(prompt)
+        if workflow is not None:
+            workflow_json, workflow_redacted = _json_carrier(workflow)
 
     civitai_json: str | None = None
     if include_civitai_manifest:
         manifest = build_civitai_manifest(record)
         manifest["workflowRefs"] = {
-            "prompt": "pnginfo:prompt",
+            "prompt": "pnginfo:prompt" if prompt_json is not None else None,
             "workflow": "pnginfo:workflow" if workflow_json is not None else None,
         }
         civitai_json = dumps_json(manifest)

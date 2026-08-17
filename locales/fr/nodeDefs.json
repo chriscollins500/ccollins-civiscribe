@@ -45,7 +45,7 @@
       },
       "include_workflow": {
         "name": "Intégrer le workflow ComfyUI",
-        "tooltip": "Inclut le workflow ComfyUI assaini lorsque le format de métadonnées le permet."
+        "tooltip": "Lorsqu’elle est activée, intègre les graphes assainis de l’invite API et du workflow d’interface ComfyUI. Lorsqu’elle est désactivée, omet les deux dans l’image et le fichier annexe."
       },
       "include_civitai_manifest": {
         "name": "Intégrer le manifeste Civitai",

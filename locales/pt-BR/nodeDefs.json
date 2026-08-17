@@ -45,7 +45,7 @@
       },
       "include_workflow": {
         "name": "Incorporar workflow do ComfyUI",
-        "tooltip": "Inclui o workflow sanitizado do ComfyUI quando o formato de metadados oferece suporte."
+        "tooltip": "Quando ativado, incorpora os grafos sanitizados do prompt de API e do workflow da interface do ComfyUI. Quando desativado, omite ambos da imagem e do arquivo JSON associado."
       },
       "include_civitai_manifest": {
         "name": "Incorporar manifesto do Civitai",

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import math
 import re
 import unicodedata
@@ -86,6 +87,7 @@ _PROMPT_TEXT_INPUTS = frozenset(
     }
 )
 _MAX_STACK_LORAS = 64
+_MAX_ND_SUPER_LORA_BUNDLE_CHARS = 256 * 1024
 _JAKE_EMBEDDING_MIN_EMPHASIS = 0.05
 _TA_MODEL_PREFIXES: dict[str, tuple[ResourceRole, ResourceKind]] = {
     "[C] ": (ResourceRole.BASE_MODEL, ResourceKind.CHECKPOINT),
@@ -781,6 +783,101 @@ def _power_lora_resources(
     return tuple(records), tuple(issues)
 
 
+def _reject_json_constant(_value: str) -> None:
+    raise ValueError("nonfinite_json_number")
+
+
+def _nd_super_lora_entries(
+    node: PromptNode,
+) -> tuple[tuple[object, ...], tuple[ScanIssue, ...]]:
+    value = node.input_value("lora_bundle")
+    if isinstance(value, str) and value.strip():
+        if len(value) > _MAX_ND_SUPER_LORA_BUNDLE_CHARS:
+            return (), (ScanIssue("nd_super_lora_bundle_too_large", node_id=node.node_id),)
+        try:
+            decoded = json.loads(value, parse_constant=_reject_json_constant)
+        except (json.JSONDecodeError, RecursionError, ValueError):
+            return (), (ScanIssue("nd_super_lora_bundle_invalid", node_id=node.node_id),)
+        if not isinstance(decoded, list):
+            return (), (ScanIssue("nd_super_lora_bundle_not_list", node_id=node.node_id),)
+        return tuple(decoded[:_MAX_STACK_LORAS]), ()
+
+    legacy_entries = tuple(
+        entry
+        for input_name, entry in sorted(node.inputs.items())
+        if input_name.casefold().startswith("lora_") and isinstance(entry, Mapping)
+    )
+    return legacy_entries[:_MAX_STACK_LORAS], ()
+
+
+def _nd_super_float(value: object, *, default: float) -> float | None:
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        result = float(value)
+    elif isinstance(value, str):
+        try:
+            result = float(value.strip())
+        except ValueError:
+            return None
+    else:
+        return None
+    return result if math.isfinite(result) else None
+
+
+def _nd_super_lora_resources(
+    node: PromptNode,
+) -> tuple[tuple[ResourceRecord, ...], tuple[ScanIssue, ...]]:
+    if compact_class(node) != "ndsuperloraloader":
+        return (), ()
+    entries, entry_issues = _nd_super_lora_entries(node)
+    records: list[ResourceRecord] = []
+    issues = list(entry_issues)
+    for index, entry in enumerate(entries, start=1):
+        if not isinstance(entry, Mapping):
+            continue
+        enabled = _bool_value(entry.get("enabled", entry.get("on", False)))
+        if enabled is not True:
+            continue
+        lora_name = entry.get("lora")
+        if lora_name is None or _resource_value_disabled(lora_name):
+            continue
+        model_strength = _nd_super_float(entry.get("strength"), default=1.0)
+        clip_value = entry.get("strengthClip", entry.get("strengthTwo", model_strength))
+        clip_strength = _nd_super_float(clip_value, default=model_strength or 0.0)
+        if model_strength is None or clip_strength is None:
+            issues.append(
+                ScanIssue(
+                    "nd_super_lora_strength_invalid",
+                    node_id=node.node_id,
+                    input_name=f"lora_bundle_{index}",
+                )
+            )
+            continue
+        if node.input_value("clip") is None:
+            clip_strength = 0.0
+        record, issue = _lora_record(
+            node,
+            input_name=f"lora_bundle_{index}",
+            value=lora_name,
+            spec=_LoraRecordSpec(
+                ResourceStrengths(
+                    weight=model_strength,
+                    model=model_strength,
+                    clip=clip_strength,
+                ),
+                "nd_super_lora_bundle",
+            ),
+        )
+        if record is not None:
+            records.append(record)
+        if issue is not None:
+            issues.append(issue)
+    return tuple(records), tuple(issues)
+
+
 def _stack_lora_resources(
     node: PromptNode,
 ) -> tuple[tuple[ResourceRecord, ...], tuple[ScanIssue, ...]]:
@@ -1168,6 +1265,7 @@ def extract_active_resources(
         node = index.nodes[node_id]
         direct, direct_issues = _direct_resources(node, index=index, active=active)
         power_loras, power_issues = _power_lora_resources(node)
+        nd_super_loras, nd_super_issues = _nd_super_lora_resources(node)
         stack_loras, stack_issues = _stack_lora_resources(node)
         inline_loras, inline_issues = _inline_lora_resources(node)
         inline_embeddings, embedding_issues = _inline_embedding_resources(node)
@@ -1177,6 +1275,7 @@ def extract_active_resources(
         jake_embeddings, jake_embedding_issues = _embedding_picker_multi_jk_resources(node)
         records.extend(direct)
         records.extend(power_loras)
+        records.extend(nd_super_loras)
         records.extend(stack_loras)
         records.extend(inline_loras)
         records.extend(inline_embeddings)
@@ -1186,6 +1285,7 @@ def extract_active_resources(
         records.extend(jake_embeddings)
         issues.extend(direct_issues)
         issues.extend(power_issues)
+        issues.extend(nd_super_issues)
         issues.extend(stack_issues)
         issues.extend(inline_issues)
         issues.extend(embedding_issues)

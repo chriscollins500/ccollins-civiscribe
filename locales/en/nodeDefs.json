@@ -45,7 +45,7 @@
       },
       "include_workflow": {
         "name": "Embed ComfyUI workflow",
-        "tooltip": "Include the sanitized ComfyUI workflow when metadata supports it."
+        "tooltip": "When on, embed the sanitized ComfyUI API prompt graph and UI workflow graph. Turn it off to omit both from the image and sidecar."
       },
       "include_civitai_manifest": {
         "name": "Embed Civitai manifest",

@@ -5,7 +5,9 @@ import tomllib
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-PUBLISH_ACTION = "Comfy-Org/publish-node-action@d2366e7abb6ab16f3bb03e3520ae25c8cf749bc9"
+CHECKOUT_ACTION = "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+SETUP_NODE_ACTION = "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020"
+SETUP_PYTHON_ACTION = "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97"
 
 
 def test_registry_metadata_uses_permanent_release_identity() -> None:
@@ -30,10 +32,10 @@ def test_release_version_is_final_and_frontend_matches() -> None:
     version_source = (PROJECT_ROOT / "civiscribe" / "version.py").read_text(encoding="utf-8")
     match = re.search(r'^__version__ = "([^"]+)"$', version_source, re.MULTILINE)
     assert match is not None
-    assert match.group(1) == "2.0.0"
+    assert match.group(1) == "2.0.1"
 
     package = (PROJECT_ROOT / "package.json").read_text(encoding="utf-8")
-    assert '"version": "2.0.0"' in package
+    assert '"version": "2.0.1"' in package
     assert ".dev" not in match.group(1)
 
 
@@ -44,10 +46,29 @@ def test_registry_publish_is_manual_validated_and_commit_pinned() -> None:
     assert "\n  push:" not in workflow
     assert "\n  pull_request:" not in workflow
     assert "needs: validate" in workflow
-    assert PUBLISH_ACTION in workflow
+    assert "Comfy-Org/publish-node-action" not in workflow
+    assert 'python -m pip install "comfy-cli==1.16.0"' in workflow
+    assert 'comfy node publish --token "$REGISTRY_ACCESS_TOKEN"' in workflow
     assert "secrets.REGISTRY_ACCESS_TOKEN" in workflow
-    assert 'skip_checkout: "true"' in workflow
     assert "pat-" not in workflow
+
+
+def test_github_workflows_use_current_node24_action_runtimes() -> None:
+    for name in ("validation.yml", "publish.yml"):
+        workflow = (PROJECT_ROOT / ".github" / "workflows" / name).read_text(encoding="utf-8")
+        assert CHECKOUT_ACTION in workflow
+        assert SETUP_PYTHON_ACTION in workflow
+        assert "@v4" not in workflow
+        assert "@v5" not in workflow
+
+    validation = (PROJECT_ROOT / ".github" / "workflows" / "validation.yml").read_text(
+        encoding="utf-8"
+    )
+    publish = (PROJECT_ROOT / ".github" / "workflows" / "publish.yml").read_text(encoding="utf-8")
+    assert SETUP_NODE_ACTION in validation
+    assert SETUP_NODE_ACTION in publish
+    assert 'node-version: "24.19.0"' in validation
+    assert 'node-version: "24.19.0"' in publish
 
 
 def test_comfyignore_keeps_registry_runtime_payload() -> None:

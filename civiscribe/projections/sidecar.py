@@ -226,7 +226,9 @@ def build_sidecar_projection(
     """Build one bounded sidecar without duplicating prompt or workflow payloads."""
 
     active_policy = policy or SidecarPolicy()
-    sanitized_prompt = sanitize_metadata_json(active_policy.prompt)
+    sanitized_prompt = sanitize_metadata_json(
+        active_policy.prompt if active_policy.include_workflow else None
+    )
     sanitized_workflow = sanitize_metadata_json(
         active_policy.workflow if active_policy.include_workflow else None
     )
@@ -242,7 +244,7 @@ def build_sidecar_projection(
         if active_policy.include_civitai_manifest:
             civitai = build_civitai_manifest(record)
             civitai["workflowRefs"] = {
-                "prompt": "#/payloads/prompt",
+                "prompt": "#/payloads/prompt" if sanitized_prompt.value is not None else None,
                 "workflow": "#/payloads/workflow"
                 if active_policy.include_workflow and active_policy.workflow is not None
                 else None,

@@ -45,7 +45,7 @@
       },
       "include_workflow": {
         "name": "ComfyUI ワークフローを埋め込む",
-        "tooltip": "メタデータ形式が対応する場合、サニタイズ済み ComfyUI ワークフローを含めます。"
+        "tooltip": "オンにすると、サニタイズ済みの ComfyUI API プロンプトグラフと UI ワークフローグラフを埋め込みます。オフにすると、画像とサイドカーの両方から両グラフを省きます。"
       },
       "include_civitai_manifest": {
         "name": "Civitai マニフェストを埋め込む",

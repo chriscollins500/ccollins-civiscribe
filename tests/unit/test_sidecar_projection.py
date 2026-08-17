@@ -128,7 +128,7 @@ def test_policy_controls_workflow_manifest_and_deduplicates_save_warnings() -> N
             ),
         ),
     )
-    assert projection.payload["payloads"] == {"prompt": {"known": True}, "workflow": None}
+    assert projection.payload["payloads"] == {"prompt": None, "workflow": None}
     assert cast(dict[str, object], projection.payload["projections"])["civitai"] is None
     save = cast(dict[str, object], projection.payload["save"])
     assert save["warnings"] == [
@@ -136,6 +136,25 @@ def test_policy_controls_workflow_manifest_and_deduplicates_save_warnings() -> N
         {"code": "global_warning", "batchIndex": None},
     ]
     assert "secretWorkflowMarker" not in projection.json_text
+
+
+def test_disabled_workflow_embedding_clears_sidecar_graph_refs() -> None:
+    projection = build_sidecar_projection(
+        complete_record(),
+        _artifact(),
+        SidecarPolicy(
+            prompt={"apiPromptGraph": True},
+            workflow={"uiWorkflowGraph": True},
+            include_workflow=False,
+            include_civitai_manifest=True,
+        ),
+    )
+    assert projection.payload["payloads"] == {"prompt": None, "workflow": None}
+    projections = cast(dict[str, object], projection.payload["projections"])
+    civitai = cast(dict[str, object], projections["civitai"])
+    assert civitai["workflowRefs"] == {"prompt": None, "workflow": None}
+    assert "apiPromptGraph" not in projection.json_text
+    assert "uiWorkflowGraph" not in projection.json_text
 
 
 def test_payload_redaction_is_reported_without_leaking_private_values(

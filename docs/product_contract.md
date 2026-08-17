@@ -257,8 +257,8 @@ Normal PNG output preserves the proven compatibility layout:
 
 - `parameters` as classic PNG `tEXt`;
 - `Software` as PNG `tEXt`;
-- `prompt` as UTF-8 `iTXt`;
-- `workflow` as UTF-8 `iTXt` when enabled;
+- `prompt` as UTF-8 `iTXt` when workflow embedding is enabled;
+- `workflow` as UTF-8 `iTXt` when workflow embedding is enabled;
 - `civitai` as UTF-8 `iTXt` when enabled;
 - EXIF UserComment as an additional compatibility carrier.
 
@@ -362,7 +362,9 @@ from tensor dtype alone.
 The optional sidecar is deterministic UTF-8 JSON with a small versioned schema.
 It includes the complete `GenerationRecord`, prompt/workflow payloads according
 to the user's embed policy, diagnostics, and parser projections where useful.
-It contains no absolute paths or secrets.
+Disabling workflow embedding suppresses both the ComfyUI API prompt graph and
+UI workflow graph in the image and sidecar. It contains no absolute paths or
+secrets.
 
 Prompt and workflow JSON appear at most once in the sidecar. Canonical fields
 refer to that copy rather than duplicating large payloads.
