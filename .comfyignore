@@ -22,6 +22,7 @@ tools/
 typing_stubs/
 node_modules/
 web/src/
+web/dist/
 CHANGELOG.md
 CONTRIBUTING.md
 SECURITY.md

@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from .civiscribe.extension import CiviScribeExtension
 
 
-WEB_DIRECTORY = "./web/dist"
+WEB_DIRECTORY = "./web/runtime"
 
 
 async def comfy_entrypoint() -> CiviScribeExtension:

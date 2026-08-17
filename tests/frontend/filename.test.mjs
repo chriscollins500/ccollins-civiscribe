@@ -4,7 +4,7 @@ import test from "node:test";
 import {
   applyComfyFilenameReplacements,
   installFilenameSerialization,
-} from "../../web/dist/filename.js";
+} from "../../web/runtime/filename.js";
 
 test("ComfyUI filename replacements support dates and node widget values", () => {
   const graph = {

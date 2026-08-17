@@ -37,4 +37,4 @@ def test_root_exports_only_native_v3_entrypoint_contract() -> None:
 
 
 def test_compiled_frontend_identity_module_is_present() -> None:
-    assert (ROOT / "web" / "dist" / "civiscribe.js").is_file()
+    assert (ROOT / "web" / "runtime" / "civiscribe.js").is_file()

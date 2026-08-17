@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import errno
-import importlib
 import json
 import math
 import os
@@ -15,6 +14,17 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, BinaryIO
+
+if os.name == "nt":
+    import msvcrt
+
+    _LOCKING_MODULE: Any = msvcrt
+elif os.name == "posix":  # pragma: no cover - selected only on POSIX
+    import fcntl
+
+    _LOCKING_MODULE = fcntl
+else:  # pragma: no cover - no supported release platform reaches this branch
+    _LOCKING_MODULE = None
 
 from ..domain import ScanIssue
 from ..serialization import dumps_json
@@ -39,7 +49,6 @@ _SECRET_KEYS = {
     "secret",
     "token",
 }
-_LOCKING_MODULE: Any = importlib.import_module("msvcrt" if os.name == "nt" else "fcntl")
 
 
 @dataclass(frozen=True, slots=True)

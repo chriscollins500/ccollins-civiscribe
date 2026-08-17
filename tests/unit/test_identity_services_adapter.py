@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import importlib
 from pathlib import Path
 from types import ModuleType
 
@@ -32,7 +31,7 @@ def test_services_use_comfy_user_directory_and_keep_lookup_disabled(
     user_directory = tmp_path / "user"
     model_root = tmp_path / "models"
     module = _folder_paths(user_directory=user_directory, model_root=model_root)
-    monkeypatch.setattr(importlib, "import_module", lambda _name: module)
+    monkeypatch.setattr(adapter, "_FOLDER_PATHS_MODULE", module)
 
     services = identity_services_from_comfy(output_root=tmp_path / "output")
 
@@ -57,7 +56,7 @@ def test_services_fall_back_to_output_for_unavailable_user_directory(
     module.get_user_directory = (  # type: ignore[attr-defined]
         lambda: (_ for _ in ()).throw(OSError("private"))
     )
-    monkeypatch.setattr(importlib, "import_module", lambda _name: module)
+    monkeypatch.setattr(adapter, "_FOLDER_PATHS_MODULE", module)
     output_root = tmp_path / "output"
 
     services = identity_services_from_comfy(
@@ -79,11 +78,7 @@ def test_services_degrade_cleanly_when_comfy_module_is_unavailable(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setattr(
-        importlib,
-        "import_module",
-        lambda _name: (_ for _ in ()).throw(ImportError),
-    )
+    monkeypatch.setattr(adapter, "_FOLDER_PATHS_MODULE", None)
 
     services = identity_services_from_comfy(output_root=tmp_path)
 

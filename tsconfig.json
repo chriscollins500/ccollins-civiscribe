@@ -9,7 +9,7 @@
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
     "noUncheckedIndexedAccess": true,
-    "outDir": "web/dist",
+    "outDir": "web/runtime",
     "rootDir": "web/src",
     "strict": true,
     "target": "ES2022"

@@ -29,7 +29,7 @@ def _write(path: Path, value: str) -> None:
 
 
 def _runtime_source(root: Path) -> None:
-    _write(root / "__init__.py", 'WEB_DIRECTORY = "./web/dist"\n')
+    _write(root / "__init__.py", 'WEB_DIRECTORY = "./web/runtime"\n')
     _write(root / "LICENSE", "MIT License\n")
     _write(root / "README.md", "# CiviScribe\n")
     _write(root / "civiscribe" / "__init__.py", '"""Runtime package."""\n')
@@ -37,8 +37,8 @@ def _runtime_source(root: Path) -> None:
     _write(root / "civiscribe" / "schemas" / "sidecar.json", "{}\n")
     _write(root / "locales" / "en" / "nodeDefs.json", "{}\n")
     _write(root / "locales" / "fr" / "nodeDefs.json", "{}\n")
-    _write(root / "web" / "dist" / "civiscribe.js", "export const value = 1;\n")
-    _write(root / "web" / "dist" / "extension.js", "export const extension = {};\n")
+    _write(root / "web" / "runtime" / "civiscribe.js", "export const value = 1;\n")
+    _write(root / "web" / "runtime" / "extension.js", "export const extension = {};\n")
 
 
 def _deterministic_info(name: str, payload: bytes) -> tuple[zipfile.ZipInfo, bytes]:
@@ -51,14 +51,14 @@ def _deterministic_info(name: str, payload: bytes) -> tuple[zipfile.ZipInfo, byt
 
 def _valid_entries() -> list[tuple[zipfile.ZipInfo, bytes]]:
     payloads = {
-        "__init__.py": b'WEB_DIRECTORY = "./web/dist"\n',
+        "__init__.py": b'WEB_DIRECTORY = "./web/runtime"\n',
         "LICENSE": b"MIT License\n",
         "README.md": b"# CiviScribe\n",
         "civiscribe/__init__.py": b'"""Runtime package."""\n',
         "civiscribe/version.py": b'__version__ = "2.0.0.dev0"\n',
         "locales/en/nodeDefs.json": b"{}\n",
-        "web/dist/civiscribe.js": b"export const value = 1;\n",
-        "web/dist/extension.js": b"export const extension = {};\n",
+        "web/runtime/civiscribe.js": b"export const value = 1;\n",
+        "web/runtime/extension.js": b"export const extension = {};\n",
     }
     return [
         _deterministic_info(f"{DEFAULT_ROOT_NAME}/{relative}", payload)
@@ -112,8 +112,8 @@ def test_builder_is_allowlisted_deterministic_and_audited(tmp_path: Path) -> Non
             "civiscribe/version.py",
             "locales/en/nodeDefs.json",
             "locales/fr/nodeDefs.json",
-            "web/dist/civiscribe.js",
-            "web/dist/extension.js",
+            "web/runtime/civiscribe.js",
+            "web/runtime/extension.js",
         }
         assert all(info.date_time == FIXED_ZIP_TIMESTAMP for info in infos)
         assert all((info.external_attr >> 16) == FILE_MODE for info in infos)
@@ -199,7 +199,7 @@ def test_auditor_rejects_symlinks_forbidden_members_and_hidden_metadata(
                 b"metadata\n",
             ),
             _deterministic_info(
-                f"{DEFAULT_ROOT_NAME}/web/dist/node_modules/pkg.js",
+                f"{DEFAULT_ROOT_NAME}/web/runtime/node_modules/pkg.js",
                 b"export {};\n",
             ),
         ]
@@ -244,7 +244,7 @@ def test_auditor_rejects_missing_required_members_and_invalid_zip(
     entries = [
         entry
         for entry in _valid_entries()
-        if not entry[0].filename.endswith("/web/dist/extension.js")
+        if not entry[0].filename.endswith("/web/runtime/extension.js")
     ]
     _write_archive(missing_path, entries)
     assert "required_member_missing" in audit_release(missing_path).errors

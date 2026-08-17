@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import importlib
 from pathlib import Path
+from types import ModuleType
 
 from ..identity.civitai_client import (
     PROCESS_RATE_LIMIT_GATE,
@@ -14,6 +14,14 @@ from ..identity.hashing import HashCache
 from ..identity.local_cache import IdentityCache
 from ..identity.resolver import IdentityServices
 from .model_files import ModelRootLocator, _folder_paths_roots
+
+_FOLDER_PATHS_MODULE: ModuleType | None
+try:
+    import folder_paths
+except ImportError:
+    _FOLDER_PATHS_MODULE = None
+else:
+    _FOLDER_PATHS_MODULE = folder_paths
 
 CACHE_DIRECTORY_NAME = "ccollins-civiscribe"
 
@@ -38,9 +46,8 @@ def identity_services_from_comfy(
 ) -> IdentityServices:
     """Build best-effort adapters; construction never performs network I/O."""
 
-    try:
-        folder_paths_module = importlib.import_module("folder_paths")
-    except ImportError:
+    folder_paths_module = _FOLDER_PATHS_MODULE
+    if folder_paths_module is None:
         return IdentityServices(
             civitai=CivitaiClient(
                 CivitaiLookupConfig(

@@ -72,11 +72,11 @@ include = [
   "/__init__.py",
   "/civiscribe",
   "/locales",
-  "/web/dist",
+  "/web/runtime",
   "/LICENSE",
   "/README.md",
 ]
-artifacts = ["/web/dist/*.js"]
+artifacts = ["/web/runtime/*.js"]
 
 [tool.pytest.ini_options]
 addopts = [

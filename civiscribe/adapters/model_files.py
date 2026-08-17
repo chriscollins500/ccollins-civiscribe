@@ -2,13 +2,20 @@
 
 from __future__ import annotations
 
-import importlib
 from collections.abc import Iterable, Mapping
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from types import ModuleType
 
 from ..domain import ResourceKind, ResourceRecord, ResourceRole
 from ..identity.types import LocatedResourceFile
+
+_FOLDER_PATHS_MODULE: ModuleType | None
+try:
+    import folder_paths
+except ImportError:
+    _FOLDER_PATHS_MODULE = None
+else:
+    _FOLDER_PATHS_MODULE = folder_paths
 
 _ASCII_CONTROL_BOUNDARY = 32
 RESOURCE_CATEGORY_ALIASES: dict[ResourceRole, tuple[str, ...]] = {
@@ -142,9 +149,8 @@ def _registered_roots(
 def model_locator_from_comfy() -> ModelRootLocator:
     """Build a locator from current ComfyUI model roots without hard-coded paths."""
 
-    try:
-        folder_paths_module = importlib.import_module("folder_paths")
-    except ImportError:
+    folder_paths_module = _FOLDER_PATHS_MODULE
+    if folder_paths_module is None:
         return ModelRootLocator({})
     return ModelRootLocator(_folder_paths_roots(folder_paths_module))
 

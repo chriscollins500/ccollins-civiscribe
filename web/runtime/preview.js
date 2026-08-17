@@ -61,9 +61,11 @@ export function installPreviewPolicy(node) {
     if (node.addCustomWidget === undefined) {
         return false;
     }
-    const original = node.addCustomWidget.bind(node);
+    // Reflect.apply below restores the original receiver before invocation.
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    const original = node.addCustomWidget;
     node.addCustomWidget = function (widget) {
-        const result = original(widget);
+        const result = Reflect.apply(original, node, [widget]);
         handlePreviewWidget(node, widget, state);
         return result;
     };

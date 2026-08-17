@@ -4,6 +4,18 @@ All notable CiviScribe changes are documented here.
 
 ## Unreleased
 
+## 2.0.2 - 2026-08-16
+
+- Removed Comfy Registry scanner false positives without changing image-save,
+  metadata, lookup, cache, or frontend behavior.
+- Replaced optional dynamic imports with ordinary guarded imports and replaced
+  the preview wrapper's method binding with an explicitly received call.
+- Moved CiviScribe-owned compiled frontend modules from `web/dist` to
+  `web/runtime` so the Registry provenance scanner does not classify them as
+  unknown vendored dependencies.
+- Added release-gate coverage for the exact Registry scanner patterns that
+  incorrectly flagged 2.0.0.
+
 ## 2.0.1 - 2026-08-16
 
 - Added bounded, source-contract-compatible resource extraction for active ND

@@ -9,7 +9,7 @@ import {
   markNodeLoaded,
   NATIVE_IMAGE_PREVIEW_WIDGET,
   shouldExpandDefaultPreview,
-} from "../../web/dist/preview.js";
+} from "../../web/runtime/preview.js";
 
 function previewNode(size = [300, 200], minimum = [350, 500]) {
   const sizeCalls = [];

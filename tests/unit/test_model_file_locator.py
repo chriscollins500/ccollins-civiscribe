@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import importlib
 from dataclasses import replace
 from pathlib import Path
 from types import ModuleType
@@ -315,10 +314,7 @@ def test_folder_paths_roots_skips_unavailable_categories(tmp_path: Path) -> None
 def test_model_locator_from_comfy_handles_missing_module(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    def missing_module(_name: str) -> ModuleType:
-        raise ImportError("folder_paths unavailable")
-
-    monkeypatch.setattr(importlib, "import_module", missing_module)
+    monkeypatch.setattr(model_files, "_FOLDER_PATHS_MODULE", None)
 
     assert model_files.model_locator_from_comfy().locate(_resource("model.gguf")) is None
 
@@ -335,11 +331,7 @@ def test_model_locator_from_comfy_uses_registered_roots(
     folder_paths.__dict__["get_folder_paths"] = lambda category: (
         [root] if category == "diffusion_models" else []
     )
-    monkeypatch.setattr(
-        importlib,
-        "import_module",
-        lambda _name: folder_paths,
-    )
+    monkeypatch.setattr(model_files, "_FOLDER_PATHS_MODULE", folder_paths)
 
     located = model_files.model_locator_from_comfy().locate(_resource("model.gguf"))
 

@@ -30,7 +30,7 @@ ROOT_FILES = frozenset({"__init__.py", "LICENSE", "README.md"})
 TREE_SUFFIXES: dict[str, frozenset[str]] = {
     "civiscribe": frozenset({".json", ".py"}),
     "locales": frozenset({".json"}),
-    "web/dist": frozenset({".js"}),
+    "web/runtime": frozenset({".js"}),
 }
 REQUIRED_MEMBERS = frozenset(
     {
@@ -40,8 +40,8 @@ REQUIRED_MEMBERS = frozenset(
         "civiscribe/__init__.py",
         "civiscribe/version.py",
         "locales/en/nodeDefs.json",
-        "web/dist/civiscribe.js",
-        "web/dist/extension.js",
+        "web/runtime/civiscribe.js",
+        "web/runtime/extension.js",
     }
 )
 FORBIDDEN_PARTS = frozenset(

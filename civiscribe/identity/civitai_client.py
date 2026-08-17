@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import importlib
 import json
 import math
 import re
@@ -15,6 +14,7 @@ from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from email.utils import parsedate_to_datetime
 from types import TracebackType
+from typing import Any
 from urllib.parse import urlparse
 
 import httpx
@@ -41,6 +41,22 @@ from .hash_values import (
 )
 from .resource_types import resource_type_is_ambiguous, resource_type_matches_role
 from .types import LookupStatus
+
+_certifi_provider: Any | None
+try:
+    import certifi
+except ImportError:  # pragma: no cover - exercised on dependency-minimal platforms
+    _certifi_provider = None
+else:
+    _certifi_provider = certifi
+
+_truststore_provider: Any | None
+try:
+    import truststore
+except ImportError:  # pragma: no cover - exercised on dependency-minimal platforms
+    _truststore_provider = None
+else:
+    _truststore_provider = truststore
 
 CIVITAI_API_BASE = "https://civitai.com/api/v1"
 DEFAULT_LOOKUP_TIMEOUT_SECONDS = 4.0
@@ -214,7 +230,9 @@ def create_tls_contexts() -> tuple[tuple[str, ssl.SSLContext], ...]:
         ("system_default", _tls_minimum(ssl.create_default_context()))
     ]
     try:
-        truststore = importlib.import_module("truststore")
+        truststore = _truststore_provider
+        if truststore is None:
+            raise ImportError
         contexts.append(
             (
                 "truststore",
@@ -224,7 +242,9 @@ def create_tls_contexts() -> tuple[tuple[str, ssl.SSLContext], ...]:
     except (ImportError, AttributeError, ssl.SSLError):
         pass
     try:
-        certifi = importlib.import_module("certifi")
+        certifi = _certifi_provider
+        if certifi is None:
+            raise ImportError
         certifi_context = ssl.create_default_context(cafile=certifi.where())
         contexts.append(("certifi", _tls_minimum(certifi_context)))
     except (ImportError, AttributeError, OSError, ssl.SSLError):

@@ -32,10 +32,10 @@ def test_release_version_is_final_and_frontend_matches() -> None:
     version_source = (PROJECT_ROOT / "civiscribe" / "version.py").read_text(encoding="utf-8")
     match = re.search(r'^__version__ = "([^"]+)"$', version_source, re.MULTILINE)
     assert match is not None
-    assert match.group(1) == "2.0.1"
+    assert match.group(1) == "2.0.2"
 
     package = (PROJECT_ROOT / "package.json").read_text(encoding="utf-8")
-    assert '"version": "2.0.1"' in package
+    assert '"version": "2.0.2"' in package
     assert ".dev" not in match.group(1)
 
 
@@ -83,7 +83,7 @@ def test_comfyignore_keeps_registry_runtime_payload() -> None:
             "__init__.py",
             "civiscribe/",
             "locales/",
-            "web/dist/",
+            "web/runtime/",
             "LICENSE",
             "README.md",
         }
@@ -93,3 +93,20 @@ def test_comfyignore_keeps_registry_runtime_payload() -> None:
     assert "build/" not in ignored_patterns
     assert "dist/" not in ignored_patterns
     assert "web/src/" in ignored_patterns
+    assert "web/dist/" in ignored_patterns
+
+
+def test_registry_payload_avoids_known_scanner_false_positive_patterns() -> None:
+    runtime_root = PROJECT_ROOT / "web" / "runtime"
+    assert runtime_root.is_dir()
+    assert not (PROJECT_ROOT / "web" / "dist").exists()
+
+    python_sources = sorted((PROJECT_ROOT / "civiscribe").rglob("*.py"))
+    runtime_scripts = sorted(runtime_root.rglob("*.js"))
+    assert python_sources
+    assert runtime_scripts
+    assert all(
+        "importlib.import_module(" not in path.read_text(encoding="utf-8")
+        for path in python_sources
+    )
+    assert all(".bind(" not in path.read_text(encoding="utf-8") for path in runtime_scripts)

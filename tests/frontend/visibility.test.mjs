@@ -7,7 +7,7 @@ import {
   installProgressiveVisibility,
   PROGRESSIVE_WIDGET_NAMES,
   visibilityState,
-} from "../../web/dist/visibility.js";
+} from "../../web/runtime/visibility.js";
 
 function widget(name, value) {
   return { name, value, options: {} };

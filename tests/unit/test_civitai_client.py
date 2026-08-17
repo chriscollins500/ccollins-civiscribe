@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import importlib
 import json
 import socket
 import ssl
@@ -1463,18 +1462,8 @@ def test_tls_contexts_require_verification_and_tls_1_2_or_newer() -> None:
 def test_tls_contexts_tolerate_missing_optional_providers(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    real_import = importlib.import_module
-
-    def import_without_optional_providers(name: str) -> object:
-        if name in {"truststore", "certifi"}:
-            raise ImportError(name)
-        return real_import(name)
-
-    monkeypatch.setattr(
-        importlib,
-        "import_module",
-        import_without_optional_providers,
-    )
+    monkeypatch.setattr(client_module, "_truststore_provider", None)
+    monkeypatch.setattr(client_module, "_certifi_provider", None)
 
     contexts = create_tls_contexts()
 

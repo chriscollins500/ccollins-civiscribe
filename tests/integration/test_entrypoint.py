@@ -148,7 +148,7 @@ def _load_root_entrypoint() -> ModuleType:
 def test_root_import_is_lazy_and_needs_no_comfyui_runtime() -> None:
     module = _load_root_entrypoint()
     try:
-        assert module.WEB_DIRECTORY == "./web/dist"
+        assert module.WEB_DIRECTORY == "./web/runtime"
         assert callable(module.comfy_entrypoint)
     finally:
         for name in tuple(sys.modules):

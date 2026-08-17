@@ -5,9 +5,9 @@ import {
   createCiviScribeExtension,
   EXTENSION_NAME,
   isCiviScribeNode,
-} from "../../web/dist/extension.js";
-import { NODE_ID } from "../../web/dist/identity.js";
-import { NATIVE_IMAGE_PREVIEW_WIDGET } from "../../web/dist/preview.js";
+} from "../../web/runtime/extension.js";
+import { NODE_ID } from "../../web/runtime/identity.js";
+import { NATIVE_IMAGE_PREVIEW_WIDGET } from "../../web/runtime/preview.js";
 
 function targetNode() {
   const sizeCalls = [];

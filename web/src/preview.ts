@@ -98,12 +98,14 @@ export function installPreviewPolicy(node: ComfyNode): boolean {
   if (node.addCustomWidget === undefined) {
     return false;
   }
-  const original = node.addCustomWidget.bind(node);
+  // Reflect.apply below restores the original receiver before invocation.
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  const original = node.addCustomWidget;
   node.addCustomWidget = function (
     this: ComfyNode,
     widget: ComfyWidget,
   ): ComfyWidget {
-    const result = original(widget);
+    const result = Reflect.apply(original, node, [widget]);
     handlePreviewWidget(node, widget, state);
     return result;
   };
