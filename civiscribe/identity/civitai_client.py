@@ -55,7 +55,7 @@ try:
     import truststore
 except ImportError:  # pragma: no cover - exercised on dependency-minimal platforms
     _truststore_provider = None
-else:
+else:  # pragma: no cover - dependency availability is platform-specific
     _truststore_provider = truststore
 
 CIVITAI_API_BASE = "https://civitai.com/api/v1"

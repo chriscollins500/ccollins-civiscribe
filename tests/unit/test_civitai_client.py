@@ -1459,6 +1459,20 @@ def test_tls_contexts_require_verification_and_tls_1_2_or_newer() -> None:
         assert context.minimum_version >= ssl.TLSVersion.TLSv1_2
 
 
+def test_tls_contexts_include_available_truststore(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        client_module,
+        "_truststore_provider",
+        SimpleNamespace(SSLContext=ssl.SSLContext),
+    )
+
+    contexts = create_tls_contexts()
+
+    assert "truststore" in [source for source, _context in contexts]
+
+
 def test_tls_contexts_tolerate_missing_optional_providers(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

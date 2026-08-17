@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, BinaryIO
 
-if os.name == "nt":
+if os.name == "nt":  # pragma: no cover - selected only on Windows
     import msvcrt
 
     _LOCKING_MODULE: Any = msvcrt
