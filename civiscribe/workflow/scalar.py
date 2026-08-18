@@ -18,6 +18,7 @@ from .routing import RoutingStatus, selected_upstream_edges
 _MAX_SCALAR_REFERENCE_DEPTH = 8
 _IDEOGRAM_WIDTH_OUTPUT = 3
 _SCALED_OUTPUT_OFFSET = 2
+_RGTHREE_DYNAMIC_SEED_SENTINELS = frozenset({-1, -2, -3})
 _DIMENSION_PAIR = re.compile(r"(?<!\d)(\d{1,6})\s*[xX\u00d7]\s*(\d{1,6})(?!\d)")
 _ASPECT_RATIO = re.compile(r"^\s*(\d+(?:\.\d+)?)\s*:\s*(\d+(?:\.\d+)?)")
 _SCALAR_PASSTHROUGHS: dict[str, tuple[str, frozenset[int]]] = {
@@ -182,6 +183,7 @@ class _ScalarResolver:
             )
             return True, value
         handlers = {
+            "seedrgthree": self._rgthree_seed,
             "impactstringselector": self._impact_string_selector,
             "selectordeprompts": self._selector_de_prompts,
             "easypromptconcat": self._concatenated_text,
@@ -284,6 +286,19 @@ class _ScalarResolver:
             return None
         value = self._input(node, "source", seen=seen, depth=depth)
         return None if value is None else str(value)
+
+    def _rgthree_seed(
+        self,
+        node: PromptNode,
+        output_index: int,
+        *,
+        seen: frozenset[str],
+        depth: int,
+    ) -> int | None:
+        if output_index != 0:
+            return None
+        seed = scalar_int(self._input(node, "seed", seen=seen, depth=depth))
+        return None if seed in _RGTHREE_DYNAMIC_SEED_SENTINELS else seed
 
     def _source_backed_output(
         self,

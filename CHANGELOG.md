@@ -4,6 +4,13 @@ All notable CiviScribe changes are documented here.
 
 ## Unreleased
 
+## 2.0.3 - 2026-08-17
+
+- Added an explicit current rgthree `Seed (rgthree)` scalar contract so a
+  fixed or frontend-resolved seed consistently reaches `%seed%`, A1111/EXIF,
+  Civitai metadata, and sidecars. Unresolved `-1`, `-2`, and `-3` rgthree
+  execution sentinels remain unknown instead of being published as real seeds.
+
 ## 2.0.2 - 2026-08-16
 
 - Removed Comfy Registry scanner false positives without changing image-save,

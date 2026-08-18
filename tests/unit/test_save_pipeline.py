@@ -43,6 +43,7 @@ from civiscribe.writers.protocol import WriteResult
 from tools.validate_sidecar import validate_sidecar
 
 RGB_CHANNELS = 3
+RGTHREE_SEED = 987654321
 
 
 def _frame(value: float = 0.5) -> ImageFrame:
@@ -246,6 +247,35 @@ def test_generation_metadata_tokens_drive_requested_filename(tmp_path: Path) -> 
     saved = outcome.saved_images[0]
     assert saved.subfolder == "2026-07-18"
     assert saved.filename == ("140506_basic_sdxl.safetensors_123_euler_00001_.png")
+    assert outcome.warnings == ()
+
+
+def test_rgthree_seed_drives_filename_and_all_embedded_metadata(tmp_path: Path) -> None:
+    metadata = _metadata_request()
+    prompt = cast(dict[str, dict[str, object]], metadata.prompt)
+    prompt["8"] = {
+        "class_type": "Seed (rgthree)",
+        "inputs": {"seed": RGTHREE_SEED},
+    }
+    sampler_inputs = cast(dict[str, object], prompt["5"]["inputs"])
+    sampler_inputs["seed"] = ["8", 0]
+
+    outcome = save_image_batch(
+        SaveRequest(
+            images=(_frame(),),
+            output_root=tmp_path,
+            filename_prefix="rgthree_%seed%",
+            metadata=metadata,
+        )
+    )
+
+    saved = outcome.saved_images[0]
+    assert saved.filename == f"rgthree_{RGTHREE_SEED}_00001_.png"
+    with Image.open(tmp_path / saved.filename) as image:
+        text = cast(Mapping[str, str], getattr(image, "text", {}))
+        manifest = cast(dict[str, object], json.loads(text["civitai"]))
+    assert f"Seed: {RGTHREE_SEED}" in text["parameters"]
+    assert cast(dict[str, object], manifest["generation"])["seed"] == RGTHREE_SEED
     assert outcome.warnings == ()
 
 

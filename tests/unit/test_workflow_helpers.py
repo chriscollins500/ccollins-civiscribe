@@ -108,6 +108,7 @@ LORA_WEIGHT = 0.5
 LORA_MODEL_STRENGTH = 0.75
 LORA_CLIP_STRENGTH = 0.25
 RESOLVED_SCALAR = 99
+RGTHREE_SEED = 987654321
 MAX_STACK_LORAS = 64
 FALLBACK_SELECTOR = 7
 RESOLUTION_SELECTOR_SIZE = (1344, 768)
@@ -1697,6 +1698,16 @@ def test_deterministic_text_provider_outputs(
     expected: object,
 ) -> None:
     assert _deterministic_output(class_type, inputs, output_index) == expected
+
+
+def test_rgthree_seed_output_resolves_fixed_seed_only() -> None:
+    assert _deterministic_output("Seed (rgthree)", {"seed": RGTHREE_SEED}) == RGTHREE_SEED
+    assert _deterministic_output("Seed (rgthree)", {"seed": RGTHREE_SEED}, 1) is None
+
+
+@pytest.mark.parametrize("sentinel", [-1, -2, -3])
+def test_rgthree_dynamic_seed_sentinels_remain_unknown(sentinel: int) -> None:
+    assert _deterministic_output("Seed (rgthree)", {"seed": sentinel}) is None
 
 
 def test_impact_string_selector_matches_installed_line_and_block_semantics() -> None:

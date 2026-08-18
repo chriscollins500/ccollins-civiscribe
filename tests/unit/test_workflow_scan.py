@@ -64,6 +64,7 @@ CUSTOM_SIGMA_SEED = 12345
 CUSTOM_SIGMA_STEPS = 16
 HOOK_MODEL_STRENGTH = 0.8
 HOOK_CLIP_STRENGTH = 0.6
+RGTHREE_SEED = 987654321
 type Prompt = dict[str, dict[str, object]]
 type Fixture = dict[str, object]
 
@@ -118,6 +119,30 @@ def test_linked_sampler_constants_are_resolved_without_mutating_graph() -> None:
     assert result.settings.height == expected["height"]
     assert result.settings.sampler == "dpmpp_2m"
     assert result.settings.scheduler == "karras"
+
+
+def _rgthree_seed_prompt(seed: int) -> Prompt:
+    prompt, _ = _load_fixture("basic_checkpoint.json")
+    prompt["8"] = {"class_type": "Seed (rgthree)", "inputs": {"seed": seed}}
+    sampler_inputs = cast(dict[str, object], prompt["5"]["inputs"])
+    sampler_inputs["seed"] = ["8", 0]
+    return prompt
+
+
+def test_rgthree_seed_feeds_canonical_generation_settings() -> None:
+    result = scan_workflow(_rgthree_seed_prompt(RGTHREE_SEED))
+
+    assert result.settings.seed == RGTHREE_SEED
+    assert "8" in result.active_node_ids
+    assert "unknown_active_node_class" not in {issue.code for issue in result.issues}
+
+
+@pytest.mark.parametrize("sentinel", [-1, -2, -3])
+def test_rgthree_unresolved_dynamic_seed_is_not_published(sentinel: int) -> None:
+    result = scan_workflow(_rgthree_seed_prompt(sentinel))
+
+    assert result.settings.seed is None
+    assert "unknown_active_node_class" not in {issue.code for issue in result.issues}
 
 
 def test_disconnected_resources_are_excluded_and_zeroed_negative_stays_empty() -> None:

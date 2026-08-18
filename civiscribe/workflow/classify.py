@@ -2345,6 +2345,7 @@ def is_known_active_node(node: PromptNode) -> bool:
         "reloadmodel",
         "selectordeimagenes",
         "selectordeprompts",
+        "seedrgthree",
         "setcliphooks",
         "setimagesize",
         "setimagesizewithscale",
