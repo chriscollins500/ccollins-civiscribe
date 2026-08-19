@@ -4,10 +4,20 @@ import re
 import tomllib
 from pathlib import Path
 
+from PIL import Image
+
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 CHECKOUT_ACTION = "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
 SETUP_NODE_ACTION = "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020"
 SETUP_PYTHON_ACTION = "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97"
+ICON_URL = (
+    "https://raw.githubusercontent.com/chriscollins500/ccollins-civiscribe/"
+    "main/assets/branding/civiscribe-icon.png"
+)
+BANNER_URL = (
+    "https://raw.githubusercontent.com/chriscollins500/ccollins-civiscribe/"
+    "main/assets/branding/civiscribe-banner.png"
+)
 
 
 def test_registry_metadata_uses_permanent_release_identity() -> None:
@@ -23,19 +33,35 @@ def test_registry_metadata_uses_permanent_release_identity() -> None:
     assert metadata["tool"]["comfy"] == {
         "PublisherId": "chrisecollins500",
         "DisplayName": "CCollins' CiviScribe",
+        "Icon": ICON_URL,
+        "Banner": BANNER_URL,
         "requires-comfyui": ">=0.33.1",
         "version": {"path": "civiscribe/version.py"},
     }
+
+
+def test_registry_branding_assets_match_comfy_dimensions() -> None:
+    expected = {
+        "civiscribe-icon.png": (400, 400),
+        "civiscribe-banner.png": (1680, 720),
+    }
+
+    for filename, dimensions in expected.items():
+        asset = PROJECT_ROOT / "assets" / "branding" / filename
+        with Image.open(asset) as image:
+            assert image.format == "PNG"
+            assert image.mode == "RGB"
+            assert image.size == dimensions
 
 
 def test_release_version_is_final_and_frontend_matches() -> None:
     version_source = (PROJECT_ROOT / "civiscribe" / "version.py").read_text(encoding="utf-8")
     match = re.search(r'^__version__ = "([^"]+)"$', version_source, re.MULTILINE)
     assert match is not None
-    assert match.group(1) == "2.0.3"
+    assert match.group(1) == "2.0.4"
 
     package = (PROJECT_ROOT / "package.json").read_text(encoding="utf-8")
-    assert '"version": "2.0.3"' in package
+    assert '"version": "2.0.4"' in package
     assert ".dev" not in match.group(1)
 
 

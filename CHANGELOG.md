@@ -4,6 +4,12 @@ All notable CiviScribe changes are documented here.
 
 ## Unreleased
 
+## 2.0.4 - 2026-08-18
+
+- Added purpose-built square icon and 21:9 banner artwork for the Comfy
+  Registry listing. This release changes branding and package metadata only;
+  image saving and metadata behavior are unchanged.
+
 ## 2.0.3 - 2026-08-17
 
 - Added an explicit current rgthree `Seed (rgthree)` scalar contract so a

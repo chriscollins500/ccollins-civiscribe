@@ -37,6 +37,8 @@ Documentation = "https://github.com/chriscollins500/ccollins-civiscribe#readme"
 [tool.comfy]
 PublisherId = "chrisecollins500"
 DisplayName = "CCollins' CiviScribe"
+Icon = "https://raw.githubusercontent.com/chriscollins500/ccollins-civiscribe/main/assets/branding/civiscribe-icon.png"
+Banner = "https://raw.githubusercontent.com/chriscollins500/ccollins-civiscribe/main/assets/branding/civiscribe-banner.png"
 requires-comfyui = ">=0.33.1"
 
 [tool.comfy.version]
