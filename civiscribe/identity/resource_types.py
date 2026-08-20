@@ -12,9 +12,11 @@ _ROLE_TYPES: dict[ResourceRole, frozenset[str]] = {
     ResourceRole.HYPERNETWORK: frozenset({"hypernet"}),
     ResourceRole.IPADAPTER: frozenset({"controlnet"}),
     ResourceRole.LORA: frozenset({"dora", "locon", "lora", "lycoris"}),
-    ResourceRole.STYLE_MODEL: frozenset({"unknown"}),
-    ResourceRole.TEXT_ENCODER: frozenset({"text_encoders", "textencoder"}),
-    ResourceRole.VISION_ENCODER: frozenset({"unknown"}),
+    ResourceRole.STYLE_MODEL: frozenset({"ag", "unknown"}),
+    ResourceRole.TEXT_ENCODER: frozenset(
+        {"clip", "text_encoders", "textencoder", "visionlanguage"}
+    ),
+    ResourceRole.VISION_ENCODER: frozenset({"clipvision", "unknown"}),
     ResourceRole.MODEL_PATCH: frozenset({"unknown"}),
     ResourceRole.AUXILIARY_MODEL: frozenset({"unknown"}),
     ResourceRole.MOTION_MODULE: frozenset({"motion"}),

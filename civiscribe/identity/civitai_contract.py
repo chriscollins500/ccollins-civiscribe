@@ -37,6 +37,7 @@ SUPPORTED_MODEL_TYPES = (
     "Poses",
     "Wildcards",
     "Workflows",
+    "ComfyWorkflows",
     "Detection",
     "VisionLanguage",
     "CLIP",
@@ -64,7 +65,9 @@ SUPPORTED_MODEL_FILE_TYPES = (
 )
 
 _MODEL_TYPE_TO_RESOURCE_TYPE = {
+    "aestheticgradient": "ag",
     "checkpoint": "checkpoint",
+    "clip": "clip",
     "controlnet": "controlnet",
     "dora": "dora",
     "hypernetwork": "hypernet",
@@ -76,6 +79,7 @@ _MODEL_TYPE_TO_RESOURCE_TYPE = {
     "unet": "unet",
     "upscaler": "upscaler",
     "vae": "vae",
+    "visionlanguage": "visionlanguage",
 }
 _KNOWN_MODEL_TYPES = {value.casefold() for value in SUPPORTED_MODEL_TYPES}
 _MODEL_FILE_TYPES = {value.casefold(): value for value in SUPPORTED_MODEL_FILE_TYPES}

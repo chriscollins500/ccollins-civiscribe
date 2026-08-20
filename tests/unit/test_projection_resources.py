@@ -352,6 +352,14 @@ def test_resolved_resource_emits_full_air_aliases_and_optional_identity_fields()
 @pytest.mark.parametrize(
     ("raw_type", "expected_type", "role", "kind"),
     [
+        ("ag", "ag", ResourceRole.STYLE_MODEL, ResourceKind.STYLE_MODEL),
+        ("clip", "clip", ResourceRole.TEXT_ENCODER, ResourceKind.CLIP),
+        (
+            "clipvision",
+            "clipvision",
+            ResourceRole.VISION_ENCODER,
+            ResourceKind.VISION_ENCODER,
+        ),
         ("dora", "dora", ResourceRole.LORA, ResourceKind.LORA),
         (
             "hypernetwork",
@@ -396,6 +404,12 @@ def test_resolved_resource_emits_full_air_aliases_and_optional_identity_fields()
             "unknown",
             ResourceRole.AUXILIARY_MODEL,
             ResourceKind.AUXILIARY_MODEL,
+        ),
+        (
+            "visionlanguage",
+            "visionlanguage",
+            ResourceRole.TEXT_ENCODER,
+            ResourceKind.CLIP,
         ),
     ],
 )

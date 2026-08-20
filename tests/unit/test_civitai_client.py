@@ -48,6 +48,13 @@ TEXT_ENCODER_AIR = (
 UNKNOWN_TEXT_ENCODER_AIR = (
     f"urn:air:zimageturbo:unknown:civitai:{TEXT_ENCODER_MODEL_ID}@{TEXT_ENCODER_VERSION_ID}"
 )
+VISION_LANGUAGE_AIR = (
+    f"urn:air:qwen:visionlanguage:civitai:{TEXT_ENCODER_MODEL_ID}@{TEXT_ENCODER_VERSION_ID}"
+)
+CLIP_AIR = f"urn:air:sdxl:clip:civitai:{TEXT_ENCODER_MODEL_ID}@{TEXT_ENCODER_VERSION_ID}"
+CLIP_VISION_AIR = (
+    f"urn:air:sdxl:clipvision:civitai:{TEXT_ENCODER_MODEL_ID}@{TEXT_ENCODER_VERSION_ID}"
+)
 RETRY_AFTER_DELTA_SECONDS = 45
 RETRY_AFTER_DATE_SECONDS = 90
 MAX_TEST_COOLDOWN_SECONDS = 30
@@ -115,6 +122,16 @@ def _style_model_resource(*, hashes: HashRecord | None = None) -> ResourceRecord
         kind=ResourceKind.STYLE_MODEL,
         filename="style_model.safetensors",
         selected_value="style_model.safetensors",
+    )
+
+
+def _vision_encoder_resource(*, hashes: HashRecord | None = None) -> ResourceRecord:
+    return replace(
+        _resource(hashes=hashes),
+        role=ResourceRole.VISION_ENCODER,
+        kind=ResourceKind.VISION_ENCODER,
+        filename="clip_vision.safetensors",
+        selected_value="clip_vision.safetensors",
     )
 
 
@@ -268,12 +285,24 @@ def test_hash_lookup_uses_api_air_and_sends_only_public_get_data() -> None:
     assert no_private_request_data(requests[0])
 
 
-def test_current_text_encoder_api_type_and_air_resolve_directly() -> None:
+@pytest.mark.parametrize(
+    ("air", "model_type", "expected_type"),
+    [
+        (TEXT_ENCODER_AIR, "TextEncoder", "text_encoders"),
+        (VISION_LANGUAGE_AIR, "VisionLanguage", "visionlanguage"),
+        (CLIP_AIR, "CLIP", "clip"),
+    ],
+)
+def test_current_text_encoder_api_types_and_air_resolve_directly(
+    air: str,
+    model_type: str,
+    expected_type: str,
+) -> None:
     payload = _payload(
-        air=TEXT_ENCODER_AIR,
+        air=air,
         model_id=TEXT_ENCODER_MODEL_ID,
         version_id=TEXT_ENCODER_VERSION_ID,
-        model_type="TextEncoder",
+        model_type=model_type,
     )
 
     result = _client(lambda _request: httpx.Response(200, json=payload)).lookup(
@@ -282,8 +311,8 @@ def test_current_text_encoder_api_type_and_air_resolve_directly() -> None:
 
     assert result.status is LookupStatus.RESOLVED
     assert result.identity is not None
-    assert result.identity.canonical_air == TEXT_ENCODER_AIR
-    assert result.identity.resource_type == "text_encoders"
+    assert result.identity.canonical_air == air
+    assert result.identity.resource_type == expected_type
 
 
 @pytest.mark.parametrize(
@@ -490,6 +519,38 @@ def test_style_model_accepts_civitai_other_classification() -> None:
     assert result.status is LookupStatus.RESOLVED
     assert result.identity is not None
     assert result.identity.canonical_air == STYLE_MODEL_AIR
+
+
+def test_style_model_accepts_observed_aesthetic_gradient_air() -> None:
+    air = f"urn:air:sd1:ag:civitai:{MODEL_ID}@{MODEL_VERSION_ID}"
+    payload = _payload(air=air, model_type="AestheticGradient")
+
+    result = _client(lambda _request: httpx.Response(200, json=payload)).lookup(
+        _style_model_resource(hashes=HashRecord(sha256=SHA256))
+    )
+
+    assert result.status is LookupStatus.RESOLVED
+    assert result.identity is not None
+    assert result.identity.canonical_air == air
+    assert result.identity.resource_type == "ag"
+
+
+def test_vision_encoder_accepts_explicit_clipvision_air() -> None:
+    payload = _payload(
+        air=CLIP_VISION_AIR,
+        model_id=TEXT_ENCODER_MODEL_ID,
+        version_id=TEXT_ENCODER_VERSION_ID,
+        model_type="CLIPVision",
+    )
+
+    result = _client(lambda _request: httpx.Response(200, json=payload)).lookup(
+        _vision_encoder_resource(hashes=HashRecord(sha256=SHA256))
+    )
+
+    assert result.status is LookupStatus.RESOLVED
+    assert result.identity is not None
+    assert result.identity.canonical_air == CLIP_VISION_AIR
+    assert result.identity.resource_type == "clipvision"
 
 
 def test_sha256_type_collision_uses_role_compatible_official_air() -> None:

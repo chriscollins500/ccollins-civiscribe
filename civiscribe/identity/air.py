@@ -15,7 +15,10 @@ _ASCII_DELETE = 127
 _SEGMENT_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 _FORMAT_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,31}$")
 _SUPPORTED_TYPES = {
+    "ag",
     "checkpoint",
+    "clip",
+    "clipvision",
     "controlnet",
     "diffusionmodel",
     "dora",
@@ -33,6 +36,7 @@ _SUPPORTED_TYPES = {
     "unknown",
     "upscaler",
     "vae",
+    "visionlanguage",
 }
 
 

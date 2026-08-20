@@ -25,10 +25,10 @@ def test_current_release_notes_are_selected_from_project_sources(tmp_path: Path)
         output_path=output,
     )
 
-    assert version == "2.0.5"
+    assert version == "2.0.6"
     assert read_project_version(version_file) == version
     assert output.read_text(encoding="utf-8").startswith(
-        "- Added final-prompt guidance and diagnostics"
+        "- Added first-class handling for Civitai's observed"
     )
     assert "## 2.0.4" not in output.read_text(encoding="utf-8")
 

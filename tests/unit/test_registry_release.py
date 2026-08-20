@@ -65,10 +65,10 @@ def test_release_version_is_final_and_frontend_matches() -> None:
     version_source = (PROJECT_ROOT / "civiscribe" / "version.py").read_text(encoding="utf-8")
     match = re.search(r'^__version__ = "([^"]+)"$', version_source, re.MULTILINE)
     assert match is not None
-    assert match.group(1) == "2.0.5"
+    assert match.group(1) == "2.0.6"
 
     package = (PROJECT_ROOT / "package.json").read_text(encoding="utf-8")
-    assert '"version": "2.0.5"' in package
+    assert '"version": "2.0.6"' in package
     assert ".dev" not in match.group(1)
 
 

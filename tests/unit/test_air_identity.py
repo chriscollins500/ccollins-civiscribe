@@ -240,7 +240,10 @@ def test_unknown_type_is_preserved_with_warning() -> None:
     assert [issue.code for issue in result.issues] == ["air_resource_type_unknown"]
 
 
-@pytest.mark.parametrize("resource_type", ["text_encoders", "unknown"])
+@pytest.mark.parametrize(
+    "resource_type",
+    ["ag", "clip", "clipvision", "text_encoders", "unknown", "visionlanguage"],
+)
 def test_current_civitai_air_types_are_recognized(resource_type: str) -> None:
     raw = f"urn:air:zimageturbo:{resource_type}:civitai:1@2"
 

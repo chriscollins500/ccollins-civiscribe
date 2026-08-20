@@ -109,6 +109,27 @@ boundary for current `ModelType` and `ModelFileType` values. Known values that
 do not map safely to an AIR/resource role remain `unknown`. New API enum values
 also remain untrusted until reviewed; the scanner does not guess their meaning.
 
+The public API was checked on 2026-08-20. The current
+[`/api/v1/enums`](https://civitai.com/api/v1/enums) response includes
+`ComfyWorkflows` in addition to the previously reviewed model types. Current
+model-version responses provide direct official evidence for these mappings:
+
+- `VisionLanguage` to AIR type `visionlanguage`, as returned by
+  [model version 3082279](https://civitai.com/api/v1/model-versions/3082279)
+- `CLIP` to AIR type `clip`, as returned by
+  [model version 2266196](https://civitai.com/api/v1/model-versions/2266196)
+- `AestheticGradient` to AIR type `ag`, as returned by
+  [model version 20986](https://civitai.com/api/v1/model-versions/20986)
+
+`CLIPVision` is a current enum value, but the public model query inspected on
+that date did not return an official sample AIR. CiviScribe therefore accepts
+an explicit validated `clipvision` AIR while leaving enum-only fallback
+resolution as `unknown`. Sampled `Detection`, `LLM`, `Poses`, `Wildcards`,
+`Workflows`, and `ComfyWorkflows` records used the official AIR type `unknown`.
+Those values remain structured auxiliary evidence and are not converted into
+more specific identities. In particular, CiviScribe never infers a workflow
+identity from a graph, filename, or model type.
+
 Run the explicit read-only drift audit with:
 
 ```powershell

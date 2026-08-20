@@ -27,7 +27,10 @@ _HEX_LENGTHS = {
     "BLAKE3": 64,
 }
 _SAFE_CIVITAI_TYPES = {
+    "ag",
     "checkpoint",
+    "clip",
+    "clipvision",
     "controlnet",
     "diffusionmodel",
     "dora",
@@ -43,8 +46,10 @@ _SAFE_CIVITAI_TYPES = {
     "unknown",
     "upscaler",
     "vae",
+    "visionlanguage",
 }
 _TYPE_ALIASES = {
+    "aestheticgradient": "ag",
     "diffusion_model": "diffusionmodel",
     "embed": "embedding",
     "hypernetwork": "hypernet",

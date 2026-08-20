@@ -4,6 +4,15 @@ All notable CiviScribe changes are documented here.
 
 ## Unreleased
 
+## 2.0.6 - 2026-08-20
+
+- Added first-class handling for Civitai's observed `VisionLanguage`, `CLIP`,
+  and `AestheticGradient` AIR resource types so compatible text encoders and
+  style resources can resolve and reach parser-facing metadata.
+- Added conservative explicit-AIR support for `CLIPVision` resources and the
+  current `ComfyWorkflows` enum without inventing identities from model types
+  that Civitai still reports with an `unknown` AIR type.
+
 ## 2.0.5 - 2026-08-19
 
 - Added final-prompt guidance and diagnostics for LLM-enhanced, wildcard, and
