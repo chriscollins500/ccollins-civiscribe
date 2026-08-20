@@ -55,6 +55,19 @@ _KNOWN_SAMPLER_PROVIDER_CLASSES = frozenset(
         "easylatentnoisy",
     }
 )
+_RUNTIME_TEXT_GENERATOR_CLASSES = frozenset(
+    {
+        "gemininodev2",
+        "impactwildcardprocessor",
+        "ltxvgemmaenhanceprompt",
+        "ltxvpromptenhancer",
+        "pmsgeminichatv3",
+        "textgenerate",
+        "textgenerateltx2prompt",
+        "wanvideopromptextender",
+        "wanvideopromptextenderselect",
+    }
+)
 
 _SPECIAL_RESOURCE_CLASSES = frozenset(
     {
@@ -476,6 +489,12 @@ def is_text_encode_node(node: PromptNode) -> bool:
     return compact in _INTEGRATED_PROMPT_PROVIDER_CLASSES or compact in (
         _DIRECT_IMAGE_GENERATOR_CLASSES
     )
+
+
+def is_runtime_text_generator_node(node: PromptNode) -> bool:
+    """Recognize verified nodes whose text output exists only after execution."""
+
+    return compact_class(node) in _RUNTIME_TEXT_GENERATOR_CLASSES
 
 
 def is_direct_image_generator_node(node: PromptNode) -> bool:
@@ -2278,6 +2297,7 @@ def is_known_active_node(node: PromptNode) -> bool:
         or is_image_latent_node(node)
         or is_image_source_node(node)
         or is_primitive_node(node)
+        or is_runtime_text_generator_node(node)
         or bool(resource_input_specs(node))
         or bool(fixed_resource_specs(node))
     ):
@@ -2415,6 +2435,7 @@ __all__ = [
     "is_image_source_node",
     "is_known_active_node",
     "is_primitive_node",
+    "is_runtime_text_generator_node",
     "is_sampler_node",
     "is_text_encode_node",
     "resource_input_specs",

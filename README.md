@@ -179,6 +179,18 @@ for unusual or highly customized graphs:
 The interface reveals these controls only when they are relevant, so normal
 use stays compact.
 
+### LLM-enhanced and dynamically built prompts
+
+An LLM or custom prompt node creates its result while the workflow is running,
+so the queued graph may contain only a link rather than the final text. Connect
+the **last STRING actually feeding the active text encoder** to CiviScribe's
+matching final prompt override. Do not connect the raw LLM output when switches,
+wildcards, LoRA triggers, or other prompt edits happen afterward.
+
+If that final string is inside a subgraph, expose it as a subgraph output first.
+The [final prompt override guide](docs/final_prompt_overrides.md) shows the
+official Krea 2 and Ernie-style patterns step by step.
+
 ## Privacy And Safety
 
 CiviScribe is local-first by design.

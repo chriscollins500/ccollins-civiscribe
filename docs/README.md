@@ -5,6 +5,9 @@ These documents define the clean V2 rewrite of the unreleased
 
 Read them in this order:
 
+- `final_prompt_overrides.md` - user guide for preserving the exact final text
+  from LLM enhancers, switches, wildcards, and prompt-building subgraphs.
+
 1. `product_contract.md` - what CiviScribe is, supports, and refuses to become.
 2. `feature_disposition.md` - the complete `0.9.0` through `0.22.11` audit.
 3. `architecture.md` - how the retained product is rebuilt on current ComfyUI

@@ -8,12 +8,12 @@
         "tooltip": "Kaydedilecek görüntüler."
       },
       "positive_prompt_override": {
-        "name": "Pozitif istem geçersiz kılma",
-        "tooltip": "Yalnızca meta verilerde otomatik pozitif istem algılamasının yerine geçen isteğe bağlı metin bağlantısı."
+        "name": "Nihai pozitif istem geçersiz kılma",
+        "tooltip": "Bir LLM, joker, anahtar veya özel düğüm çalışma sırasında oluşturduğunda etkin metin kodlayıcıya gerçekten gönderilen nihai pozitif istem metnini bağlayın. Bu yalnızca meta verileri değiştirir, üretimi değiştirmez."
       },
       "negative_prompt_override": {
-        "name": "Negatif istem geçersiz kılma",
-        "tooltip": "Yalnızca meta verilerde otomatik negatif istem algılamasının yerine geçen isteğe bağlı metin bağlantısı."
+        "name": "Nihai negatif istem geçersiz kılma",
+        "tooltip": "Bir çalışma zamanı düğümü oluşturduğunda etkin metin kodlayıcıya gerçekten gönderilen nihai negatif istem metnini bağlayın. Bu yalnızca meta verileri değiştirir, üretimi değiştirmez."
       },
       "filename_prefix": {
         "name": "Dosya / alt klasör deseni",

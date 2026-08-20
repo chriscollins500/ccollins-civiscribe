@@ -18,6 +18,12 @@ BANNER_URL = (
     "https://raw.githubusercontent.com/chriscollins500/ccollins-civiscribe/"
     "main/assets/branding/civiscribe-banner.png"
 )
+REGISTRY_DESCRIPTION = (
+    "Make every ComfyUI image Civitai-ready. CiviScribe saves PNG, JPEG, and WebP with "
+    "your prompts, generation settings, model, LoRAs, hashes, and only the resources "
+    "actually used. PNG files can also carry a reloadable workflow, so your uploads keep "
+    "their creation details without manual metadata work."
+)
 
 
 def test_registry_metadata_uses_permanent_release_identity() -> None:
@@ -25,6 +31,7 @@ def test_registry_metadata_uses_permanent_release_identity() -> None:
 
     assert metadata["project"]["name"] == "ccollins-civiscribe"
     assert metadata["project"]["dynamic"] == ["version"]
+    assert metadata["project"]["description"] == REGISTRY_DESCRIPTION
     assert metadata["project"]["urls"] == {
         "Repository": "https://github.com/chriscollins500/ccollins-civiscribe",
         "Documentation": "https://github.com/chriscollins500/ccollins-civiscribe#readme",
@@ -58,10 +65,10 @@ def test_release_version_is_final_and_frontend_matches() -> None:
     version_source = (PROJECT_ROOT / "civiscribe" / "version.py").read_text(encoding="utf-8")
     match = re.search(r'^__version__ = "([^"]+)"$', version_source, re.MULTILINE)
     assert match is not None
-    assert match.group(1) == "2.0.4"
+    assert match.group(1) == "2.0.5"
 
     package = (PROJECT_ROOT / "package.json").read_text(encoding="utf-8")
-    assert '"version": "2.0.4"' in package
+    assert '"version": "2.0.5"' in package
     assert ".dev" not in match.group(1)
 
 
@@ -74,6 +81,8 @@ def test_registry_publish_is_manual_validated_and_commit_pinned() -> None:
     assert "needs: validate" in workflow
     assert "Comfy-Org/publish-node-action" not in workflow
     assert 'python -m pip install "comfy-cli==1.16.0"' in workflow
+    assert "python -m tools.prepare_registry_changelog" in workflow
+    assert '--changelog-file "$REGISTRY_CHANGELOG_FILE"' in workflow
     assert 'comfy node publish --token "$REGISTRY_ACCESS_TOKEN"' in workflow
     assert "secrets.REGISTRY_ACCESS_TOKEN" in workflow
     assert "pat-" not in workflow

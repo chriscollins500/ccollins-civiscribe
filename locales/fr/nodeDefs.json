@@ -8,12 +8,12 @@
         "tooltip": "Images à enregistrer."
       },
       "positive_prompt_override": {
-        "name": "Remplacement du prompt positif",
-        "tooltip": "Connexion texte facultative qui remplace la détection automatique du prompt positif uniquement dans les métadonnées."
+        "name": "Remplacement du prompt positif final",
+        "tooltip": "Connectez le texte final du prompt positif réellement envoyé à l'encodeur de texte actif lorsqu'un LLM, un joker, un commutateur ou un nœud personnalisé le crée à l'exécution. Cela modifie uniquement les métadonnées, pas la génération."
       },
       "negative_prompt_override": {
-        "name": "Remplacement du prompt négatif",
-        "tooltip": "Connexion texte facultative qui remplace la détection automatique du prompt négatif uniquement dans les métadonnées."
+        "name": "Remplacement du prompt négatif final",
+        "tooltip": "Connectez le texte final du prompt négatif réellement envoyé à l'encodeur de texte actif lorsqu'un nœud le crée à l'exécution. Cela modifie uniquement les métadonnées, pas la génération."
       },
       "filename_prefix": {
         "name": "Modèle de fichier / sous-dossier",

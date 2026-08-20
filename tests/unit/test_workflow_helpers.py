@@ -31,6 +31,7 @@ from civiscribe.workflow.classify import (
     is_image_source_node,
     is_known_active_node,
     is_primitive_node,
+    is_runtime_text_generator_node,
     is_sampler_node,
     is_text_encode_node,
     resource_input_specs,
@@ -1069,6 +1070,8 @@ def test_node_family_classifiers_are_conservative() -> None:
     assert is_primitive_node(_node("1", "FloatValue"))
     assert is_primitive_node(_node("1", "PromptLoraManager"))
     assert is_primitive_node(_node("1", "StringConstantMultiline"))
+    assert is_runtime_text_generator_node(_node("1", "TextGenerate"))
+    assert not is_runtime_text_generator_node(_node("1", "UnrelatedNode"))
     assert is_base_model_loader(
         _node("1", "CheckpointLoaderSimple", {"ckpt_name": "model.safetensors"})
     )
@@ -1079,6 +1082,27 @@ def test_node_family_classifiers_are_conservative() -> None:
     assert is_known_active_node(_node("1", "ReferenceLatent"))
     assert is_known_active_node(_node("1", "ClownSampler_Beta"))
     assert not is_known_active_node(_node("1", "UnrelatedNode"))
+
+
+@pytest.mark.parametrize(
+    "class_type",
+    (
+        "GeminiNodeV2",
+        "ImpactWildcardProcessor",
+        "LTXVGemmaEnhancePrompt",
+        "LTXVPromptEnhancer",
+        "PMS_GeminiChatV3",
+        "TextGenerate",
+        "TextGenerateLTX2Prompt",
+        "WanVideoPromptExtender",
+        "WanVideoPromptExtenderSelect",
+    ),
+)
+def test_verified_runtime_text_generators_are_known(class_type: str) -> None:
+    node = _node("1", class_type)
+
+    assert is_runtime_text_generator_node(node)
+    assert is_known_active_node(node)
 
 
 @pytest.mark.parametrize(

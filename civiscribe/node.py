@@ -44,22 +44,24 @@ class CiviScribeSaveImage(io.ComfyNode):
                 ),
                 io.String.Input(
                     "positive_prompt_override",
-                    display_name="Positive prompt override",
+                    display_name="Final positive prompt override",
                     optional=True,
                     force_input=True,
                     tooltip=(
-                        "Optional text connection that replaces automatic positive-prompt "
-                        "detection for metadata only."
+                        "Connect the final positive prompt string actually sent to the active "
+                        "text encoder when an LLM, wildcard, switch, or custom node creates it "
+                        "at runtime. This changes metadata only, not generation."
                     ),
                 ),
                 io.String.Input(
                     "negative_prompt_override",
-                    display_name="Negative prompt override",
+                    display_name="Final negative prompt override",
                     optional=True,
                     force_input=True,
                     tooltip=(
-                        "Optional text connection that replaces automatic negative-prompt "
-                        "detection for metadata only."
+                        "Connect the final negative prompt string actually sent to the active "
+                        "text encoder when a runtime node builds it dynamically. This changes "
+                        "metadata only, not generation."
                     ),
                 ),
                 io.String.Input(

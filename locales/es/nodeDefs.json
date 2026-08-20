@@ -8,12 +8,12 @@
         "tooltip": "Imágenes que se guardarán."
       },
       "positive_prompt_override": {
-        "name": "Reemplazo del prompt positivo",
-        "tooltip": "Conexión de texto opcional que reemplaza la detección automática del prompt positivo solo en los metadatos."
+        "name": "Reemplazo del prompt positivo final",
+        "tooltip": "Conecta el texto final del prompt positivo que realmente se envía al codificador de texto activo cuando un LLM, comodín, conmutador o nodo personalizado lo crea durante la ejecución. Solo cambia los metadatos, no la generación."
       },
       "negative_prompt_override": {
-        "name": "Reemplazo del prompt negativo",
-        "tooltip": "Conexión de texto opcional que reemplaza la detección automática del prompt negativo solo en los metadatos."
+        "name": "Reemplazo del prompt negativo final",
+        "tooltip": "Conecta el texto final del prompt negativo que realmente se envía al codificador de texto activo cuando un nodo lo crea durante la ejecución. Solo cambia los metadatos, no la generación."
       },
       "filename_prefix": {
         "name": "Patrón de archivo / subcarpeta",

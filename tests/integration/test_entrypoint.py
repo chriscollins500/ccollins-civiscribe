@@ -230,6 +230,17 @@ def test_public_node_schema_is_native_v3_and_registered_once() -> None:
             assert by_id["manual_resource_identities_json"].options["advanced"] is True
             assert by_id["positive_prompt_override"].options["optional"] is True
             assert by_id["positive_prompt_override"].options["force_input"] is True
+            assert by_id["positive_prompt_override"].options["display_name"] == (
+                "Final positive prompt override"
+            )
+            assert (
+                "final positive prompt string"
+                in by_id["positive_prompt_override"].options["tooltip"]
+            )
+            assert by_id["negative_prompt_override"].options["display_name"] == (
+                "Final negative prompt override"
+            )
+            assert "metadata only" in by_id["negative_prompt_override"].options["tooltip"]
             assert all(item.options.get("display_name") for item in schema.inputs)
             assert all(item.options.get("tooltip") for item in schema.inputs)
             assert vars(node_module)["registered_nodes"]() == (node_class,)

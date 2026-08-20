@@ -17,6 +17,7 @@ from .classify import (
     is_direct_image_generator_node,
     is_generated_latent_node,
     is_image_latent_node,
+    is_runtime_text_generator_node,
     is_text_encode_node,
 )
 from .graph import GraphIndex, as_link_reference
@@ -1068,18 +1069,21 @@ def _prompt_candidates(
     index: GraphIndex,
     active: ActiveGraph,
     *,
-    root_id: str,
-    root_output_index: int | None,
+    root: _PresentPromptRoot,
     kind: str,
+    distances: Mapping[str, int] | None = None,
 ) -> tuple[tuple[str, str], ...]:
-    distances = _prompt_ancestor_distances(
-        index,
-        active,
-        root_id,
-        root_output_index,
+    root_id, _, root_output_index = root
+    resolved_distances = (
+        distances
+        if distances is not None
+        else _prompt_ancestor_distances(index, active, root_id, root_output_index)
     )
     found: list[tuple[str, str]] = []
-    for node_id in sorted(distances, key=lambda value: (distances[value], node_sort_key(value))):
+    for node_id in sorted(
+        resolved_distances,
+        key=lambda value: (resolved_distances[value], node_sort_key(value)),
+    ):
         node = index.node(node_id)
         if node is None or not is_text_encode_node(node):
             continue
@@ -1105,6 +1109,22 @@ def _prompt_candidates(
         else:
             found.extend((node_id, text) for text in unique_node_texts)
     return tuple(found)
+
+
+def _runtime_prompt_source_id(
+    index: GraphIndex,
+    distances: Mapping[str, int],
+) -> str | None:
+    candidates = tuple(
+        node_id
+        for node_id in distances
+        if (node := index.node(node_id)) is not None and is_runtime_text_generator_node(node)
+    )
+    return min(
+        candidates,
+        key=lambda value: (distances[value], node_sort_key(value)),
+        default=None,
+    )
 
 
 def _sage_combined_prompt_text(
@@ -1149,7 +1169,9 @@ def _prompt_field(
         return PromptField(), (issue,) if issue is not None else ()
     found: list[tuple[str, str]] = []
     zeroed_ids: list[str] = []
-    for root_id, _, root_output_index in present_roots:
+    runtime_issues: list[ScanIssue] = []
+    for prompt_root in present_roots:
+        root_id, _, root_output_index = prompt_root
         root = index.node(root_id)
         if root is not None and compact_class(root) in {
             "conditioningzeroout",
@@ -1157,15 +1179,24 @@ def _prompt_field(
         }:
             zeroed_ids.append(root_id)
             continue
-        found.extend(
-            _prompt_candidates(
-                index,
-                active,
-                root_id=root_id,
-                root_output_index=root_output_index,
-                kind=kind,
-            )
+        distances = _prompt_ancestor_distances(index, active, root_id, root_output_index)
+        root_candidates = _prompt_candidates(
+            index,
+            active,
+            root=prompt_root,
+            kind=kind,
+            distances=distances,
         )
+        found.extend(root_candidates)
+        runtime_source_id = _runtime_prompt_source_id(index, distances)
+        if not root_candidates and runtime_source_id is not None:
+            runtime_issues.append(
+                ScanIssue(
+                    "runtime_prompt_unavailable_connect_final_prompt_override",
+                    node_id=runtime_source_id,
+                    input_name=f"{kind}_prompt_override",
+                )
+            )
     unique_texts = tuple(dict.fromkeys(text for _, text in found))
     source_ids = tuple(dict.fromkeys((*zeroed_ids, *(node_id for node_id, _ in found))))
     if len(unique_texts) == 1:
@@ -1176,7 +1207,7 @@ def _prompt_field(
                 source_node_ids=source_ids,
                 candidates=unique_texts,
             ),
-            (),
+            tuple(runtime_issues),
         )
     if len(unique_texts) > 1:
         return (
@@ -1185,12 +1216,12 @@ def _prompt_field(
                 source_node_ids=source_ids,
                 candidates=unique_texts,
             ),
-            (ScanIssue(f"{kind}_prompt_ambiguous"),),
+            (ScanIssue(f"{kind}_prompt_ambiguous"), *runtime_issues),
         )
     issue = ScanIssue(f"{kind}_prompt_missing") if kind == "positive" else None
     return (
         PromptField(branch_present=True),
-        (issue,) if issue is not None else (),
+        ((issue,) if issue is not None else ()) + tuple(runtime_issues),
     )
 
 

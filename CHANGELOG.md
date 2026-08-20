@@ -4,6 +4,20 @@ All notable CiviScribe changes are documented here.
 
 ## Unreleased
 
+## 2.0.5 - 2026-08-19
+
+- Added final-prompt guidance and diagnostics for LLM-enhanced, wildcard, and
+  dynamically built prompt paths. A connected final prompt override now clears
+  the corresponding unresolved scanner warning while remaining metadata-only.
+- Added a focused guide for wiring the final active prompt from Krea 2, Ernie,
+  and similar runtime enhancement or subgraph patterns.
+- Added deterministic Comfy Registry update-note publication from each
+  version's matching `CHANGELOG.md` section, with validation for missing,
+  empty, or duplicate release sections.
+- Replaced the terse Comfy Registry summary with a plain-language description
+  of CiviScribe's Civitai-ready formats, captured generation details, active
+  resource filtering, and reloadable PNG workflows.
+
 ## 2.0.4 - 2026-08-18
 
 - Added purpose-built square icon and 21:9 banner artwork for the Comfy

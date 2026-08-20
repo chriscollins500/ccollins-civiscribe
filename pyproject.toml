@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "ccollins-civiscribe"
 dynamic = ["version"]
-description = "Civitai-first image saving for current ComfyUI V3."
+description = "Make every ComfyUI image Civitai-ready. CiviScribe saves PNG, JPEG, and WebP with your prompts, generation settings, model, LoRAs, hashes, and only the resources actually used. PNG files can also carry a reloadable workflow, so your uploads keep their creation details without manual metadata work."
 readme = "README.md"
 requires-python = ">=3.12"
 license = "MIT"

@@ -8,12 +8,12 @@
         "tooltip": "Images to save."
       },
       "positive_prompt_override": {
-        "name": "Positive prompt override",
-        "tooltip": "Optional text connection that replaces automatic positive-prompt detection for metadata only."
+        "name": "Final positive prompt override",
+        "tooltip": "Connect the final positive prompt string actually sent to the active text encoder when an LLM, wildcard, switch, or custom node creates it at runtime. This changes metadata only, not generation."
       },
       "negative_prompt_override": {
-        "name": "Negative prompt override",
-        "tooltip": "Optional text connection that replaces automatic negative-prompt detection for metadata only."
+        "name": "Final negative prompt override",
+        "tooltip": "Connect the final negative prompt string actually sent to the active text encoder when a runtime node builds it dynamically. This changes metadata only, not generation."
       },
       "filename_prefix": {
         "name": "Filename / subfolder pattern",

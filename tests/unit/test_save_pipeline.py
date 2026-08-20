@@ -19,6 +19,7 @@ from civiscribe.domain import (
     ImageFormat,
     ImageFrame,
     ResourceIdentity,
+    ScanIssue,
     WriteError,
 )
 from civiscribe.identity import (
@@ -37,6 +38,7 @@ from civiscribe.orchestration import (
 )
 from civiscribe.projections import WriterMetadata
 from civiscribe.storage.paths import OutputPlan
+from civiscribe.workflow import scan_workflow
 from civiscribe.writers import JpegWriter, PngWriter, WebpWriter
 from civiscribe.writers.exif import read_exif
 from civiscribe.writers.protocol import WriteResult
@@ -436,6 +438,72 @@ def test_prompt_overrides_feed_all_metadata_projections(tmp_path: Path) -> None:
         "positiveBranchPresent": True,
         "negativeBranchPresent": True,
     }
+
+
+def test_matching_overrides_clear_only_resolved_prompt_diagnostics() -> None:
+    scan = scan_workflow(_metadata_request().prompt)
+    runtime_issue = "runtime_prompt_unavailable_connect_final_prompt_override"
+    scan = replace(
+        scan,
+        issues=(
+            ScanIssue("positive_prompt_missing"),
+            ScanIssue("negative_prompt_ambiguous"),
+            ScanIssue(runtime_issue, input_name="positive_prompt_override"),
+            ScanIssue(runtime_issue, input_name="negative_prompt_override"),
+            ScanIssue("unrelated_warning"),
+        ),
+    )
+    metadata = replace(
+        _metadata_request(),
+        positive_prompt_override="final positive",
+        negative_prompt_override="final negative",
+    )
+
+    result = pipeline._apply_prompt_overrides(scan, metadata)
+
+    assert result.prompts.positive.text == "final positive"
+    assert result.prompts.negative.text == "final negative"
+    assert result.issues == (ScanIssue("unrelated_warning"),)
+
+
+def test_krea2_final_runtime_override_feeds_metadata_and_clears_warning(
+    tmp_path: Path,
+) -> None:
+    fixture_path = (
+        Path(__file__).resolve().parents[1] / "fixtures" / "workflows" / "krea2_switch_prompt.json"
+    )
+    fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
+    prompt = cast(dict[str, dict[str, object]], fixture["prompt"])
+    cast(dict[str, object], prompt["7"]["inputs"])["value"] = True
+    final_prompt = "enhanced final prompt, krea2_lora_trigger"
+    metadata = MetadataRequest(
+        prompt=prompt,
+        workflow={"nodes": [{"id": 18, "type": "CCollins_CiviScribe_SaveImage"}]},
+        save_node_id="18",
+        positive_prompt_override=final_prompt,
+    )
+
+    outcome = save_image_batch(
+        SaveRequest(
+            images=(_frame(),),
+            output_root=tmp_path,
+            filename_prefix="krea2-runtime",
+            metadata=metadata,
+        )
+    )
+
+    path = tmp_path / outcome.saved_images[0].filename
+    with Image.open(path) as image:
+        text = cast(Mapping[str, str], getattr(image, "text", {}))
+        manifest = cast(dict[str, object], json.loads(text["civitai"]))
+    warning_codes = {
+        cast(str, warning["code"])
+        for warning in cast(dict[str, list[dict[str, object]]], manifest["validation"])["warnings"]
+    }
+    assert text["parameters"].startswith(f"{final_prompt}\nNegative prompt:\n")
+    assert cast(dict[str, object], manifest["prompt"])["positive"] == final_prompt
+    assert "positive_prompt_missing" not in warning_codes
+    assert "runtime_prompt_unavailable_connect_final_prompt_override" not in warning_codes
 
 
 def test_disabled_workflow_embedding_omits_api_and_ui_graph_payloads(tmp_path: Path) -> None:

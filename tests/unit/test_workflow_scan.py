@@ -6,7 +6,7 @@ from typing import cast
 
 import pytest
 
-from civiscribe.domain import ResourceRole, WorkflowKind
+from civiscribe.domain import ResourceRole, ScanIssue, WorkflowKind
 from civiscribe.workflow import scan_workflow
 
 FIXTURE_ROOT = Path(__file__).resolve().parents[1] / "fixtures" / "workflows"
@@ -182,6 +182,49 @@ def test_krea2_core_switch_preview_chain_resolves_selected_prompt() -> None:
     assert "positive_prompt_missing" not in issue_codes
     assert "positive_prompt_ambiguous" not in issue_codes
     assert "unknown_active_node_class" not in issue_codes
+
+
+def test_krea2_runtime_enhancement_requires_final_prompt_override() -> None:
+    prompt, _expected = _load_fixture("krea2_switch_prompt.json")
+    switch_inputs = cast(dict[str, object], prompt["7"]["inputs"])
+    switch_inputs["value"] = True
+
+    result = scan_workflow(prompt)
+    runtime_issues = tuple(
+        issue
+        for issue in result.issues
+        if issue.code == "runtime_prompt_unavailable_connect_final_prompt_override"
+    )
+
+    assert result.prompts.positive.text is None
+    assert "positive_prompt_missing" in {issue.code for issue in result.issues}
+    assert runtime_issues == (
+        ScanIssue(
+            "runtime_prompt_unavailable_connect_final_prompt_override",
+            node_id="6",
+            input_name="positive_prompt_override",
+        ),
+    )
+    assert "unknown_active_node_class" not in {issue.code for issue in result.issues}
+
+
+def test_ernie_style_runtime_prompt_switch_requires_final_prompt_override() -> None:
+    prompt, _expected = _load_fixture("krea2_switch_prompt.json")
+    cast(dict[str, object], prompt["7"]["inputs"])["value"] = True
+    cast(dict[str, object], prompt["13"]["inputs"])["text"] = ["8", 0]
+
+    result = scan_workflow(prompt)
+
+    assert result.prompts.positive.text is None
+    assert (
+        ScanIssue(
+            "runtime_prompt_unavailable_connect_final_prompt_override",
+            node_id="6",
+            input_name="positive_prompt_override",
+        )
+        in result.issues
+    )
+    assert "unknown_active_node_class" not in {issue.code for issue in result.issues}
 
 
 def test_rgthree_power_lora_fixture_honors_enabled_state_and_strengths() -> None:
@@ -408,6 +451,14 @@ def test_wan_qwen_loader_is_captured_without_guessing_generated_prompt() -> None
     }
     assert result.prompts.positive.text is None
     assert "positive_prompt_missing" in {issue.code for issue in result.issues}
+    assert (
+        ScanIssue(
+            "runtime_prompt_unavailable_connect_final_prompt_override",
+            node_id="2",
+            input_name="positive_prompt_override",
+        )
+        in result.issues
+    )
     assert "unknown_active_node_class" not in {issue.code for issue in result.issues}
 
 

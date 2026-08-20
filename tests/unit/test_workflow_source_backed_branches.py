@@ -788,8 +788,7 @@ def test_custom_sampler_hook_and_prompt_helpers_cover_absent_data() -> None:
     candidates = _prompt_candidates(
         index,
         active,
-        root_id="6",
-        root_output_index=0,
+        root=("6", None, 0),
         kind="positive",
     )
     assert candidates == ()

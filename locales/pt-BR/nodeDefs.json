@@ -8,12 +8,12 @@
         "tooltip": "Imagens a serem salvas."
       },
       "positive_prompt_override": {
-        "name": "Substituição do prompt positivo",
-        "tooltip": "Conexão de texto opcional que substitui a detecção automática do prompt positivo somente nos metadados."
+        "name": "Substituição do prompt positivo final",
+        "tooltip": "Conecte o texto final do prompt positivo realmente enviado ao codificador de texto ativo quando um LLM, curinga, seletor ou nó personalizado o cria durante a execução. Isso altera apenas os metadados, não a geração."
       },
       "negative_prompt_override": {
-        "name": "Substituição do prompt negativo",
-        "tooltip": "Conexão de texto opcional que substitui a detecção automática do prompt negativo somente nos metadados."
+        "name": "Substituição do prompt negativo final",
+        "tooltip": "Conecte o texto final do prompt negativo realmente enviado ao codificador de texto ativo quando um nó o cria durante a execução. Isso altera apenas os metadados, não a geração."
       },
       "filename_prefix": {
         "name": "Padrão de arquivo / subpasta",

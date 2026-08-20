@@ -21,3 +21,11 @@ Keep runtime changes local-first, deterministic, path-safe, and pixels-first.
 Never add uploads, model installation, token persistence, filename-based
 identity guessing, or metadata behavior that can prevent a writable image from
 being saved.
+
+## Registry release notes
+
+Every final package version must have one dated `## VERSION - YYYY-MM-DD`
+section in `CHANGELOG.md`. The manual Registry publishing workflow extracts
+that section and supplies it as the version's Updates text. Publication fails
+before contacting the Registry when the matching section is missing, empty, or
+duplicated.

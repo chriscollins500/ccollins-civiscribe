@@ -39,6 +39,13 @@ from .request import MetadataRequest, SaveRequest
 
 FALLBACK_PREFIX = "ComfyUI"
 MAX_PROMPT_OVERRIDE_CHARS = 1_000_000
+_RUNTIME_PROMPT_ISSUE = "runtime_prompt_unavailable_connect_final_prompt_override"
+_POSITIVE_PROMPT_EXTRACTION_ISSUES = frozenset(
+    {"positive_prompt_ambiguous", "positive_prompt_missing"}
+)
+_NEGATIVE_PROMPT_EXTRACTION_ISSUES = frozenset(
+    {"negative_prompt_ambiguous", "negative_prompt_missing"}
+)
 _MODE_CHANNELS = {
     "L": 1,
     "RGB": 3,
@@ -91,6 +98,27 @@ def _prompt_override(
     )
 
 
+def _prompt_override_applied(value: str | None) -> bool:
+    return value is not None and value != "" and len(value) <= MAX_PROMPT_OVERRIDE_CHARS
+
+
+def _issue_resolved_by_prompt_override(
+    issue: ScanIssue,
+    *,
+    positive_applied: bool,
+    negative_applied: bool,
+) -> bool:
+    if positive_applied and (
+        issue.code in _POSITIVE_PROMPT_EXTRACTION_ISSUES
+        or (issue.code == _RUNTIME_PROMPT_ISSUE and issue.input_name == "positive_prompt_override")
+    ):
+        return True
+    return negative_applied and (
+        issue.code in _NEGATIVE_PROMPT_EXTRACTION_ISSUES
+        or (issue.code == _RUNTIME_PROMPT_ISSUE and issue.input_name == "negative_prompt_override")
+    )
+
+
 def _apply_prompt_overrides(
     scan: WorkflowScan,
     metadata: MetadataRequest,
@@ -105,10 +133,21 @@ def _apply_prompt_overrides(
         scan.prompts.negative,
         issue_code="negative_prompt_override_too_large",
     )
+    positive_applied = _prompt_override_applied(metadata.positive_prompt_override)
+    negative_applied = _prompt_override_applied(metadata.negative_prompt_override)
+    unresolved_issues = tuple(
+        issue
+        for issue in scan.issues
+        if not _issue_resolved_by_prompt_override(
+            issue,
+            positive_applied=positive_applied,
+            negative_applied=negative_applied,
+        )
+    )
     return replace(
         scan,
         prompts=PromptRecord(positive=positive, negative=negative),
-        issues=(*scan.issues, *positive_issues, *negative_issues),
+        issues=(*unresolved_issues, *positive_issues, *negative_issues),
     )
 
 
