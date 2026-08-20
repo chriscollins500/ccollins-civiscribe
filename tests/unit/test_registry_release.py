@@ -82,7 +82,9 @@ def test_registry_publish_is_manual_validated_and_commit_pinned() -> None:
     assert "Comfy-Org/publish-node-action" not in workflow
     assert 'python -m pip install "comfy-cli==1.16.0"' in workflow
     assert "python -m tools.prepare_registry_changelog" in workflow
-    assert '--changelog-file "$REGISTRY_CHANGELOG_FILE"' in workflow
+    assert '"$RUNNER_TEMP/civiscribe-registry-changelog.md"' in workflow
+    assert "${{ runner.temp }}" not in workflow
+    assert '--changelog-file "$RUNNER_TEMP/civiscribe-registry-changelog.md"' in workflow
     assert 'comfy node publish --token "$REGISTRY_ACCESS_TOKEN"' in workflow
     assert "secrets.REGISTRY_ACCESS_TOKEN" in workflow
     assert "pat-" not in workflow
