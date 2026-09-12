@@ -67,6 +67,9 @@ def test_jpeg_golden_preserves_maximum_fidelity_and_rich_exif() -> None:
         uncalibrated_color_space = 0xFFFF
         assert fields[0xA001] == uncalibrated_color_space
         assert image.getexif()[0x0213] == 1
+        assert image.getexif()[0x011A] == 1.0
+        assert image.getexif()[0x011B] == 1.0
+        assert image.getexif()[0x0128] == 1
         assert image.format == "JPEG"
         assert image.mode == "RGB"
         assert image.size == JPEG_SIZE

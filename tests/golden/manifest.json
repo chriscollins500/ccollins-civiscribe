@@ -50,8 +50,8 @@
       "id": "jpeg-rich-metadata-v1",
       "licenseOrConsent": "Project-authored synthetic fixture released with the test suite.",
       "path": "jpeg/rich_reference.jpg",
-      "sha256": "17fe8ec6abd92e519f42ee249d05108411d2f1e50aeebe9e4d9eba992e1ac1d1",
-      "sizeBytes": 4335,
+      "sha256": "a02f8dfde37c775697ea7a4164c9fe75a1c01ff08592b77087360ed5c8b41090",
+      "sizeBytes": 4387,
       "sourceClass": "synthetic",
       "updateReason": "Regenerated from the original synthetic pixels with the current EXIF 2.32 writer; assert required EXIF fields as well as pixels and generation metadata."
     },

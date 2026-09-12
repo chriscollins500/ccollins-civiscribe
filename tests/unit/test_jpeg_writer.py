@@ -126,6 +126,18 @@ def test_jpeg_writer_rejects_wrong_projection_type(tmp_path: Path) -> None:
         JpegWriter().write(_rgb_frame(), tmp_path / "wrong.jpg", projection)
 
 
+@pytest.mark.parametrize("tag", [0x011A, 0x011B, 0x0128])
+def test_jpeg_postcheck_rejects_missing_unitless_resolution(tmp_path: Path, tag: int) -> None:
+    frame = _rgb_frame()
+    projection = build_rich_exif_projection(complete_record())
+    path = tmp_path / "unitless.jpg"
+    JpegWriter().write(frame, path, projection)
+    with Image.open(path) as image:
+        del image.getexif()[tag]
+        with pytest.raises(WriteError, match="jpeg_postcheck_exif_resolution_mismatch"):
+            jpeg_module._verify_metadata(image, projection, frame)
+
+
 @pytest.mark.parametrize(
     ("values", "error"),
     [

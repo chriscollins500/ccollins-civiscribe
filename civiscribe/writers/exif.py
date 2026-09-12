@@ -12,6 +12,10 @@ from ..projections.sanitize import metadata_text
 
 EXIF_IFD_TAG = 0x8769
 SOFTWARE_TAG = 0x0131
+X_RESOLUTION_TAG = 0x011A
+Y_RESOLUTION_TAG = 0x011B
+RESOLUTION_UNIT_TAG = 0x0128
+RESOLUTION_UNIT_NONE = 1
 YCBCR_POSITIONING_TAG = 0x0213
 EXIF_VERSION_TAG = 0x9000
 COMPONENTS_CONFIGURATION_TAG = 0x9101
@@ -105,6 +109,10 @@ def build_exif(
         exif[SOFTWARE_TAG] = safe_text(software)
     if jpeg_required_fields:
         exif[YCBCR_POSITIONING_TAG] = YCBCR_POSITIONING_CENTERED
+        # Unitless square pixels satisfy TIFF/EXIF readers without inventing print DPI.
+        exif[X_RESOLUTION_TAG] = 1.0
+        exif[Y_RESOLUTION_TAG] = 1.0
+        exif[RESOLUTION_UNIT_TAG] = RESOLUTION_UNIT_NONE
     nested: dict[int, object] = {
         EXIF_VERSION_TAG: EXIF_VERSION,
         USER_COMMENT_TAG: encoded_comment,
@@ -174,12 +182,16 @@ __all__ = [
     "MAX_EXIF_USER_COMMENT_BYTES",
     "PIXEL_X_DIMENSION_TAG",
     "PIXEL_Y_DIMENSION_TAG",
+    "RESOLUTION_UNIT_NONE",
+    "RESOLUTION_UNIT_TAG",
     "SOFTWARE_TAG",
     "USER_COMMENT_PREFIX",
     "USER_COMMENT_TAG",
+    "X_RESOLUTION_TAG",
     "YCBCR_COMPONENTS_CONFIGURATION",
     "YCBCR_POSITIONING_CENTERED",
     "YCBCR_POSITIONING_TAG",
+    "Y_RESOLUTION_TAG",
     "ExifValues",
     "build_exif",
     "decode_user_comment",

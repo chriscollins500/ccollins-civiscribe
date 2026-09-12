@@ -12,6 +12,8 @@ All notable CiviScribe changes are documented here.
 - Added bounded Registry version pagination, with duplicate and inconsistent
   pages rejected rather than selecting the wrong latest version.
 - Refreshed synthetic JPEG/WebP goldens with required EXIF fields and assertions.
+- Added unitless JPEG resolution tags for independent EXIF readers, without
+  claiming a physical print size or changing image pixels.
 - Corrected the independent conformance helper for disabled workflow embedding;
   an absent graph no longer produces a misleading empty PNG prompt carrier.
 - Added main-only, approval-gated publishing of checksum-verified, once-built

@@ -13,6 +13,10 @@ from .exif import (
     COLOR_SPACE_UNCALIBRATED,
     EXIF_VERSION,
     FLASHPIX_VERSION,
+    RESOLUTION_UNIT_NONE,
+    RESOLUTION_UNIT_TAG,
+    X_RESOLUTION_TAG,
+    Y_RESOLUTION_TAG,
     YCBCR_COMPONENTS_CONFIGURATION,
     YCBCR_POSITIONING_CENTERED,
     build_exif,
@@ -77,6 +81,14 @@ def _verify_metadata(
         or values.ycbcr_positioning != YCBCR_POSITIONING_CENTERED
     ):
         raise WriteError("jpeg_postcheck_exif_required_fields_mismatch")
+    if metadata.write_dimensions:
+        exif = image.getexif()
+        if (
+            exif.get(X_RESOLUTION_TAG),
+            exif.get(Y_RESOLUTION_TAG),
+            exif.get(RESOLUTION_UNIT_TAG),
+        ) != (1.0, 1.0, RESOLUTION_UNIT_NONE):
+            raise WriteError("jpeg_postcheck_exif_resolution_mismatch")
 
 
 class JpegWriter:
