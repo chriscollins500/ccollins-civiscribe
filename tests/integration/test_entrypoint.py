@@ -17,6 +17,9 @@ from PIL.PngImagePlugin import PngImageFile
 
 from tools.validate_sidecar import validate_sidecar
 
+# asyncio uses a loopback socket pair on Windows; external hosts remain blocked.
+pytestmark = pytest.mark.allow_hosts(["127.0.0.1", "::1"])
+
 ROOT = Path(__file__).resolve().parents[2]
 SYNTHETIC_PACKAGE = "_civiscribe_custom_node_test"
 _OUTPUT_DIRECTORY = {"path": ""}

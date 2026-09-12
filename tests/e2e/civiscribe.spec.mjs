@@ -86,7 +86,7 @@ test("live V3 object info preserves the public contract", async ({
   const info = payload[NODE_ID];
   expect(info.display_name).toBe("CiviScribe - Save Image for Civitai");
   expect(info.output_node).toBe(true);
-  expect(info.output).toEqual([]);
+  expect(info.output).toEqual(["IMAGE"]);
   expect(Object.keys(info.input.required)).toContain("images");
   expect(Object.keys(info.input.optional)).toEqual([
     "positive_prompt_override",

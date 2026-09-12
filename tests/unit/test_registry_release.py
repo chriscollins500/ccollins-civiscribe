@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import json
 import re
 import tomllib
 from pathlib import Path
+from typing import Any, cast
 
+import yaml
 from PIL import Image
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -65,10 +68,13 @@ def test_release_version_is_final_and_frontend_matches() -> None:
     version_source = (PROJECT_ROOT / "civiscribe" / "version.py").read_text(encoding="utf-8")
     match = re.search(r'^__version__ = "([^"]+)"$', version_source, re.MULTILINE)
     assert match is not None
-    assert match.group(1) == "2.0.6"
+    assert re.fullmatch(r"\d+\.\d+\.\d+", match.group(1))
 
-    package = (PROJECT_ROOT / "package.json").read_text(encoding="utf-8")
-    assert '"version": "2.0.6"' in package
+    package = json.loads((PROJECT_ROOT / "package.json").read_text(encoding="utf-8"))
+    lock = json.loads((PROJECT_ROOT / "package-lock.json").read_text(encoding="utf-8"))
+    assert package["version"] == match.group(1)
+    assert lock["version"] == package["version"]
+    assert lock["packages"][""]["version"] == package["version"]
     assert ".dev" not in match.group(1)
 
 
@@ -80,12 +86,15 @@ def test_registry_publish_is_manual_validated_and_commit_pinned() -> None:
     assert "\n  pull_request:" not in workflow
     assert "needs: validate" in workflow
     assert "Comfy-Org/publish-node-action" not in workflow
-    assert 'python -m pip install "comfy-cli==1.16.0"' in workflow
+    assert '"comfy-cli==1.16.0" "httpx==0.28.1"' in workflow
     assert "python -m tools.prepare_registry_changelog" in workflow
     assert '"$RUNNER_TEMP/civiscribe-registry-changelog.md"' in workflow
     assert "${{ runner.temp }}" not in workflow
-    assert '--changelog-file "$RUNNER_TEMP/civiscribe-registry-changelog.md"' in workflow
-    assert 'comfy node publish --token "$REGISTRY_ACCESS_TOKEN"' in workflow
+    assert '--changelog "$RUNNER_TEMP/civiscribe-registry-changelog.md"' in workflow
+    assert "python -m tools.publish_registry_bundle" in workflow
+    assert "comfy node publish" not in workflow
+    assert "python -m tools.verify_registry_listing" in workflow
+    assert "--sync-description" in workflow
     assert "secrets.REGISTRY_ACCESS_TOKEN" in workflow
     assert "pat-" not in workflow
 
@@ -103,9 +112,51 @@ def test_github_workflows_use_current_node24_action_runtimes() -> None:
     )
     publish = (PROJECT_ROOT / ".github" / "workflows" / "publish.yml").read_text(encoding="utf-8")
     assert SETUP_NODE_ACTION in validation
-    assert SETUP_NODE_ACTION in publish
+    candidate = (PROJECT_ROOT / ".github/workflows/release-validation.yml").read_text()
+    assert SETUP_NODE_ACTION in candidate
     assert 'node-version: "24.19.0"' in validation
-    assert 'node-version: "24.19.0"' in publish
+    assert 'node-version: "24.19.0"' in candidate
+    assert "uses: ./.github/workflows/release-validation.yml" in publish
+
+
+def _workflow(name: str) -> dict[str, Any]:
+    source = (PROJECT_ROOT / ".github/workflows" / name).read_text(encoding="utf-8")
+    # BaseLoader constructs strings only and preserves GitHub's YAML 1.2 `on` key.
+    return cast(dict[str, Any], yaml.load(source, Loader=yaml.BaseLoader))  # noqa: S506
+
+
+def test_publish_gates_are_dependencies_not_merely_unconnected_steps() -> None:
+    workflow = _workflow("publish.yml")
+    assert set(workflow["on"]) == {"workflow_dispatch"}
+    jobs = workflow["jobs"]
+    for job in jobs.values():
+        assert job["if"] == "github.ref == 'refs/heads/main'"
+    assert jobs["github-release"]["needs"] == "validate"
+    assert jobs["publish"]["needs"] == "github-release"
+    for job_id in ("github-release", "publish"):
+        assert jobs[job_id]["environment"] == "release"
+        commands = "\n".join(step.get("run", "") for step in jobs[job_id]["steps"])
+        assert "release_bundle verify" in commands
+        assert "uv build" not in commands and "nox -s" not in commands
+    assert jobs["publish"]["permissions"] == {"contents": "read"}
+
+
+def test_candidate_requires_exact_artifact_matrix_conformance_and_live_uat() -> None:
+    jobs = _workflow("release-validation.yml")["jobs"]
+    assert jobs["installed-package"]["needs"] == "build"
+    assert jobs["live-v3"]["needs"] == "build"
+    assert set(jobs["installed-package"]["strategy"]["matrix"]["os"]) == {
+        "ubuntu-24.04",
+        "windows-2025",
+        "macos-15",
+    }
+    commands = "\n".join(step.get("run", "") for job in jobs.values() for step in job["steps"])
+    assert "nox -s release" in commands
+    assert "release_bundle prepare" in commands
+    assert "release_corpus.py --require-installed" in commands
+    assert "--require-tools" in commands
+    assert "tools.test_comfy_artifact" in commands
+    assert all("continue-on-error" not in job for job in jobs.values())
 
 
 def test_comfyignore_keeps_registry_runtime_payload() -> None:

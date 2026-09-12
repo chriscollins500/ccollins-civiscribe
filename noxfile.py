@@ -92,6 +92,7 @@ def python(session: nox.Session) -> None:
     _run_python_module(
         session,
         "pytest",
+        "--disable-socket",
         "--cov=civiscribe",
         "--cov-report=term-missing",
     )
@@ -147,7 +148,9 @@ def build(session: nox.Session) -> None:
     """Build and inspect the Python distribution artifacts."""
 
     _run_uv(session, "build")
-    _run_python_module(session, "check_wheel_contents", "dist")
+    _run_python_module(
+        session, "check_wheel_contents", f"dist/ccollins_civiscribe-{__version__}-py3-none-any.whl"
+    )
     _run_uv(
         session,
         "run",
@@ -166,3 +169,103 @@ def build(session: nox.Session) -> None:
         "audit",
         PRIVATE_RELEASE_ARCHIVE,
     )
+
+
+@nox.session(python=False, name="release-tests")
+def release_tests(session: nox.Session) -> None:
+    """Opt-in real process interruption tests; no real ComfyUI instance is touched."""
+    _run_python_module(session, "pytest", "-m", "release", "--no-cov", "tests/release")
+
+
+@nox.session(python=False)
+def strict(session: nox.Session) -> None:
+    """Explicit strict-runtime matrix; excluded from everyday development sessions."""
+    for seed, timezone in (
+        ("0", "UTC"),
+        ("1", "Pacific/Kiritimati"),
+        ("8675309", "America/New_York"),
+    ):
+        session.env.update({"PYTHONHASHSEED": seed, "TZ": timezone, "PYTHONUTF8": "1"})
+        _run_uv(
+            session,
+            "run",
+            "--locked",
+            "python",
+            "-W",
+            "error",
+            "-bb",
+            "-X",
+            "utf8",
+            "-m",
+            "pytest",
+            "-q",
+            "--no-cov",
+            "--disable-socket",
+        )
+
+
+@nox.session(python=False)
+def bench(session: nox.Session) -> None:
+    """Advisory timings and Python allocations, never a machine-independent speed gate."""
+    (PROJECT_ROOT / ".benchmarks").mkdir(exist_ok=True)
+    _run_python_module(
+        session,
+        "pytest",
+        "-m",
+        "performance",
+        "--no-cov",
+        "tests/performance",
+        "--benchmark-json=.benchmarks/results.json",
+        "--junitxml=.benchmarks/allocations.xml",
+        "-o",
+        "junit_family=xunit1",
+    )
+
+
+@nox.session(python=False, name="supply-chain")
+def supply_chain(session: nox.Session) -> None:
+    """Audit locked runtime requirements and retain standard SBOM/license reports."""
+    (PROJECT_ROOT / "dist").mkdir(exist_ok=True)
+    _run_uv(
+        session,
+        "export",
+        "--quiet",
+        "--locked",
+        "--no-dev",
+        "--no-emit-project",
+        "--format",
+        "requirements-txt",
+        "--output-file",
+        "dist/runtime-requirements.txt",
+    )
+    _run_python_module(
+        session,
+        "tools.audit_dependencies",
+        "-r",
+        "dist/runtime-requirements.txt",
+        "--require-hashes",
+        "--disable-pip",
+        "--strict",
+        "--progress-spinner",
+        "off",
+        "--format",
+        "cyclonedx-json",
+        "--output",
+        "dist/runtime-sbom.json",
+        "--cache-dir",
+        str(TOOL_CACHE_ROOT / "pip-audit-cache"),
+    )
+    _run_python_module(
+        session,
+        "piplicenses",
+        "--format=json",
+        "--with-urls",
+        "--output-file=dist/development-licenses.json",
+    )
+
+
+@nox.session(python=False)
+def release(session: nox.Session) -> None:
+    """Full local candidate gate; hosted OS/browser/conformance jobs follow this gate."""
+    for name in ("python", "frontend", "build", "release-tests", "bench", "supply-chain"):
+        session.notify(name)

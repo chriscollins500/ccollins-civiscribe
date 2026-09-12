@@ -25,12 +25,12 @@ def test_current_release_notes_are_selected_from_project_sources(tmp_path: Path)
         output_path=output,
     )
 
-    assert version == "2.0.6"
     assert read_project_version(version_file) == version
-    assert output.read_text(encoding="utf-8").startswith(
-        "- Added first-class handling for Civitai's observed"
-    )
-    assert "## 2.0.4" not in output.read_text(encoding="utf-8")
+    notes = output.read_text(encoding="utf-8")
+    changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    assert notes == extract_release_notes(changelog, version) + "\n"
+    assert notes.startswith("- ")
+    assert "\n## " not in notes
 
 
 def test_release_notes_preserve_nested_markdown_until_next_version() -> None:

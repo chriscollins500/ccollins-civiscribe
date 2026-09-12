@@ -177,6 +177,7 @@ def test_normalizer_rejects_unsafe_or_oversized_nested_values(
         ("1",),
         ("1", 0, "extra"),
         (True, 0),
+        (1, 0),
         ("1", True),
         ("1", 1.5),
         ("1", -1),
@@ -186,7 +187,7 @@ def test_link_parser_rejects_noncanonical_links(value: object) -> None:
     assert as_link_reference(cast_frozen(value)) is None
 
 
-def test_link_parser_and_recursive_iterator_accept_current_link_shape() -> None:
+def test_link_parser_ignores_nested_literals_in_current_prompt_shape() -> None:
     direct = as_link_reference(("2", 3))
     nested = tuple(iter_link_references((("2", 3), (("4", 0),))))
     structured = tuple(
@@ -203,14 +204,9 @@ def test_link_parser_and_recursive_iterator_accept_current_link_shape() -> None:
     assert direct is not None
     assert direct.source_node_id == "2"
     assert direct.output_index == EXPECTED_OUTPUT_INDEX
-    assert [(item.source_node_id, item.output_index) for item in nested] == [
-        ("2", 3),
-        ("4", 0),
-    ]
-    assert [(item.source_node_id, item.output_index) for item in structured] == [
-        ("5", 0),
-        ("6", 1),
-    ]
+    assert nested == ()
+    assert structured == ()
+    assert tuple(iter_link_references(("2", 3))) == (direct,)
     assert tuple(iter_link_references("literal")) == ()
 
 
@@ -236,7 +232,7 @@ def test_graph_index_sorts_edges_and_exposes_both_directions() -> None:
     assert index.node("missing") is None
 
 
-def test_graph_index_reports_missing_source_and_deduplicates_repeated_edge() -> None:
+def test_graph_index_reports_missing_source_and_ignores_nested_pairs() -> None:
     graph = normalize_api_prompt(
         {
             "1": {"class_type": "Source", "inputs": {}},
@@ -244,6 +240,7 @@ def test_graph_index_reports_missing_source_and_deduplicates_repeated_edge() -> 
                 "class_type": "Consumer",
                 "inputs": {
                     "many": [["1", 0], ["1", 0]],
+                    "dynamic.model": ["1", 0],
                     "missing": ["404", 0],
                 },
             },
@@ -295,7 +292,7 @@ def test_active_trace_validates_explicit_save_node_id_and_class() -> None:
     }
 
 
-def test_active_trace_handles_multiple_image_edges_modes_and_cycle() -> None:
+def test_active_trace_handles_modes_and_cycle() -> None:
     graph = normalize_api_prompt(
         {
             "1": {
@@ -311,18 +308,17 @@ def test_active_trace_handles_multiple_image_edges_modes_and_cycle() -> None:
             "3": {"class_type": "PrimitiveInt", "inputs": {"value": 3}},
             "4": {
                 "class_type": "CCollins_CiviScribe_SaveImage",
-                "inputs": {"images": [["1", 0], ["3", 0]]},
+                "inputs": {"images": ["1", 0]},
             },
         }
     )
     active = trace_active_upstream(build_graph_index(graph))
     codes = {issue.code for issue in active.issues}
 
-    assert active.node_ids == ("1", "2", "3")
+    assert active.node_ids == ("1", "2")
     assert active.contains("2")
     assert not active.contains("4")
     assert {
-        "save_images_link_ambiguous",
         "muted_node_on_active_path",
         "bypassed_node_on_active_path",
     } <= codes

@@ -60,6 +60,13 @@ def test_jpeg_golden_preserves_maximum_fidelity_and_rich_exif() -> None:
         image.load()
         decoded = np.asarray(image)
         exif = read_exif(image)
+        fields = image.getexif().get_ifd(0x8769)
+        assert fields[0x9000] == b"0232"
+        assert fields[0x9101] == b"\x01\x02\x03\x00"
+        assert fields[0xA000] == b"0100"
+        uncalibrated_color_space = 0xFFFF
+        assert fields[0xA001] == uncalibrated_color_space
+        assert image.getexif()[0x0213] == 1
         assert image.format == "JPEG"
         assert image.mode == "RGB"
         assert image.size == JPEG_SIZE
@@ -77,6 +84,7 @@ def test_lossless_webp_golden_preserves_exact_rgba_and_rich_exif() -> None:
         image.load()
         decoded = np.asarray(image)
         exif = read_exif(image)
+        assert image.getexif().get_ifd(0x8769)[0x9000] == b"0232"
         assert image.format == "WEBP"
         assert image.mode == "RGBA"
         assert image.size == WEBP_SIZE

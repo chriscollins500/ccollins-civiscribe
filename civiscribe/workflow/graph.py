@@ -32,6 +32,8 @@ def as_link_reference(
     if not isinstance(value, tuple) or len(value) != _LINK_FIELD_COUNT:
         return None
     raw_source, raw_output = value
+    if not isinstance(raw_source, str):
+        return None
     source = canonical_node_id(raw_source, limits)
     if (
         source is None
@@ -48,18 +50,15 @@ def iter_link_references(
     *,
     limits: GraphLimits = DEFAULT_GRAPH_LIMITS,
 ) -> Iterator[LinkReference]:
-    """Yield links from a normalized scalar, tuple, or V3 structured input."""
+    """Yield the top-level connection of one flattened ComfyUI input.
+
+    V3 dynamic inputs use dotted names in the API prompt. Nested containers
+    are literal data, even when a value happens to resemble a connection.
+    """
 
     direct = as_link_reference(value, limits=limits)
     if direct is not None:
         yield direct
-        return
-    if isinstance(value, tuple):
-        for item in value:
-            yield from iter_link_references(item, limits=limits)
-    elif isinstance(value, Mapping):
-        for key in sorted(value):
-            yield from iter_link_references(value[key], limits=limits)
 
 
 @dataclass(frozen=True, slots=True)
@@ -118,7 +117,6 @@ def build_graph_index(
     downstream: dict[str, list[GraphEdge]] = {}
     issues = list(graph.issues)
     edge_count = 0
-    seen_edges: set[tuple[str, int, str, str]] = set()
 
     for consumer_id in graph.node_ids:
         consumer = graph.nodes[consumer_id]
@@ -152,15 +150,6 @@ def build_graph_index(
                         )
                     )
                     continue
-                identity = (
-                    reference.source_node_id,
-                    reference.output_index,
-                    consumer_id,
-                    input_name,
-                )
-                if identity in seen_edges:
-                    continue
-                seen_edges.add(identity)
                 edge = GraphEdge(
                     source_node_id=reference.source_node_id,
                     output_index=reference.output_index,

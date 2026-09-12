@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Mapping
 from dataclasses import dataclass
 from enum import StrEnum
 
@@ -537,19 +536,16 @@ def _sage_model_picker_edges(
         preferred_input_names=("index", "value"),
     )
     selected_index = _literal_index(selected)
-    values = node.input_value("model_template")
-    if selected_index is None or not isinstance(values, Mapping):
+    if selected_index is None:
         return _ambiguous(
             index,
             node,
             selector_name="index",
             reason="selector_value_unresolved",
         )
-    wrapped_values = values.get("__value__")
-    if isinstance(wrapped_values, Mapping):
-        values = wrapped_values
-    reference = as_link_reference(values.get(f"model_{selected_index}"))
-    if reference is None:
+    selected_name = f"model_template.model_{selected_index}"
+    selected_edges = _edges_for_inputs(index, node, (selected_name,))
+    if not selected_edges:
         return (
             (),
             RoutingDecision(
@@ -559,19 +555,12 @@ def _sage_model_picker_edges(
                 reason="sage_model_index_unconnected",
             ),
         )
-    selected_edges = tuple(
-        edge
-        for edge in index.upstream_edges(node.node_id)
-        if edge.input_name == "model_template"
-        and edge.source_node_id == reference.source_node_id
-        and edge.output_index == reference.output_index
-    )
     return (
         selected_edges,
         RoutingDecision(
             node.node_id,
             RoutingStatus.RESOLVED,
-            selected_input_names=(f"model_template.model_{selected_index}",),
+            selected_input_names=(selected_name,),
             selector_input_name="index",
             reason="sage_model_index_selected",
         ),

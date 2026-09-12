@@ -409,7 +409,7 @@ def _png_civitai_expectation(value: object) -> object:
     if isinstance(workflow_refs, Mapping):
         result["workflowRefs"] = {
             **workflow_refs,
-            "prompt": "pnginfo:prompt",
+            "prompt": ("pnginfo:prompt" if workflow_refs.get("prompt") is not None else None),
             "workflow": ("pnginfo:workflow" if workflow_refs.get("workflow") is not None else None),
         }
     return result

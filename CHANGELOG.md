@@ -2,7 +2,26 @@
 
 All notable CiviScribe changes are documented here.
 
-## Unreleased
+## 2.0.7 - 2026-09-12
+
+- Fixed workflow scanning so nested literal data cannot pull disconnected models
+  into resource metadata; current V3 dynamic inputs use their flattened socket
+  names, including Sage's model picker.
+- Removed image-runtime imports from Registry TLS setup and verified clean
+  publishing-helper imports before immutable version creation.
+- Added bounded Registry version pagination, with duplicate and inconsistent
+  pages rejected rather than selecting the wrong latest version.
+- Refreshed synthetic JPEG/WebP goldens with required EXIF fields and assertions.
+- Corrected the independent conformance helper for disabled workflow embedding;
+  an absent graph no longer produces a misleading empty PNG prompt carrier.
+- Added main-only, approval-gated publishing of checksum-verified, once-built
+  artifacts, plus an exact-package Windows/Linux/macOS matrix, isolated V3
+  browser/Axe checks, mandatory independent image readers, supply-chain reports,
+  and opt-in process-interruption and performance checks.
+- Added authoritative post-publish Comfy Registry description synchronization,
+  verified system-certificate fallback, and bounded public readback so stale
+  catalog descriptions or active-version pointers are detected instead of
+  silently surviving a successful version publication.
 
 ## 2.0.6 - 2026-08-20
 

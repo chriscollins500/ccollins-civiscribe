@@ -71,7 +71,8 @@ def build_rich_png_projection(
     workflow_json: str | None = None
     workflow_redacted = False
     if include_workflow:
-        prompt_json, prompt_redacted = _json_carrier(prompt)
+        if prompt is not None:
+            prompt_json, prompt_redacted = _json_carrier(prompt)
         if workflow is not None:
             workflow_json, workflow_redacted = _json_carrier(workflow)
 

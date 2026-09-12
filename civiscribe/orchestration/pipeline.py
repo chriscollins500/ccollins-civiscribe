@@ -399,7 +399,7 @@ def _frame_metadata(
         rich = build_rich_writer_projection(
             record,
             request.output_format,
-            prompt=(context.request.prompt if context.request.prompt is not None else {}),
+            prompt=context.request.prompt,
             workflow=context.request.workflow,
             include_workflow=context.request.include_workflow,
             include_civitai_manifest=context.request.include_civitai_manifest,

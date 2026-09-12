@@ -107,15 +107,6 @@ def trace_active_upstream(
             (),
             tuple(issues),
         )
-    if len(image_edges) > 1:
-        issues.append(
-            ScanIssue(
-                "save_images_link_ambiguous",
-                node_id=resolved_save_id,
-                input_name="images",
-            )
-        )
-
     queue: deque[tuple[str, int, str | None, int]] = deque(
         (edge.source_node_id, edge.output_index, None, 1) for edge in image_edges
     )

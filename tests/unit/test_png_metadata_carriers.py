@@ -44,6 +44,17 @@ def _user_comment(path: Path) -> bytes:
         return value
 
 
+def test_absent_prompt_does_not_create_an_empty_workflow_carrier() -> None:
+    projection = build_rich_png_projection(complete_record(), prompt=None, workflow=None)
+    assert projection.prompt_json is None
+    assert projection.workflow_json is None
+    assert projection.civitai_json is not None
+    assert json.loads(projection.civitai_json)["workflowRefs"] == {
+        "prompt": None,
+        "workflow": None,
+    }
+
+
 def test_rich_png_writes_exact_compatibility_carriers(tmp_path: Path) -> None:
     projection = build_rich_png_projection(
         complete_record(),

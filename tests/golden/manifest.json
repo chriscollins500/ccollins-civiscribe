@@ -39,18 +39,21 @@
       "expected": {
         "format": "JPEG",
         "height": 2,
-        "metadataKeys": ["exif"],
+        "metadataKeys": [
+          "exif"
+        ],
         "mode": "RGB",
         "userCommentEncoding": "UTF-16BE",
-        "width": 3
+        "width": 3,
+        "exifVersion": "0232"
       },
       "id": "jpeg-rich-metadata-v1",
       "licenseOrConsent": "Project-authored synthetic fixture released with the test suite.",
       "path": "jpeg/rich_reference.jpg",
-      "sha256": "9a102c6fdf04601710518de776a103b9433000d93c818ae845795efca165d868",
-      "sizeBytes": 4275,
+      "sha256": "17fe8ec6abd92e519f42ee249d05108411d2f1e50aeebe9e4d9eba992e1ac1d1",
+      "sizeBytes": 4335,
       "sourceClass": "synthetic",
-      "updateReason": "Phase 8 maximum-fidelity JPEG pixels and rich EXIF semantic contract."
+      "updateReason": "Regenerated from the original synthetic pixels with the current EXIF 2.32 writer; assert required EXIF fields as well as pixels and generation metadata."
     },
     {
       "byteEqualityContract": false,
@@ -59,18 +62,21 @@
         "format": "WEBP",
         "height": 2,
         "lossless": true,
-        "metadataKeys": ["exif"],
+        "metadataKeys": [
+          "exif"
+        ],
         "mode": "RGBA",
         "userCommentEncoding": "UTF-16BE",
-        "width": 2
+        "width": 2,
+        "exifVersion": "0232"
       },
       "id": "webp-rich-metadata-v1",
       "licenseOrConsent": "Project-authored synthetic fixture released with the test suite.",
       "path": "webp/rich_rgba_reference.webp",
-      "sha256": "f8d12d387c614b169104efda0e9e61f5268f2c0fd2f6c078964ba838da650e6b",
-      "sizeBytes": 3968,
+      "sha256": "6d0960cf0aca4e87e0f8b31d65030cf11eda36d7f3aa241f8b749b8ad5ea98d4",
+      "sizeBytes": 3980,
       "sourceClass": "synthetic",
-      "updateReason": "Phase 8 lossless exact RGBA WebP pixels and rich EXIF semantic contract."
+      "updateReason": "Regenerated from the original synthetic pixels with the current EXIF 2.32 writer; assert required EXIF fields as well as pixels and generation metadata."
     },
     {
       "byteEqualityContract": true,

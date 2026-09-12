@@ -1525,7 +1525,7 @@ def test_sage_sampler_info_and_nested_prompt_bundle_are_extracted() -> None:
     assert "negative_prompt_missing" not in _issue_codes(result)
 
 
-def test_sage_multi_model_picker_routes_only_selected_nested_model() -> None:
+def test_sage_multi_model_picker_routes_only_selected_v3_dynamic_model() -> None:
     prompt: Prompt = {
         "1": {
             "class_type": "CheckpointLoaderSimple",
@@ -1539,12 +1539,8 @@ def test_sage_multi_model_picker_routes_only_selected_nested_model() -> None:
             "class_type": "Sage_MultiModelPicker",
             "inputs": {
                 "index": 1,
-                "model_template": {
-                    "__value__": {
-                        "model_0": ["1", 0],
-                        "model_1": ["2", 0],
-                    }
-                },
+                "model_template.model_0": ["1", 0],
+                "model_template.model_1": ["2", 0],
             },
         },
         "4": {

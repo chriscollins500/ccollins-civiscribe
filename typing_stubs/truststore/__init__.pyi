@@ -1,1 +1,3 @@
 from ssl import SSLContext as SSLContext
+
+def inject_into_ssl() -> None: ...

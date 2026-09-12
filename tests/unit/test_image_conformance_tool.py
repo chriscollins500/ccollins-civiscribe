@@ -174,6 +174,11 @@ def test_png_civitai_expectation_uses_embedded_carrier_references() -> None:
     }
 
 
+def test_png_civitai_expectation_preserves_disabled_workflow_references() -> None:
+    manifest = {"workflowRefs": {"prompt": None, "workflow": None}}
+    assert conformance._png_civitai_expectation(manifest) == manifest
+
+
 def test_resolve_tools_uses_explicit_regular_file(tmp_path: Path) -> None:
     executable = tmp_path / "tool.exe"
     executable.write_bytes(b"tool")

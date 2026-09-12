@@ -52,6 +52,8 @@ dev = [
   "jsonschema>=4.23,<5",
   "mypy>=1.15,<2",
   "nox>=2025.2.9",
+  "pip-audit>=2.10,<3",
+  "pip-licenses>=5,<6",
   "pytest>=8.3,<10",
   "pytest-benchmark>=5.2,<6",
   "pytest-cov>=6,<8",
@@ -59,8 +61,10 @@ dev = [
   "pytest-socket>=0.7,<1",
   "pytest-timeout>=2.3,<3",
   "pytest-xdist>=3.6,<4",
+  "PyYAML>=6,<7",
   "ruff>=0.11,<1",
   "types-jsonschema>=4.23,<5",
+  "types-PyYAML>=6,<7",
 ]
 
 [tool.hatch.version]
@@ -86,8 +90,13 @@ addopts = [
   "--strict-config",
   "--strict-markers",
   "--import-mode=importlib",
+  "-m", "not release and not performance",
 ]
 testpaths = ["tests"]
+markers = [
+  "release: opt-in real subprocess crash and release integration checks",
+  "performance: advisory benchmark and allocation measurements",
+]
 
 [tool.ruff]
 line-length = 100

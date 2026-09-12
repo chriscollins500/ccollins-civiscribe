@@ -18,12 +18,13 @@ import httpx
 
 from civiscribe.domain import IdentitySource
 from civiscribe.identity.air import parse_air
-from civiscribe.identity.civitai_client import USER_AGENT, create_tls_contexts
+from civiscribe.identity.civitai_client import USER_AGENT
 from civiscribe.identity.civitai_contract import (
     SINGLE_HASH_ALGORITHMS,
     SUPPORTED_MODEL_FILE_TYPES,
     SUPPORTED_MODEL_TYPES,
 )
+from civiscribe.tls import create_tls_contexts
 
 ENUMS_URL = "https://civitai.com/api/v1/enums"
 API_BASE_URL = "https://civitai.com/api/v1"

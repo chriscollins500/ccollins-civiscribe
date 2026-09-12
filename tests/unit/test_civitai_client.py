@@ -11,6 +11,7 @@ from types import SimpleNamespace
 import httpx
 import pytest
 
+from civiscribe import tls as tls_module
 from civiscribe.domain import (
     HashRecord,
     IdentitySource,
@@ -26,11 +27,11 @@ from civiscribe.identity.civitai_client import (
     CivitaiClient,
     CivitaiLookupConfig,
     CivitaiRateLimitGate,
-    create_tls_contexts,
     no_private_request_data,
     parse_retry_after,
 )
 from civiscribe.identity.types import LookupStatus
+from civiscribe.tls import create_tls_contexts
 from tests.projection_support import MODEL_ID, MODEL_VERSION_ID, model_resource
 
 MODEL_AIR = f"urn:air:flux2:checkpoint:civitai:{MODEL_ID}@{MODEL_VERSION_ID}+2402203.safetensor"
@@ -1524,7 +1525,7 @@ def test_tls_contexts_include_available_truststore(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
-        client_module,
+        tls_module,
         "_truststore_provider",
         SimpleNamespace(SSLContext=ssl.SSLContext),
     )
@@ -1537,8 +1538,8 @@ def test_tls_contexts_include_available_truststore(
 def test_tls_contexts_tolerate_missing_optional_providers(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setattr(client_module, "_truststore_provider", None)
-    monkeypatch.setattr(client_module, "_certifi_provider", None)
+    monkeypatch.setattr(tls_module, "_truststore_provider", None)
+    monkeypatch.setattr(tls_module, "_certifi_provider", None)
 
     contexts = create_tls_contexts()
 

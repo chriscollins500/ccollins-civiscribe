@@ -281,8 +281,9 @@ gate is:
 
 It runs formatting, linting, strict typing, locale and golden-fixture
 validation, schema checks, Python tests with 100 percent statement and branch
-coverage, frontend tests, dependency auditing, wheel/source builds, and the
-private release-package audit.
+coverage, frontend tests, wheel/source builds, and the private release-package
+audit. The explicit `python -m nox -s release` profile adds dependency auditing,
+supply-chain reports, crash-recovery tests, and advisory performance checks.
 
 Architecture and implementation documents are available in [`docs/`](docs/).
 Contributor guidance is in [CONTRIBUTING.md](CONTRIBUTING.md).

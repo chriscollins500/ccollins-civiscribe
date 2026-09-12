@@ -14,7 +14,6 @@ from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from email.utils import parsedate_to_datetime
 from types import TracebackType
-from typing import Any
 from urllib.parse import urlparse
 
 import httpx
@@ -26,6 +25,7 @@ from ..domain import (
     ResourceRecord,
     ScanIssue,
 )
+from ..tls import create_tls_contexts
 from ..version import __version__
 from .air import attach_file_to_air_identity, parse_air
 from .civitai_contract import (
@@ -41,22 +41,6 @@ from .hash_values import (
 )
 from .resource_types import resource_type_is_ambiguous, resource_type_matches_role
 from .types import LookupStatus
-
-_certifi_provider: Any | None
-try:
-    import certifi
-except ImportError:  # pragma: no cover - exercised on dependency-minimal platforms
-    _certifi_provider = None
-else:
-    _certifi_provider = certifi
-
-_truststore_provider: Any | None
-try:
-    import truststore
-except ImportError:  # pragma: no cover - exercised on dependency-minimal platforms
-    _truststore_provider = None
-else:  # pragma: no cover - dependency availability is platform-specific
-    _truststore_provider = truststore
 
 CIVITAI_API_BASE = "https://civitai.com/api/v1"
 DEFAULT_LOOKUP_TIMEOUT_SECONDS = 4.0
@@ -214,42 +198,6 @@ def parse_retry_after(
     if current.tzinfo is None:
         current = current.replace(tzinfo=UTC)
     return max(0, math.ceil((parsed - current).total_seconds()))
-
-
-def _tls_minimum(context: ssl.SSLContext) -> ssl.SSLContext:
-    context.minimum_version = ssl.TLSVersion.TLSv1_2
-    context.check_hostname = True
-    context.verify_mode = ssl.CERT_REQUIRED
-    return context
-
-
-def create_tls_contexts() -> tuple[tuple[str, ssl.SSLContext], ...]:
-    """Return verified trust contexts in system, truststore, certifi order."""
-
-    contexts: list[tuple[str, ssl.SSLContext]] = [
-        ("system_default", _tls_minimum(ssl.create_default_context()))
-    ]
-    try:
-        truststore = _truststore_provider
-        if truststore is None:
-            raise ImportError
-        contexts.append(
-            (
-                "truststore",
-                _tls_minimum(truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT)),
-            )
-        )
-    except (ImportError, AttributeError, ssl.SSLError):
-        pass
-    try:
-        certifi = _certifi_provider
-        if certifi is None:
-            raise ImportError
-        certifi_context = ssl.create_default_context(cafile=certifi.where())
-        contexts.append(("certifi", _tls_minimum(certifi_context)))
-    except (ImportError, AttributeError, OSError, ssl.SSLError):
-        pass
-    return tuple(contexts)
 
 
 def _certificate_failure(exc: BaseException) -> bool:
@@ -1099,7 +1047,6 @@ __all__ = [
     "CivitaiLookupConfig",
     "CivitaiLookupResult",
     "CivitaiRateLimitGate",
-    "create_tls_contexts",
     "no_private_request_data",
     "parse_retry_after",
 ]

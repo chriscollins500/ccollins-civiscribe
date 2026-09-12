@@ -12,55 +12,83 @@ concurrency:
 
 jobs:
   validate:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 30
-    env:
-      PIP_DISABLE_PIP_VERSION_CHECK: "1"
-      PYTHONUTF8: "1"
-    steps:
-      - name: Check out source
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/release-validation.yml
 
-      - name: Set up Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
-        with:
-          python-version: "3.12"
-
-      - name: Set up Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
-        with:
-          node-version: "24.19.0"
-          cache: npm
-
-      - name: Install development orchestrator
-        run: python -m pip install "nox>=2025.2.9" "uv>=0.8,<1"
-
-      - name: Run Python, frontend, and release validation
-        run: python -m nox -s python frontend build
-
-  publish:
+  github-release:
+    if: github.ref == 'refs/heads/main'
     needs: validate
+    environment: release
     runs-on: ubuntu-24.04
     timeout-minutes: 10
+    permissions:
+      contents: write
+      actions: read
+      id-token: write
+      attestations: write
     steps:
-      - name: Check out source
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-
-      - name: Set up Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
         with:
           python-version: "3.12"
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: release-${{ github.sha }}
+          path: dist
+      - name: Require configured human release approval
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          test "$(gh api "repos/$GITHUB_REPOSITORY/environments/release" --jq '[.protection_rules[] | select(.type == "required_reviewers") | .reviewers[]] | length > 0')" = true
+      - run: python -m tools.release_bundle verify --commit "$GITHUB_SHA"
+      - name: Attest the tested, unchanged artifacts
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6
+        with:
+          subject-path: dist/*
+      - name: Prepare update notes
+        run: python -m tools.prepare_registry_changelog --output "$RUNNER_TEMP/civiscribe-registry-changelog.md"
+      - name: Publish GitHub release without replacing existing tags or assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(python -c 'from civiscribe.version import __version__; print(__version__)')
+          test -z "$(git ls-remote --tags origin "refs/tags/v$VERSION")"
+          gh release create "v$VERSION" dist/* --target "$GITHUB_SHA" --title "CiviScribe $VERSION" --notes-file "$RUNNER_TEMP/civiscribe-registry-changelog.md"
 
-      - name: Install pinned Comfy CLI
-        run: python -m pip install "comfy-cli==1.16.0"
-
+  publish:
+    if: github.ref == 'refs/heads/main'
+    needs: github-release
+    environment: release
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: "3.12"
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: release-${{ github.sha }}
+          path: dist
+      - name: Install pinned publishing tools
+        run: python -m pip install "comfy-cli==1.16.0" "httpx==0.28.1"
+      - name: Preflight helper imports before creating an immutable version
+        run: |
+          python -c "from tools.verify_registry_listing import load_project_registry_metadata; load_project_registry_metadata()"
+          python -m tools.release_bundle verify --commit "$GITHUB_SHA"
       - name: Prepare Registry update notes
         run: python -m tools.prepare_registry_changelog --output "$RUNNER_TEMP/civiscribe-registry-changelog.md"
-
-      - name: Publish immutable Registry version
-        shell: bash
+      - name: Publish the previously tested Registry archive (no rebuild)
         env:
           REGISTRY_ACCESS_TOKEN: ${{ secrets.REGISTRY_ACCESS_TOKEN }}
-        run: |
-          comfy --skip-prompt --no-enable-telemetry env
-          comfy node publish --token "$REGISTRY_ACCESS_TOKEN" --changelog-file "$RUNNER_TEMP/civiscribe-registry-changelog.md"
+        run: python -m tools.publish_registry_bundle --commit "$GITHUB_SHA" --changelog "$RUNNER_TEMP/civiscribe-registry-changelog.md"
+      - name: Synchronize and verify public Registry listing
+        env:
+          REGISTRY_ACCESS_TOKEN: ${{ secrets.REGISTRY_ACCESS_TOKEN }}
+        run: >-
+          python -m tools.verify_registry_listing
+          --sync-description
+          --attempts 12
+          --poll-delay-seconds 5
