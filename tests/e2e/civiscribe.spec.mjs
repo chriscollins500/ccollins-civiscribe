@@ -35,17 +35,25 @@ const WIDGET_NAMES = [
   "manual_resource_identities_json",
 ];
 
-async function openComfy(page) {
-  await page.goto("/", { waitUntil: "networkidle" });
+async function waitForComfy(page) {
   await expect
     .poll(() =>
       page.evaluate(
         (nodeId) =>
-          Boolean(globalThis.LiteGraph?.registered_node_types?.[nodeId]),
+          Boolean(
+            globalThis.app?.graph &&
+            globalThis.app?.extensionManager?.setting &&
+            globalThis.LiteGraph?.registered_node_types?.[nodeId],
+          ),
         NODE_ID,
       ),
     )
     .toBe(true);
+}
+
+async function openComfy(page) {
+  await page.goto("/", { waitUntil: "networkidle" });
+  await waitForComfy(page);
 }
 
 async function setLocale(page, locale) {
@@ -55,11 +63,13 @@ async function setLocale(page, locale) {
     locale,
   );
   await page.reload({ waitUntil: "networkidle" });
+  await waitForComfy(page);
   await expect
     .poll(() =>
       page.evaluate(
         (value) =>
-          globalThis.app.extensionManager.setting.get("Comfy.Locale") === value,
+          globalThis.app?.extensionManager?.setting?.get("Comfy.Locale") ===
+          value,
         locale,
       ),
     )
