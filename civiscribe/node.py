@@ -31,6 +31,7 @@ class CiviScribeSaveImage(io.ComfyNode):
             node_id=NODE_ID,
             display_name=NODE_DISPLAY_NAME,
             category=NODE_CATEGORY,
+            hidden=[io.Hidden.unique_id],
             description=(
                 "Saves PNG, JPEG, or WebP images to ComfyUI's output directory. "
                 "Writes Civitai-compatible metadata while preserving pixels-first saving."

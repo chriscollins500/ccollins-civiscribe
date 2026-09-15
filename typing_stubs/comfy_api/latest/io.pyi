@@ -3,6 +3,11 @@ from typing import Any
 
 class ComfyNode: ...
 
+class Hidden(Enum):
+    unique_id = ...
+    prompt = ...
+    extra_pnginfo = ...
+
 class FolderType(Enum):
     output = ...
 
@@ -111,7 +116,7 @@ class Schema:
         category: str = ...,
         inputs: list[Any] = ...,
         outputs: list[Any] = ...,
-        hidden: list[Any] = ...,
+        hidden: list[Hidden] = ...,
         description: str = ...,
         search_aliases: list[str] = ...,
         is_output_node: bool = ...,

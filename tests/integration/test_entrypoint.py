@@ -27,6 +27,10 @@ DEFAULT_JPEG_QUALITY = 100
 DEFAULT_LOOKUP_TIMEOUT_SECONDS = 4.0
 MAX_LOOKUP_TIMEOUT_SECONDS = 30.0
 OVERSIZED_LOOKUP_TIMEOUT_SECONDS = 999.0
+BRANCH_NODE_STRIDE = 10
+BRANCH_BASE_SEED = 100
+BRANCH_BASE_STEPS = 20
+BRANCH_BASE_CFG = 7.0
 
 
 class _ComfyNode:
@@ -70,9 +74,22 @@ class _Float:
     Input = _Input
 
 
+class _Hidden(Enum):
+    unique_id = "UNIQUE_ID"
+    prompt = "PROMPT"
+    extra_pnginfo = "EXTRA_PNGINFO"
+
+
 class _Schema:
     def __init__(self, **kwargs: object) -> None:
         vars(self).update(kwargs)
+        self.hidden = list(cast(list[_Hidden], kwargs.get("hidden", [])))
+        # V3 output nodes receive these automatically, but must request unique_id.
+        # https://docs.comfy.org/custom-nodes/v3_migration#hidden-inputs (2026-09-15).
+        if kwargs.get("is_output_node"):
+            for hidden in (_Hidden.prompt, _Hidden.extra_pnginfo):
+                if hidden not in self.hidden:
+                    self.hidden.append(hidden)
 
 
 class _FolderType(Enum):
@@ -109,6 +126,7 @@ def _fake_comfy_modules() -> dict[str, ModuleType]:
     vars(io_module)["Int"] = _Int
     vars(io_module)["Boolean"] = _Boolean
     vars(io_module)["Float"] = _Float
+    vars(io_module)["Hidden"] = _Hidden
     vars(io_module)["Schema"] = _Schema
     vars(io_module)["NodeOutput"] = _NodeOutput
 
@@ -186,6 +204,7 @@ def test_public_node_schema_is_native_v3_and_registered_once() -> None:
             assert schema.display_name == "CiviScribe - Save Image for Civitai"
             assert schema.category == "CCollins/CiviScribe"
             assert schema.is_output_node is True
+            assert _Hidden.unique_id in schema.hidden
             assert [item.id for item in schema.outputs] == ["images"]
             assert schema.outputs[0].options == {
                 "display_name": "Images",
@@ -381,10 +400,14 @@ def test_candidate_node_embeds_current_v3_hidden_prompt_and_workflow(
             asyncio.run(module.comfy_entrypoint())
             node_module = sys.modules[f"{SYNTHETIC_PACKAGE}.civiscribe.node"]
             node_class = vars(node_module)["CiviScribeSaveImage"]
+            schema = node_class.define_schema()
+            hidden_values = {
+                "prompt": prompt,
+                "extra_pnginfo": {"workflow": workflow},
+                "unique_id": "2",
+            }
             node_class.hidden = SimpleNamespace(
-                prompt=prompt,
-                extra_pnginfo={"workflow": workflow},
-                unique_id="2",
+                **{hidden.name: hidden_values[hidden.name] for hidden in schema.hidden}
             )
             result = node_class.execute(
                 np.zeros((1, 2, 3, 3), dtype=np.float32),
@@ -400,6 +423,104 @@ def test_candidate_node_embeds_current_v3_hidden_prompt_and_workflow(
                 assert "parameters" in text
                 assert "Software" in text
                 assert image.getexif().get_ifd(0x8769).get(0x9286)
+        finally:
+            for name in tuple(sys.modules):
+                if name == SYNTHETIC_PACKAGE or name.startswith(f"{SYNTHETIC_PACKAGE}."):
+                    sys.modules.pop(name, None)
+
+
+def _generation_branches(branch_count: int) -> dict[str, dict[str, object]]:
+    fixture_path = (
+        Path(__file__).resolve().parents[1] / "fixtures" / "workflows" / "basic_checkpoint.json"
+    )
+    fixture_text = fixture_path.read_text(encoding="utf-8")
+    prompt: dict[str, dict[str, object]] = {}
+    for branch in range(branch_count):
+        graph = cast(dict[str, dict[str, object]], json.loads(fixture_text)["prompt"])
+        inputs = {
+            node_id: cast(dict[str, object], node["inputs"]) for node_id, node in graph.items()
+        }
+        inputs["1"]["ckpt_name"] = f"branch_{branch}.safetensors"
+        inputs["2"]["text"] = f"positive branch {branch}"
+        inputs["3"]["text"] = f"negative branch {branch}"
+        inputs["5"].update(
+            seed=BRANCH_BASE_SEED + branch,
+            steps=BRANCH_BASE_STEPS + branch,
+            cfg=BRANCH_BASE_CFG + branch,
+            sampler_name="euler" if branch % 2 == 0 else "dpmpp_2m",
+            scheduler="normal" if branch % 2 == 0 else "karras",
+        )
+        offset = branch * BRANCH_NODE_STRIDE
+        for node_id, node in graph.items():
+            for name, value in inputs[node_id].items():
+                if isinstance(value, list):
+                    inputs[node_id][name] = [str(offset + int(value[0])), value[1]]
+            prompt[str(offset + int(node_id))] = node
+    return prompt
+
+
+@pytest.mark.parametrize("branch_count", [1, 5])
+def test_candidate_node_resolves_each_generation_branch_from_schema_hidden_inputs(
+    tmp_path: Path, branch_count: int
+) -> None:
+    _OUTPUT_DIRECTORY["path"] = str(tmp_path)
+    prompt = _generation_branches(branch_count)
+    with patch.dict(sys.modules, _fake_comfy_modules()):
+        module = _load_root_entrypoint()
+        try:
+            asyncio.run(module.comfy_entrypoint())
+            node_module = sys.modules[f"{SYNTHETIC_PACKAGE}.civiscribe.node"]
+            node_class = vars(node_module)["CiviScribeSaveImage"]
+            schema = node_class.define_schema()
+            # Start with the last branch so choosing the first save node cannot pass.
+            for branch in reversed(range(branch_count)):
+                offset = branch * BRANCH_NODE_STRIDE
+                hidden_values = {
+                    "unique_id": str(offset + 7),
+                    "prompt": prompt,
+                    "extra_pnginfo": {},
+                }
+                node_class.hidden = SimpleNamespace(
+                    **{hidden.name: hidden_values[hidden.name] for hidden in schema.hidden}
+                )
+                batch = np.zeros((1, 2, 3, 3), dtype=np.float32)
+                result = node_class.execute(
+                    batch,
+                    filename_prefix=f"branch_{branch}",
+                    write_sidecar_json=True,
+                    hashing_mode="cached_only",
+                )
+                assert result.outputs[0] is batch
+                path = tmp_path / str(result.ui.results[0]["filename"])
+                sidecar_path = path.with_suffix(".json")
+                assert validate_sidecar(sidecar_path).valid
+                sidecar = json.loads(sidecar_path.read_text(encoding="utf-8"))
+                record = sidecar["generationRecord"]
+                diagnostics = record["diagnostics"]
+                assert "save_node_ambiguous" not in {
+                    issue["code"] for issue in diagnostics["warnings"] + diagnostics["errors"]
+                }
+                assert record["prompts"]["positive"]["text"] == f"positive branch {branch}"
+                assert record["prompts"]["negative"]["text"] == f"negative branch {branch}"
+                settings = record["settings"]
+                assert settings["seed"] == BRANCH_BASE_SEED + branch
+                assert settings["steps"] == BRANCH_BASE_STEPS + branch
+                assert settings["cfgScale"] == BRANCH_BASE_CFG + branch
+                assert settings["sampler"] == ("euler" if branch % 2 == 0 else "dpmpp_2m")
+                assert settings["scheduler"] == ("normal" if branch % 2 == 0 else "karras")
+                assert record["primaryResourceKey"] == f"{offset + 1}:ckpt_name"
+                assert [resource["filename"] for resource in record["resources"]] == [
+                    f"branch_{branch}.safetensors"
+                ]
+                with Image.open(path) as image:
+                    np.testing.assert_array_equal(np.asarray(image), np.zeros((2, 3, 3)))
+                    text = cast(PngImageFile, image).text
+                    assert text["parameters"] == sidecar["projections"]["parameters"]
+                    manifest = json.loads(text["civitai"])
+                    assert manifest["generation"]["seed"] == settings["seed"]
+                    assert [resource["filename"] for resource in manifest["resources"]] == [
+                        f"branch_{branch}.safetensors"
+                    ]
         finally:
             for name in tuple(sys.modules):
                 if name == SYNTHETIC_PACKAGE or name.startswith(f"{SYNTHETIC_PACKAGE}."):

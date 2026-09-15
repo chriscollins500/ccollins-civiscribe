@@ -2,6 +2,13 @@
 
 All notable CiviScribe changes are documented here.
 
+## 2.0.8 - 2026-09-15
+
+- Fixed metadata detection in workflows with multiple CiviScribe save nodes by
+  requesting the executing node's unique ID from ComfyUI. Each save now resolves
+  its own upstream prompts, resources, and generation settings instead of
+  reporting `save_node_ambiguous`.
+
 ## 2.0.7 - 2026-09-12
 
 - Fixed workflow scanning so nested literal data cannot pull disconnected models
