@@ -2,6 +2,23 @@
 
 All notable CiviScribe changes are documented here.
 
+## 2.0.9 - 2026-10-28
+
+- Added `%model_noext%` for filenames and subfolders without the model file
+  extension. `%model%` and the model filenames recorded in metadata are unchanged.
+- Added an optional `%counter%` or `%counter:N%` filename token for counter
+  position and minimum digit width (1-9). Patterns without the token retain
+  the existing naming format, and saves still never overwrite existing images.
+- Updated the development API contract auditor for Civitai's `SHA256_12` and
+  `SSHS_12` response fields, with format and SHA-256 prefix checks. Runtime
+  lookups, hash precedence, and saved metadata remain unchanged.
+- Updated Pillow and the certificate bundle to include current security fixes,
+  and refreshed NumPy and system trust-store integration.
+- Refreshed locked Python and frontend development dependencies, including
+  TypeScript 6, and updated the pinned CI and Registry publishing tools.
+- Updated the isolated ComfyUI validation baseline to 0.43.0 and documented
+  the TypeScript and pytest compatibility constraints enforced by the lockfiles.
+
 ## 2.0.8 - 2026-09-15
 
 - Fixed metadata detection in workflows with multiple CiviScribe save nodes by

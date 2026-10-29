@@ -17,6 +17,32 @@ line and branch coverage. The frontend session runs formatting, linting,
 TypeScript checks, and Node tests. The build session creates and audits the
 wheel, source distribution, and ComfyUI private-test ZIP.
 
+### Dependency update baseline
+
+The 2026-10-28 refresh uses Pillow 13, NumPy 2.5.4, truststore 0.10.5, and a
+direct certifi security minimum of 2026.10.23. The Python lockfile also includes
+uv so Nox prefers the project's tested tool over an older executable on PATH.
+CI uses Node 24.22.2 and tests the built node against ComfyUI 0.43.0.
+
+Two development constraints are deliberate:
+
+- TypeScript stays on 6.0.x because typescript-eslint 8.72.1 requires a compiler
+  API below 6.1; TypeScript 7 is not compatible with that API.
+- pytest stays below 9.2 because pytest-benchmark 5.3.0 accesses the removed
+  private `Node._nodeid` attribute. The benchmark session must pass before this
+  cap is lifted.
+
+Refresh lockfiles with `python -m uv --system-certs lock --upgrade` and
+`npm update`, then run the full candidate profile below. Recheck these upstream
+constraints when lifting either cap; do not patch installed third-party files.
+Keep `NODE_USE_SYSTEM_CA=1` on Windows.
+
+Primary sources checked 2026-10-28:
+[Pillow 13 changes](https://pillow.readthedocs.io/en/stable/releasenotes/13.0.0.html),
+[certifi advisory](https://github.com/advisories/GHSA-6q48-6c7w-9gw2),
+[TypeScript ESLint package requirements](https://registry.npmjs.org/typescript-eslint/8.72.1),
+[pytest-benchmark 5.3.0](https://pypi.org/project/pytest-benchmark/5.3.0/).
+
 Keep runtime changes local-first, deterministic, path-safe, and pixels-first.
 Never add uploads, model installation, token persistence, filename-based
 identity guessing, or metadata behavior that can prevent a writable image from

@@ -37,7 +37,7 @@ _FORMAT_FACTS = {
 }
 _MODE_CHANNELS = {"L": 1, "RGB": 3, "RGBA": 4}
 
-type JsonScalar = None | bool | int | float | str
+type JsonScalar = bool | int | float | str | None
 type JsonValue = JsonScalar | list[JsonValue] | dict[str, JsonValue]
 
 

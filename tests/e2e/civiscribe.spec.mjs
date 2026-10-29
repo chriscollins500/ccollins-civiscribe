@@ -109,6 +109,40 @@ test("live V3 object info preserves the public contract", async ({
   ]);
   expect(info.input.required.enable_civitai_lookup[1].default).toBe(false);
   expect(info.input.required.hashing_mode[1].default).toBe("cached_or_fast");
+  expect(info.input.required.filename_prefix[1].tooltip).toContain(
+    "%counter:4%",
+  );
+});
+
+test("counter tokens survive live filename serialization", async ({ page }) => {
+  await openComfy(page);
+  const patterns = [
+    "portrait",
+    "%counter%_portrait",
+    "%model_noext%_%counter:4%",
+    "portrait_%counter:2%_final",
+  ];
+  const serialized = await page.evaluate(
+    async ({ nodeId, patterns }) => {
+      const graph = globalThis.app.graph;
+      graph.clear();
+      const node = globalThis.LiteGraph.createNode(nodeId);
+      graph.add(node);
+      const widget = node.widgets.find(
+        (item) => item.name === "filename_prefix",
+      );
+      const results = [];
+      for (const pattern of patterns) {
+        widget.value = pattern;
+        results.push(
+          await widget.serializeValue(node, node.widgets.indexOf(widget)),
+        );
+      }
+      return results;
+    },
+    { nodeId: NODE_ID, patterns },
+  );
+  expect(serialized).toEqual(patterns);
 });
 
 test("progressive disclosure preserves values, order, and node dimensions", async ({

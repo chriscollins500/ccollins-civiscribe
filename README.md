@@ -158,6 +158,34 @@ That pattern creates a dated subfolder and names the image with its save time
 and active model. You can also use `%seed%`, `%sampler%`, `%width%`, `%height%`,
 `%batch_num%`, and current ComfyUI `%Node name.widget_name%` replacements.
 
+Use `%model_noext%` when you want the model name without its file extension.
+For `DreamModel.v2.safetensors`, `%model%` produces `DreamModel.v2.safetensors`
+and `%model_noext%` produces `DreamModel.v2`. Both work in filenames and
+subfolder names. This affects output naming only; metadata keeps the full model
+filename.
+
+The new token removes one final `.safetensors`, `.safetensor`, `.ckpt`, `.pt`,
+`.pth`, `.bin`, `.gguf`, or `.sft` extension, regardless of capitalization.
+Other suffixes and dots in the model name are preserved. If no model filename
+is available, both tokens use `model`.
+
+Use one `%counter%` token in the filename to choose where its sequence number
+appears. It uses five digits by default; `%counter:4%` uses at least four.
+The width can be 1-9, and larger numbers grow naturally rather than wrapping.
+
+| Filename pattern | First PNG filename |
+| --- | --- |
+| `portrait` | `portrait_00001_.png` (unchanged) |
+| `%counter%_portrait` | `00001_portrait.png` |
+| `%model_noext%_%counter:4%` | `DreamModel.v2_0001.png` |
+| `portrait_%counter:2%_final` | `portrait_01_final.png` |
+
+The token replaces the automatic counter suffix. Without it, existing naming
+is unchanged. Counters continue from matching files in the same folder and image
+format, including when you change the padding width. Use the token once, in the
+filename itself; counter tokens in subfolder names are not supported. Existing
+files are never overwritten, including when multiple saves choose the same name.
+
 All expanded paths are checked before writing. Absolute paths, traversal,
 unsafe Windows names, unresolved tokens, and escapes outside ComfyUI's output
 folder are rejected.

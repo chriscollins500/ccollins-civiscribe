@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 from ..domain import ScanIssue
 
-type ScalarValue = None | bool | int | float | str
+type ScalarValue = bool | int | float | str | None
 type FrozenValue = ScalarValue | tuple[FrozenValue, ...] | Mapping[str, FrozenValue]
 
 

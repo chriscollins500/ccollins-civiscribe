@@ -63,7 +63,7 @@ def publish_image(temporary: Path, plan: OutputPlan, extension: str) -> Path:
     safe_extension = _validated_extension(extension)
     counter = plan.next_counter(safe_extension)
     while counter <= MAX_COUNTER:
-        destination = plan.directory / f"{plan.stem}_{counter:05}_{safe_extension}"
+        destination = plan.directory / plan.filename(counter, safe_extension)
         try:
             os.link(temporary, destination)
         except FileExistsError:

@@ -11,8 +11,8 @@ from PIL import Image
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 CHECKOUT_ACTION = "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
-SETUP_NODE_ACTION = "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020"
-SETUP_PYTHON_ACTION = "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97"
+SETUP_NODE_ACTION = "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1"
+SETUP_PYTHON_ACTION = "actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0"
 ICON_URL = (
     "https://raw.githubusercontent.com/chriscollins500/ccollins-civiscribe/"
     "main/assets/branding/civiscribe-icon.png"
@@ -86,7 +86,7 @@ def test_registry_publish_is_manual_validated_and_commit_pinned() -> None:
     assert "\n  pull_request:" not in workflow
     assert "needs: validate" in workflow
     assert "Comfy-Org/publish-node-action" not in workflow
-    assert '"comfy-cli==1.16.0" "httpx==0.28.1"' in workflow
+    assert '"comfy-cli==1.23.0" "httpx==0.28.1"' in workflow
     assert "python -m tools.prepare_registry_changelog" in workflow
     assert '"$RUNNER_TEMP/civiscribe-registry-changelog.md"' in workflow
     assert "${{ runner.temp }}" not in workflow
@@ -114,8 +114,8 @@ def test_github_workflows_use_current_node24_action_runtimes() -> None:
     assert SETUP_NODE_ACTION in validation
     candidate = (PROJECT_ROOT / ".github/workflows/release-validation.yml").read_text()
     assert SETUP_NODE_ACTION in candidate
-    assert 'node-version: "24.19.0"' in validation
-    assert 'node-version: "24.19.0"' in candidate
+    assert 'node-version: "24.22.2"' in validation
+    assert 'node-version: "24.22.2"' in candidate
     assert "uses: ./.github/workflows/release-validation.yml" in publish
 
 

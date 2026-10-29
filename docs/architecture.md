@@ -414,6 +414,15 @@ It:
 Atomic helpers write temporary files in the destination directory, flush and
 close them, then replace the reserved final name.
 
+An optional `%counter%` or `%counter:N%` token (minimum width 1-9, default 5)
+belongs to the filename component only. `OutputPlan` retains a normalized
+placeholder until atomic publication allocates a number. Rendering and scanning
+use the same literal prefix and suffix; the scan accepts prior padding widths.
+The placeholder reserves nine characters so component truncation cannot remove
+the allocated digits. Repeated, misplaced, or truncated tokens are rejected.
+Rendered names still pass component safety checks. Without a counter token,
+the existing suffix and counter scan are unchanged.
+
 ## 12. Cache Design
 
 Hash and identity caches are separate, versioned JSON stores.

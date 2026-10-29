@@ -13,7 +13,7 @@ from typing import cast
 SCHEMA_NAME = "ccollins-civiscribe.golden-manifest"
 SCHEMA_VERSION = "1.0.0"
 SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
-type JsonScalar = None | bool | int | float | str
+type JsonScalar = bool | int | float | str | None
 type JsonValue = JsonScalar | list[JsonValue] | dict[str, JsonValue]
 
 

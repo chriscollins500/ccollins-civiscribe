@@ -17,7 +17,7 @@
       },
       "filename_prefix": {
         "name": "Filename / subfolder pattern",
-        "tooltip": "Filename or safe subfolder prefix. Supports date, width, height, and batch-number tokens."
+        "tooltip": "Filename or safe subfolder prefix. Supports date, width, height, and batch-number tokens. Use %model% to keep the model file extension, or %model_noext% to omit it. Place one %counter% (5 digits) or %counter:4% token in the filename to choose its position and minimum width (1-9). Without it, the _00001_ suffix stays unchanged."
       },
       "output_format": {
         "name": "Output format",

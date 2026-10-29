@@ -90,6 +90,11 @@ test("all current ComfyUI locales preserve labels, tooltips, and input IDs", asy
       [...canonicalLeaves.keys()],
     );
     assert.deepEqual(Object.keys(translated[NODE_ID].inputs), INPUT_IDS);
+    const filenameHelp = translated[NODE_ID].inputs.filename_prefix.tooltip;
+    assert.ok(filenameHelp.includes("%model%"));
+    assert.ok(filenameHelp.includes("%model_noext%"));
+    assert.ok(filenameHelp.includes("%counter%"));
+    assert.ok(filenameHelp.includes("%counter:4%"));
     for (const value of leaves(translated).values()) {
       assert.equal(typeof value, "string");
       assert.notEqual(value.trim(), "");

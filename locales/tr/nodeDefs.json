@@ -17,7 +17,7 @@
       },
       "filename_prefix": {
         "name": "Dosya / alt klasör deseni",
-        "tooltip": "Dosya adı veya güvenli alt klasör öneki. Tarih, genişlik, yükseklik ve toplu numara belirteçlerini destekler."
+        "tooltip": "Dosya adı veya güvenli alt klasör öneki. Tarih, genişlik, yükseklik ve toplu numara belirteçlerini destekler. Model dosyasının uzantısını korumak için %model%, kaldırmak için %model_noext% kullanın. Sayacın konumunu ve en az basamak sayısını (1-9) seçmek için dosya adına bir %counter% (5 basamak) veya %counter:4% belirteci ekleyin. Belirteç yoksa _00001_ son eki değişmez."
       },
       "output_format": {
         "name": "Çıktı biçimi",

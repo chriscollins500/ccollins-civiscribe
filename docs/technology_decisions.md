@@ -20,6 +20,9 @@ The V2 runtime is intentionally small:
   Civitai lookup. No other module performs network requests.
 - `truststore` is permitted only when the supported ComfyUI/Python runtime does
   not reliably expose the operating-system trust store.
+- `certifi` supplies the existing verified HTTPS fallback trust bundle. It is
+  declared directly so installations enforce the security minimum even when
+  they do not use the development lockfile; system trust remains preferred.
 
 Runtime dependencies are added only when conformance or fault-injection tests
 prove that the standard-library implementation is insufficient.
@@ -124,6 +127,12 @@ model-file scanning documentation:
 <https://github.com/civitai/civitai/blob/main/docs/features/model-file-scanning.md>.
 The payload boundary follows the safetensors format:
 <https://github.com/safetensors/safetensors#format>.
+
+The 2026-10-28 Site API review also confirmed the response fields `SHA256_12`
+and `SSHS_12`. The development auditor recognizes their distinct formats and
+checks a supplied SHA-256 prefix for consistency. They do not expand the
+runtime hash list, alter lookup precedence, or change emitted metadata. See
+[the response contract and dated evidence](dev/civitai_site_api_alignment.md#additional-returned-hash-fields).
 
 ## 3. Cache Locking Audit
 

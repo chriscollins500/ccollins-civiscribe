@@ -17,7 +17,7 @@
       },
       "filename_prefix": {
         "name": "Patrón de archivo / subcarpeta",
-        "tooltip": "Nombre de archivo o prefijo de subcarpeta seguro. Admite tokens de fecha, ancho, alto y número de lote."
+        "tooltip": "Nombre de archivo o prefijo de subcarpeta seguro. Admite tokens de fecha, ancho, alto y número de lote. Usa %model% para conservar la extensión del archivo del modelo, o %model_noext% para omitirla. Coloca un token %counter% (5 dígitos) o %counter:4% en el nombre del archivo para elegir su posición y el mínimo de dígitos (1-9). Sin él, el sufijo _00001_ no cambia."
       },
       "output_format": {
         "name": "Formato de salida",

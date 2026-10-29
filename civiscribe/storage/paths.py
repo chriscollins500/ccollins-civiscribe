@@ -17,6 +17,9 @@ _DATE_FORMAT_PART = re.compile(r"dd?|DD?|MM?|hh?|HH?|mm?|ss?|yyy?y?|YYY?Y?")
 _UNKNOWN_TOKEN = re.compile(r"%[^%]+%")
 _INVALID_FILENAME = re.compile(r'[<>"|?*\x00-\x1f]')
 _SAFE_EXTENSION = re.compile(r"^\.[a-z0-9]+$", re.IGNORECASE)
+_MODEL_FILE_EXTENSION = re.compile(r"\.(?:safetensors?|ckpt|pt|pth|bin|gguf|sft)\Z", re.IGNORECASE)
+_COUNTER_TOKEN = re.compile(r"%counter(?::([1-9]))?%")
+_COUNTER_PLACEHOLDER = "%counter%"
 _RESERVED_WINDOWS_NAMES = {
     "CON",
     "PRN",
@@ -35,6 +38,15 @@ class OutputPlan:
     directory: Path
     subfolder: str
     stem: str
+    counter_digits: int | None = None
+
+    def filename(self, counter: int, extension: str) -> str:
+        """Render the allocated counter without changing ordinary prefix naming."""
+
+        if self.counter_digits is None:
+            return f"{self.stem}_{counter:05}_{extension}"
+        stem = self.stem.replace(_COUNTER_PLACEHOLDER, str(counter).zfill(self.counter_digits))
+        return f"{_sanitize_component(stem)}{extension}"
 
     def next_counter(self, extension: str) -> int:
         """Return a useful starting counter; publication still handles races."""
@@ -47,6 +59,12 @@ class OutputPlan:
         )
         highest = 0
         prefix = f"{self.stem}_"
+        if self.counter_digits is not None:
+            prefix, suffix = self.stem.split(_COUNTER_PLACEHOLDER)
+            counter_file = re.compile(
+                rf"\A{re.escape(prefix)}([0-9]{{1,9}}){re.escape(suffix)}"
+                rf"(?i:{re.escape(extension)})\Z"
+            )
         try:
             entries = self.directory.iterdir()
             for entry in entries:
@@ -96,6 +114,12 @@ def _expand_tokens(
         "%model%",
         _sanitize_token_value(values.model, fallback="model"),
     )
+    if "%model_noext%" in expanded:
+        model = values.model.strip() if values.model is not None else ""
+        expanded = expanded.replace(
+            "%model_noext%",
+            _sanitize_token_value(_MODEL_FILE_EXTENSION.sub("", model), fallback="model"),
+        )
     expanded = expanded.replace(
         "%seed%",
         _sanitize_token_value(values.seed, fallback="seed"),
@@ -104,7 +128,7 @@ def _expand_tokens(
         "%sampler%",
         _sanitize_token_value(values.sampler, fallback="sampler"),
     )
-    if _UNKNOWN_TOKEN.search(expanded) is not None:
+    if _UNKNOWN_TOKEN.search(_COUNTER_TOKEN.sub("", expanded)) is not None:
         raise UnsafePathError("filename_token_unknown")
     return expanded
 
@@ -181,6 +205,21 @@ def _prepare_directory(root: Path, subfolders: tuple[str, ...]) -> tuple[Path, P
     return resolved_root, current
 
 
+def _counter_components(expanded: str) -> tuple[tuple[str, ...], int | None]:
+    matches = list(_COUNTER_TOKEN.finditer(expanded))
+    if not matches:
+        return _relative_components(expanded), None
+    if len(matches) != 1:
+        raise UnsafePathError("filename_counter_repeated")
+    # Nine characters reserve room for every supported counter up to 999,999,999.
+    components = _relative_components(_COUNTER_TOKEN.sub(_COUNTER_PLACEHOLDER, expanded))
+    if any(_COUNTER_PLACEHOLDER in component for component in components[:-1]):
+        raise UnsafePathError("filename_counter_in_subfolder")
+    if _COUNTER_PLACEHOLDER not in components[-1]:
+        raise UnsafePathError("filename_counter_truncated")
+    return components, int(matches[0].group(1) or "5")
+
+
 def resolve_output_plan(
     output_root: Path,
     filename_prefix: str,
@@ -195,7 +234,7 @@ def resolve_output_plan(
         raise UnsafePathError("filename_template_length_invalid")
 
     expanded = _expand_tokens(filename_prefix, values)
-    components = _relative_components(expanded)
+    components, counter_digits = _counter_components(expanded)
     resolved_root, directory = _prepare_directory(output_root, components[:-1])
     subfolder = PurePosixPath(*components[:-1]).as_posix() if components[:-1] else ""
     return OutputPlan(
@@ -203,4 +242,5 @@ def resolve_output_plan(
         directory=directory,
         subfolder=subfolder,
         stem=components[-1],
+        counter_digits=counter_digits,
     )

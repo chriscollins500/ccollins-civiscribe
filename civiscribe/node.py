@@ -74,7 +74,11 @@ class CiviScribeSaveImage(io.ComfyNode):
                         "%date:FORMAT% and %Node name.widget_name% replacements; "
                         "%year%, %month%, %day%, %hour%, %minute%, %second%, "
                         "%width%, %height%, and %batch_num%; plus CiviScribe "
-                        "%model%, %seed%, and %sampler% aliases."
+                        "%model%, %model_noext%, %seed%, and %sampler% aliases. "
+                        "%model% keeps the model file extension; %model_noext% omits it. "
+                        "Place one %counter% or %counter:4% token in the filename to "
+                        "choose counter position and minimum digits (1-9; default 5). "
+                        "Without it, the usual _00001_ suffix is unchanged."
                     ),
                 ),
                 io.Combo.Input(
@@ -220,7 +224,7 @@ class CiviScribeSaveImage(io.ComfyNode):
         )
 
     @classmethod
-    def execute(  # noqa: PLR0913 - ComfyUI binds one argument per declared widget.
+    def execute(  # noqa: PLR0913, PLR0917 - ComfyUI binds each declared widget argument.
         cls,
         images: io.Image.Type,
         positive_prompt_override: str | None = None,

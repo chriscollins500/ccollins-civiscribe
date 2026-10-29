@@ -17,7 +17,7 @@
       },
       "filename_prefix": {
         "name": "Modèle de fichier / sous-dossier",
-        "tooltip": "Nom de fichier ou préfixe de sous-dossier sûr. Accepte les jetons de date, largeur, hauteur et numéro de lot."
+        "tooltip": "Nom de fichier ou préfixe de sous-dossier sûr. Accepte les jetons de date, largeur, hauteur et numéro de lot. Utilisez %model% pour conserver l’extension du fichier du modèle, ou %model_noext% pour la retirer. Placez un seul jeton %counter% (5 chiffres) ou %counter:4% dans le nom du fichier pour choisir sa position et le nombre minimal de chiffres (1-9). Sans ce jeton, le suffixe _00001_ reste inchangé."
       },
       "output_format": {
         "name": "Format de sortie",

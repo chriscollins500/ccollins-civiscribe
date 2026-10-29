@@ -31,10 +31,10 @@ test("ComfyUI filename replacements support dates and node widget values", () =>
   assert.equal(
     applyComfyFilenameReplacements(
       graph,
-      "%date:yyyy-MM-dd_hhmmss%_%Sampler.steps%_%width%_%model%",
+      "%date:yyyy-MM-dd_hhmmss%_%Sampler.steps%_%width%_%model%_%model_noext%_%counter%_%counter:4%",
       now,
     ),
-    "2026-07-18_140506_20_bad_name_%width%_%model%",
+    "2026-07-18_140506_20_bad_name_%width%_%model%_%model_noext%_%counter%_%counter:4%",
   );
 });
 
@@ -55,7 +55,8 @@ test("ComfyUI filename replacements preserve unknown patterns and survive cycles
 test("filename serialization applies the injected ComfyUI resolver", () => {
   const widget = {
     name: "filename_prefix",
-    value: "%date:yyyy-MM-dd%/%Sampler.steps%_%model%",
+    value:
+      "%date:yyyy-MM-dd%/%Sampler.steps%_%model%_%model_noext%_%counter:4%",
   };
   const node = { widgets: [widget] };
 
@@ -67,7 +68,10 @@ test("filename serialization applies the injected ComfyUI resolver", () => {
     ),
     true,
   );
-  assert.equal(widget.serializeValue(), "2026-07-18/20_%model%");
+  assert.equal(
+    widget.serializeValue(),
+    "2026-07-18/20_%model%_%model_noext%_%counter:4%",
+  );
 });
 
 test("filename serialization preserves an existing widget serializer", () => {

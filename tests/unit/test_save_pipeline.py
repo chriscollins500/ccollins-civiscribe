@@ -252,6 +252,109 @@ def test_generation_metadata_tokens_drive_requested_filename(tmp_path: Path) -> 
     assert outcome.warnings == ()
 
 
+@pytest.mark.parametrize(
+    ("output_format", "extension"),
+    [(ImageFormat.PNG, "png"), (ImageFormat.JPEG, "jpg"), (ImageFormat.WEBP, "webp")],
+)
+@pytest.mark.parametrize(
+    ("pattern", "expected_stem"),
+    [
+        ("%model_noext%/%model_noext%", "basic_sdxl_00001_"),
+        ("%model_noext%/%counter:4%_%model_noext%", "0001_basic_sdxl"),
+        ("%model_noext%/%model_noext%_%counter:2%_final", "basic_sdxl_01_final"),
+    ],
+)
+def test_filename_tokens_change_only_output_names(
+    tmp_path: Path, output_format: ImageFormat, extension: str, pattern: str, expected_stem: str
+) -> None:
+    request = SaveRequest(
+        images=(_frame(),),
+        output_root=tmp_path,
+        filename_prefix="%model%",
+        output_format=output_format,
+        write_sidecar_json=True,
+        metadata=_metadata_request(),
+    )
+    original = save_image_batch(request)
+    without_extension = save_image_batch(replace(request, filename_prefix=pattern))
+    assert original.warnings == without_extension.warnings == ()
+    original_image = original.saved_images[0]
+    renamed_image = without_extension.saved_images[0]
+    assert original_image.filename == f"basic_sdxl.safetensors_00001_.{extension}"
+    assert renamed_image.filename == f"{expected_stem}.{extension}"
+    assert renamed_image.subfolder == "basic_sdxl"
+    assert renamed_image.sidecar_filename == f"{expected_stem}.json"
+
+    sidecars: list[dict[str, object]] = []
+    for saved in (original_image, renamed_image):
+        assert saved.sidecar_filename is not None
+        sidecar_path = tmp_path / saved.subfolder / saved.sidecar_filename
+        sidecars.append(json.loads(sidecar_path.read_text(encoding="utf-8")))
+    for key in ("generationRecord", "projections", "payloads"):
+        assert sidecars[0][key] == sidecars[1][key]
+    projections = cast(dict[str, object], sidecars[1]["projections"])
+    assert "Model: basic_sdxl.safetensors" in cast(str, projections["parameters"])
+
+    with (
+        Image.open(tmp_path / original_image.filename) as before,
+        Image.open(tmp_path / renamed_image.subfolder / renamed_image.filename) as after,
+    ):
+        assert np.array_equal(np.asarray(before), np.asarray(after))
+        if output_format == ImageFormat.PNG:
+            assert before.info["parameters"] == after.info["parameters"]
+            assert before.info["civitai"] == after.info["civitai"]
+        else:
+            assert read_exif(before) == read_exif(after)
+
+
+def test_counter_padding_changes_and_batches_continue_existing_sequence(tmp_path: Path) -> None:
+    request = SaveRequest(
+        images=(_frame(), _frame()),
+        output_root=tmp_path,
+        filename_prefix="%counter:1%_image",
+    )
+    existing = tmp_path / "9_image.png"
+    existing.write_bytes(b"existing image")
+    first = save_image_batch(request)
+    second = save_image_batch(replace(request, filename_prefix="%counter:4%_image"))
+    assert first.warnings == second.warnings == ()
+    assert [image.filename for image in first.saved_images] == ["10_image.png", "11_image.png"]
+    assert [image.filename for image in second.saved_images] == ["0012_image.png", "0013_image.png"]
+    assert existing.read_bytes() == b"existing image"
+
+
+@pytest.mark.parametrize(
+    ("pattern", "code"),
+    [
+        ("%counter%/image", "filename_counter_in_subfolder"),
+        ("%counter%_%counter%", "filename_counter_repeated"),
+        ("%counter:0%", "filename_token_unknown"),
+        ("COM%counter:1%", "filename_device_name_rejected"),
+    ],
+)
+def test_invalid_counter_pattern_keeps_pixels_and_reports_actual_sidecar_name(
+    tmp_path: Path, pattern: str, code: str
+) -> None:
+    outcome = save_image_batch(
+        SaveRequest(
+            images=(_frame(),),
+            output_root=tmp_path,
+            filename_prefix=pattern,
+            write_sidecar_json=True,
+            metadata=_metadata_request(),
+        )
+    )
+    assert code in {warning.code for warning in outcome.warnings}
+    saved = outcome.saved_images[0]
+    assert saved.filename == "ComfyUI_00001_.png"
+    assert saved.sidecar_filename == "ComfyUI_00001_.json"
+    assert saved.subfolder == ""
+    with Image.open(tmp_path / saved.filename) as image:
+        assert np.array_equal(np.asarray(image), np.full((2, 3, 3), 127, dtype=np.uint8))
+    sidecar = json.loads((tmp_path / saved.sidecar_filename).read_text(encoding="utf-8"))
+    assert sidecar["artifact"]["fileName"] == saved.filename
+
+
 def test_rgthree_seed_drives_filename_and_all_embedded_metadata(tmp_path: Path) -> None:
     metadata = _metadata_request()
     prompt = cast(dict[str, dict[str, object]], metadata.prompt)
@@ -591,8 +694,15 @@ def test_oversized_prompt_override_is_ignored_and_reported(tmp_path: Path) -> No
     assert {item["code"] for item in warnings} >= {"positive_prompt_override_too_large"}
 
 
+@pytest.mark.parametrize(
+    ("filename_prefix", "expected_stem"),
+    [
+        ("resolved_%model%", "resolved_basic_sdxl.safetensors"),
+        ("resolved_%model_noext%", "resolved_basic_sdxl"),
+    ],
+)
 def test_identity_resolution_feeds_a1111_and_manifest_from_same_resource(
-    tmp_path: Path,
+    tmp_path: Path, filename_prefix: str, expected_stem: str
 ) -> None:
     model_root = tmp_path / "models" / "checkpoints"
     model_root.mkdir(parents=True)
@@ -632,11 +742,12 @@ def test_identity_resolution_feeds_a1111_and_manifest_from_same_resource(
         SaveRequest(
             images=(_frame(),),
             output_root=tmp_path / "output",
-            filename_prefix="resolved",
+            filename_prefix=filename_prefix,
             metadata=metadata,
         )
     )
 
+    assert outcome.saved_images[0].filename == f"{expected_stem}_00001_.png"
     path = tmp_path / "output" / outcome.saved_images[0].filename
     with Image.open(path) as image:
         text = cast(Mapping[str, str], getattr(image, "text", {}))
@@ -645,6 +756,8 @@ def test_identity_resolution_feeds_a1111_and_manifest_from_same_resource(
     expected_air = "urn:air:sdxl:checkpoint:civitai:10@20"
     assert expected_air in parameters
     assert manifest["resources"][0]["identity"]["canonicalAir"] == expected_air
+    assert manifest["resources"][0]["filename"] == "basic_sdxl.safetensors"
+    assert manifest["resources"][0]["hashes"]["AutoV1"] == empty_auto_v1
     assert manifest["resources"][0]["hashStatus"] == "fast_partial"
     assert manifest["resources"][0]["lookupStatus"] == "resolved_by_cache"
     assert manifest["civitaiResources"][0]["air"] == expected_air

@@ -1,10 +1,10 @@
 {
   "name": "ccollins-civiscribe-frontend",
   "private": true,
-  "version": "2.0.8",
+  "version": "2.0.9",
   "type": "module",
   "engines": {
-    "node": ">=24.12"
+    "node": "^24.22.2 || >=26.12.1"
   },
   "scripts": {
     "build": "tsc --project tsconfig.json",
@@ -16,12 +16,12 @@
     "check": "npm run format:check && npm run lint && npm run typecheck && npm test"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.12.1",
+    "@axe-core/playwright": "^4.14.0",
     "@eslint/js": "^10.0.1",
-    "@playwright/test": "^1.62.1",
-    "eslint": "^10.8.0",
-    "prettier": "^3.9.6",
-    "typescript": "^5.9.0",
-    "typescript-eslint": "^8.65.0"
+    "@playwright/test": "^1.64.1",
+    "eslint": "^10.13.0",
+    "prettier": "^3.9.10",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.72.1"
   }
 }

@@ -4,6 +4,7 @@ import json
 import ssl
 
 import httpx
+import pytest
 
 from civiscribe.identity.civitai_client import USER_AGENT
 from civiscribe.identity.civitai_contract import (
@@ -29,7 +30,7 @@ def _payload() -> dict[str, object]:
     }
 
 
-def _model_version_payload() -> dict[str, object]:
+def _model_version_payload(*, hashes: dict[str, object] | None = None) -> dict[str, object]:
     return {
         "id": 20,
         "modelId": 10,
@@ -41,7 +42,7 @@ def _model_version_payload() -> dict[str, object]:
                 "id": 30,
                 "type": "Model",
                 "primary": True,
-                "hashes": {"SHA256": "a" * 64},
+                "hashes": hashes if hashes is not None else {"SHA256": "a" * 64},
                 "metadata": {"format": "SafeTensor"},
             }
         ],
@@ -118,6 +119,88 @@ def test_model_version_response_contract_validates_consumed_fields() -> None:
     assert result.observed_file_count == 1
     assert result.warnings == ()
     assert result.as_dict()["endpointKind"] == "hash"
+
+
+@pytest.mark.parametrize("sshs_12", ["c" * 12, "ABCDEF012345", "0x1234567890", "0XABCDEF1234"])
+def test_response_contract_accepts_distinct_additional_hash_fields(sshs_12: str) -> None:
+    payload = _model_version_payload(
+        hashes={
+            "SHA256": "a" * 64,
+            "SHA256_12": "A" * 12,
+            "AutoV1": "1234abcd",
+            "AutoV2": "a" * 10,
+            "AutoV3": "b" * 12,
+            "BLAKE3": "d" * 64,
+            "CRC32": "ABCDEF12",
+            "SSHS_12": sshs_12,
+        }
+    )
+
+    result = audit_model_version_payload(payload, endpoint_kind="hash", expected_hash="a" * 64)
+
+    assert result.valid
+    assert result.errors == ()
+    assert sshs_12 not in json.dumps(result.as_dict())
+
+
+@pytest.mark.parametrize(
+    ("name", "value"),
+    [
+        ("SHA256_12", "a" * 11),
+        ("SHA256_12", "a" * 13),
+        ("SHA256_12", "0x1234567890"),
+        ("SHA256_12", "g" * 12),
+        ("SHA256_12", None),
+        ("SHA256_12", 123456789012),
+        ("SSHS_12", "a" * 11),
+        ("SSHS_12", "a" * 13),
+        ("SSHS_12", "0x" + "a" * 12),
+        ("SSHS_12", "0x" + "a" * 9),
+        ("SSHS_12", "0x123456789g"),
+        ("SSHS_12", "0y1234567890"),
+        ("SSHS_12", "abcde\x00abcdef"),
+        ("SSHS_12", False),
+        ("AutoV3", "0x1234567890"),
+    ],
+)
+def test_response_contract_rejects_malformed_hash_values(name: str, value: object) -> None:
+    result = audit_model_version_payload(
+        _model_version_payload(hashes={"SHA256": "a" * 64, name: value}),
+        endpoint_kind="hash",
+        expected_hash="a" * 64,
+    )
+
+    assert result.errors == ("file_hash_value_invalid",)
+
+
+def test_response_contract_detects_sha256_prefix_conflict_without_disclosing_values() -> None:
+    result = audit_model_version_payload(
+        _model_version_payload(hashes={"SHA256": "a" * 64, "SHA256_12": "b" * 12}),
+        endpoint_kind="model_version",
+    )
+
+    assert result.errors == ("file_sha256_12_conflict",)
+    assert "a" * 64 not in json.dumps(result.as_dict())
+    assert "b" * 12 not in json.dumps(result.as_dict())
+
+
+def test_response_contract_keeps_short_hash_evidence_separate_from_full_sha256() -> None:
+    payload = _model_version_payload(hashes={"SHA256_12": "A" * 12, "SSHS_12": "0x1234567890"})
+
+    short = audit_model_version_payload(payload, endpoint_kind="hash", expected_hash="a" * 12)
+    full = audit_model_version_payload(payload, endpoint_kind="hash", expected_hash="a" * 64)
+
+    assert short.valid
+    assert full.errors == ("requested_hash_missing",)
+
+
+def test_response_contract_still_flags_unknown_hash_names() -> None:
+    result = audit_model_version_payload(
+        _model_version_payload(hashes={"SHA256": "a" * 64, "FutureHash": "b" * 64}),
+        endpoint_kind="model_version",
+    )
+
+    assert result.errors == ("file_hash_type_unreviewed",)
 
 
 def test_response_contract_reports_shape_air_hash_and_enum_drift_safely() -> None:

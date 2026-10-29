@@ -19,12 +19,11 @@ TOOL_CACHE_ROOT = Path(tempfile.gettempdir()) / "ccollins-civiscribe"
 
 
 def _uv_executable() -> str:
-    discovered = which("uv")
-    if discovered is not None:
-        return discovered
     relative = Path("Scripts/uv.exe") if sys.platform == "win32" else Path("bin/uv")
     local = PROJECT_ROOT / ".venv" / relative
-    return str(local) if local.is_file() else "uv"
+    if local.is_file():
+        return str(local)
+    return which("uv") or "uv"
 
 
 def _uv(*arguments: str) -> tuple[str, ...]:

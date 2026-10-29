@@ -31,8 +31,9 @@ from civiscribe.identity.civitai_client import (
     parse_retry_after,
 )
 from civiscribe.identity.types import LookupStatus
+from civiscribe.projections import build_projection_bundle
 from civiscribe.tls import create_tls_contexts
-from tests.projection_support import MODEL_ID, MODEL_VERSION_ID, model_resource
+from tests.projection_support import MODEL_ID, MODEL_VERSION_ID, complete_record, model_resource
 
 MODEL_AIR = f"urn:air:flux2:checkpoint:civitai:{MODEL_ID}@{MODEL_VERSION_ID}+2402203.safetensor"
 SHA256 = "a" * 64
@@ -284,6 +285,84 @@ def test_hash_lookup_uses_api_air_and_sends_only_public_get_data() -> None:
     assert len(requests) == 1
     assert requests[0].headers["User-Agent"] == USER_AGENT
     assert no_private_request_data(requests[0])
+
+
+@pytest.mark.parametrize("by_version", [False, True])
+@pytest.mark.parametrize("sshs_12", ["c" * 12, "0x1234567890"])
+def test_additional_response_hashes_leave_lookup_and_projections_unchanged(
+    by_version: bool,
+    sshs_12: str,
+) -> None:
+    resource = _resource(hashes=HashRecord(sha256=SHA256))
+    baseline_client = _client(lambda _request: httpx.Response(200, json=_payload()))
+    baseline = (
+        baseline_client.complete_version(resource, MODEL_VERSION_ID)
+        if by_version
+        else baseline_client.lookup(resource)
+    )
+    payload = _payload()
+    files = payload["files"]
+    assert isinstance(files, list)
+    hashes = files[0]["hashes"]
+    assert isinstance(hashes, dict)
+    hashes.update({"SHA256_12": SHA256[:12], "SSHS_12": sshs_12})
+    requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        return httpx.Response(200, json=payload)
+
+    client = _client(handler)
+    result = (
+        client.complete_version(resource, MODEL_VERSION_ID)
+        if by_version
+        else client.lookup(resource)
+    )
+
+    assert result.status is LookupStatus.RESOLVED
+    assert result == baseline
+    expected_suffix = str(MODEL_VERSION_ID) if by_version else f"by-hash/{SHA256}"
+    assert [request.url.path for request in requests] == [
+        f"/api/v1/model-versions/{expected_suffix}"
+    ]
+    assert no_private_request_data(requests[0])
+
+    baseline_resource = replace(
+        resource,
+        hashes=baseline.hashes,
+        identity=baseline.identity,
+        status=ResourceStatus.RESOLVED,
+    )
+    baseline_record = replace(
+        complete_record(), resources=(baseline_resource,), selected_vae_resource_key=None
+    )
+    actual_record = replace(
+        baseline_record,
+        resources=(replace(baseline_resource, hashes=result.hashes, identity=result.identity),),
+    )
+    assert build_projection_bundle(actual_record) == build_projection_bundle(baseline_record)
+
+
+@pytest.mark.parametrize("include_mismatching_sha256", [False, True])
+def test_additional_short_hashes_cannot_resolve_a_full_sha256_lookup(
+    include_mismatching_sha256: bool,
+) -> None:
+    payload = _payload()
+    files = payload["files"]
+    assert isinstance(files, list)
+    hashes = {"SHA256_12": SHA256[:12], "SSHS_12": SHA256[:12]}
+    if include_mismatching_sha256:
+        hashes["SHA256"] = "f" * 64
+    files[0]["hashes"] = hashes
+
+    result = _client(lambda _request: httpx.Response(200, json=payload)).lookup(
+        _resource(hashes=HashRecord(sha256=SHA256))
+    )
+
+    assert result.status is LookupStatus.FAILED
+    assert result.identity is None
+    assert result.attempted_hashes == ("SHA256",)
+    assert "civitai_response_hash_mismatch" in {issue.code for issue in result.issues}
 
 
 @pytest.mark.parametrize(

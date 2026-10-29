@@ -17,7 +17,7 @@
       },
       "filename_prefix": {
         "name": "Padrão de arquivo / subpasta",
-        "tooltip": "Nome de arquivo ou prefixo seguro de subpasta. Aceita tokens de data, largura, altura e número do lote."
+        "tooltip": "Nome de arquivo ou prefixo seguro de subpasta. Aceita tokens de data, largura, altura e número do lote. Use %model% para manter a extensão do arquivo do modelo ou %model_noext% para removê-la. Coloque um token %counter% (5 dígitos) ou %counter:4% no nome do arquivo para escolher a posição e o número mínimo de dígitos (1-9). Sem ele, o sufixo _00001_ permanece igual."
       },
       "output_format": {
         "name": "Formato de saída",

@@ -20,7 +20,6 @@ from civiscribe.domain import IdentitySource
 from civiscribe.identity.air import parse_air
 from civiscribe.identity.civitai_client import USER_AGENT
 from civiscribe.identity.civitai_contract import (
-    SINGLE_HASH_ALGORITHMS,
     SUPPORTED_MODEL_FILE_TYPES,
     SUPPORTED_MODEL_TYPES,
 )
@@ -35,13 +34,16 @@ MIN_TIMEOUT_SECONDS = 0.1
 MAX_TIMEOUT_SECONDS = 60.0
 MAX_SAFE_RESPONSE_STRING_CHARS = 4_096
 MIN_PRINTABLE_CODEPOINT = 32
-_HASH_LENGTHS = {
+# Response vocabulary only; this does not enable runtime lookup or output hashes.
+_RESPONSE_HASH_LENGTHS = {
     "AutoV1": 8,
     "AutoV2": 10,
     "AutoV3": 12,
     "BLAKE3": 64,
     "CRC32": 8,
     "SHA256": 64,
+    "SHA256_12": 12,
+    "SSHS_12": 12,
 }
 
 
@@ -181,6 +183,22 @@ def _safe_string(value: object) -> str | None:
     return stripped
 
 
+def _validated_response_hash(name: object, value: object) -> str | None:
+    normalized = _safe_string(value)
+    if normalized is None:
+        return None
+    # SSHS_12 retains a header's 0x prefix within its total 12-character width.
+    digits = (
+        normalized[2:] if name == "SSHS_12" and normalized[:2].casefold() == "0x" else normalized
+    )
+    expected_length = _RESPONSE_HASH_LENGTHS.get(name) if isinstance(name, str) else None
+    if re.fullmatch(r"[0-9A-Fa-f]+", digits) is None or (
+        expected_length is not None and len(normalized) != expected_length
+    ):
+        return None
+    return normalized
+
+
 def _hash_contract_errors(
     hashes: object,
     *,
@@ -190,23 +208,30 @@ def _hash_contract_errors(
         return ["file_hashes_invalid"], False
     errors: list[str] = []
     matched = False
+    sha256 = None
+    sha256_12 = None
     for name, hash_value in hashes.items():
-        if not isinstance(name, str) or name not in SINGLE_HASH_ALGORITHMS:
+        if not isinstance(name, str) or name not in _RESPONSE_HASH_LENGTHS:
             errors.append("file_hash_type_unreviewed")
-        normalized_hash = _safe_string(hash_value)
-        expected_length = _HASH_LENGTHS.get(name) if isinstance(name, str) else None
-        if (
-            normalized_hash is None
-            or re.fullmatch(r"[0-9A-Fa-f]+", normalized_hash) is None
-            or (expected_length is not None and len(normalized_hash) != expected_length)
-        ):
+        normalized_hash = _validated_response_hash(name, hash_value)
+        if normalized_hash is None:
             errors.append("file_hash_value_invalid")
+        if name == "SHA256":
+            sha256 = normalized_hash
+        elif name == "SHA256_12":
+            sha256_12 = normalized_hash
         if (
             expected_hash is not None
             and isinstance(hash_value, str)
             and hash_value.casefold() == expected_hash.casefold()
         ):
             matched = True
+    if (
+        sha256 is not None
+        and sha256_12 is not None
+        and not sha256.casefold().startswith(sha256_12.casefold())
+    ):
+        errors.append("file_sha256_12_conflict")
     return errors, matched
 
 

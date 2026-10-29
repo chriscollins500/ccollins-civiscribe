@@ -19,8 +19,8 @@ installation are outside CiviScribe's save-path identity contract.
 
 ## Hash Lookup Contract
 
-The single-resource endpoint accepts the following identifiers, in CiviScribe's
-strongest-to-weakest lookup order:
+CiviScribe queries the single-resource endpoint using the following supported
+hashes, in strongest-to-weakest lookup order:
 
 1. SHA256
 2. BLAKE3
@@ -36,6 +36,38 @@ role. AutoV1, AutoV2, AutoV3, CRC32, and BLAKE3 never enter that bulk path.
 
 Local identity mappings retain precedence over API results. Conflicting hash
 results remain conflicts; no result is selected by filename.
+
+### Additional Returned Hash Fields
+
+The development contract auditor also recognizes two additional response fields.
+Its reviewed response vocabulary is separate from the runtime lookup list above.
+
+| Response field | Audited value | Meaning |
+| --- | --- | --- |
+| `SHA256_12` | 12 hexadecimal characters | First 12 characters of the full-file SHA-256. When both fields are supplied, their prefixes must agree case-insensitively. |
+| `SSHS_12` | 12 hexadecimal characters, or `0x` followed by 10 hexadecimal characters | First 12 characters of the trimmed, lowercased safetensors `sshs_model_hash` header value, retaining any `0x` prefix within that width. |
+
+Neither field is an alias for `AutoV3`, which describes the tensor-payload hash.
+In particular, stripping `0x` from `SSHS_12` does not establish an AutoV3 value.
+The auditor accepts hexadecimal letter case and either `0x` or `0X`, rejects
+malformed values, and continues to flag unknown hash names. A contradictory
+`SHA256_12` produces the sanitized diagnostic `file_sha256_12_conflict`.
+
+This is an auditor-only contract update for 2.0.9. Runtime lookup order,
+`HashRecord`, local caches, and all image/sidecar projections remain unchanged.
+Additional response fields are ignored by runtime hash parsing; a short value
+cannot satisfy a requested full SHA-256. The auditor's existing manual `--hash`
+check still requires an exact returned value, never a prefix-only match to a
+longer requested hash.
+
+Sources checked on 2026-10-28:
+
+- Anonymous responses for [version 2734704](https://civitai.com/api/v1/model-versions/2734704)
+  and [version 3214341](https://civitai.com/api/v1/model-versions/3214341)
+  contained `SHA256_12` alongside full SHA-256 and distinct AutoV3 values.
+- Civitai's [hash derivation implementation](https://github.com/civitai/civitai/blob/f01cf9e38b721ce1f05c464e60ad0a7e1f913f9d/src/server/services/model-file-scan.service.ts#L562-L645)
+  defines both fields. `SSHS_12` was source-confirmed; it was absent from those
+  two live samples, so its response forms are covered by synthetic fixtures.
 
 ## Model And File Identity
 
@@ -109,10 +141,10 @@ boundary for current `ModelType` and `ModelFileType` values. Known values that
 do not map safely to an AIR/resource role remain `unknown`. New API enum values
 also remain untrusted until reviewed; the scanner does not guess their meaning.
 
-The public API was checked on 2026-08-20. The current
-[`/api/v1/enums`](https://civitai.com/api/v1/enums) response includes
-`ComfyWorkflows` in addition to the previously reviewed model types. Current
-model-version responses provide direct official evidence for these mappings:
+The [`/api/v1/enums`](https://civitai.com/api/v1/enums) model and file types were
+rechecked on 2026-10-28 and match the reviewed vocabulary, including
+`ComfyWorkflows`. The model-version evidence captured on 2026-08-20 supports
+these mappings:
 
 - `VisionLanguage` to AIR type `visionlanguage`, as returned by
   [model version 3082279](https://civitai.com/api/v1/model-versions/3082279)
@@ -122,7 +154,7 @@ model-version responses provide direct official evidence for these mappings:
   [model version 20986](https://civitai.com/api/v1/model-versions/20986)
 
 `CLIPVision` is a current enum value, but the public model query inspected on
-that date did not return an official sample AIR. CiviScribe therefore accepts
+2026-08-20 did not return an official sample AIR. CiviScribe therefore accepts
 an explicit validated `clipvision` AIR while leaving enum-only fallback
 resolution as `unknown`. Sampled `Detection`, `LLM`, `Poses`, `Wildcards`,
 `Workflows`, and `ComfyWorkflows` records used the official AIR type `unknown`.

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import errno
 import os
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import pytest
@@ -11,7 +12,9 @@ from civiscribe.storage import atomic
 from civiscribe.storage.paths import OutputPlan
 
 
-def _plan(directory: Path) -> OutputPlan:
+def _plan(directory: Path, *, counter_token: bool = False) -> OutputPlan:
+    if counter_token:
+        return OutputPlan(directory, directory, "", "%counter%_image", counter_digits=4)
     return OutputPlan(directory, directory, "", "image")
 
 
@@ -34,9 +37,11 @@ def test_publication_skips_existing_counter(tmp_path: Path) -> None:
     assert (tmp_path / "image_00001_.png").read_bytes() == b"existing"
 
 
+@pytest.mark.parametrize("counter_token", [False, True])
 def test_hardlink_race_advances_counter(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    counter_token: bool,
 ) -> None:
     temporary = atomic.create_temporary_path(tmp_path, ".png")
     temporary.write_bytes(b"new")
@@ -52,9 +57,12 @@ def test_hardlink_race_advances_counter(
         original_link(source, destination)
 
     monkeypatch.setattr(os, "link", link_with_race)
-    destination = atomic.publish_image(temporary, _plan(tmp_path), ".png")
-    assert destination.name == "image_00002_.png"
-    assert (tmp_path / "image_00001_.png").read_bytes() == b"racer"
+    destination = atomic.publish_image(
+        temporary, _plan(tmp_path, counter_token=counter_token), ".png"
+    )
+    assert destination.name == ("0002_image.png" if counter_token else "image_00002_.png")
+    first_name = "0001_image.png" if counter_token else "image_00001_.png"
+    assert (tmp_path / first_name).read_bytes() == b"racer"
 
 
 def test_link_unavailable_uses_exclusive_reservation(
@@ -69,9 +77,11 @@ def test_link_unavailable_uses_exclusive_reservation(
     assert not temporary.exists()
 
 
+@pytest.mark.parametrize("counter_token", [False, True])
 def test_reservation_race_advances_counter(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    counter_token: bool,
 ) -> None:
     temporary = atomic.create_temporary_path(tmp_path, ".png")
     temporary.write_bytes(b"complete")
@@ -88,9 +98,32 @@ def test_reservation_race_advances_counter(
         original(source, destination)
 
     monkeypatch.setattr(atomic, "_publish_with_reservation", publish_with_race)
-    destination = atomic.publish_image(temporary, _plan(tmp_path), ".png")
-    assert destination.name == "image_00002_.png"
-    assert (tmp_path / "image_00001_.png").read_bytes() == b"racer"
+    destination = atomic.publish_image(
+        temporary, _plan(tmp_path, counter_token=counter_token), ".png"
+    )
+    assert destination.name == ("0002_image.png" if counter_token else "image_00002_.png")
+    first_name = "0001_image.png" if counter_token else "image_00001_.png"
+    assert (tmp_path / first_name).read_bytes() == b"racer"
+
+
+@pytest.mark.parametrize("reservation", [False, True])
+def test_concurrent_token_saves_preserve_every_image(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, reservation: bool
+) -> None:
+    if reservation:
+        monkeypatch.setattr(os, "link", lambda *_: (_ for _ in ()).throw(OSError(errno.EPERM, "")))
+    monkeypatch.setattr(OutputPlan, "next_counter", lambda *_: 1)
+    payloads = {f"image {index}".encode("ascii") for index in range(8)}
+
+    def save(payload: bytes) -> Path:
+        temporary = atomic.create_temporary_path(tmp_path, ".png")
+        temporary.write_bytes(payload)
+        return atomic.publish_image(temporary, _plan(tmp_path, counter_token=True), ".png")
+
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        paths = list(pool.map(save, payloads))
+    assert {path.name for path in paths} == {f"{index:04}_image.png" for index in range(1, 9)}
+    assert {path.read_bytes() for path in paths} == payloads
 
 
 def test_unexpected_link_error_is_not_hidden(

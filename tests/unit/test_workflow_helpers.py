@@ -2244,7 +2244,7 @@ def test_resolve_node_output_handles_missing_node_and_invalid_index() -> None:
     ],
 )
 def test_scalar_int_conversion(value: object, expected: int | None) -> None:
-    assert scalar_int(cast(None | bool | int | float | str, value)) == expected
+    assert scalar_int(cast(bool | int | float | str | None, value)) == expected
 
 
 @pytest.mark.parametrize(
@@ -2260,11 +2260,11 @@ def test_scalar_int_conversion(value: object, expected: int | None) -> None:
     ],
 )
 def test_scalar_float_conversion(value: object, expected: float | None) -> None:
-    assert scalar_float(cast(None | bool | int | float | str, value)) == expected
+    assert scalar_float(cast(bool | int | float | str | None, value)) == expected
 
 
 def test_scalar_float_rejects_non_scalar_runtime_value() -> None:
-    assert scalar_float(cast(None | bool | int | float | str, ())) is None
+    assert scalar_float(cast(bool | int | float | str | None, ())) is None
 
 
 def test_scalar_string_requires_nonempty_string() -> None:
