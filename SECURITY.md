@@ -44,11 +44,13 @@ See the [API contract](docs/api_and_mcp.md) for exact limits and boundaries.
 ## Verify a release download
 
 CiviScribe publishes signed build provenance for the GitHub release assets,
-including the ZIP sent to the ComfyUI Registry. To check the 2.0.10 Registry
-ZIP, run this in its download folder with GitHub CLI:
+including the ZIP sent to the ComfyUI Registry. To check the 2.0.11 Registry
+ZIP, run this in its download folder with GitHub CLI. Resolve the release tag's
+commit independently of the downloaded artifact:
 
 ```powershell
-gh attestation verify ccollins-civiscribe-2.0.10-registry.zip --repo chriscollins500/ccollins-civiscribe --signer-workflow chriscollins500/ccollins-civiscribe/.github/workflows/publish.yml --source-ref refs/heads/main --source-digest bba5ec8e0c52c5157246ac8d84cceaf1f53bb1fa --deny-self-hosted-runners
+$releaseCommit = gh api repos/chriscollins500/ccollins-civiscribe/commits/v2.0.11 --jq .sha
+gh attestation verify ccollins-civiscribe-2.0.11-registry.zip --repo chriscollins500/ccollins-civiscribe --signer-workflow chriscollins500/ccollins-civiscribe/.github/workflows/publish.yml --source-ref refs/heads/main --source-digest $releaseCommit --deny-self-hosted-runners
 ```
 
 For other releases, use the asset filename and the full commit for the

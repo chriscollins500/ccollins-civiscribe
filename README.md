@@ -233,14 +233,14 @@ official Krea 2 and Ernie-style patterns step by step.
 
 ## API And AI Agents
 
-Source builds on `main` add native API discovery, read-only metadata preflight,
+CiviScribe 2.0.11 adds native API discovery, read-only metadata preflight,
 and JSON save reports in ComfyUI history. The official local Comfy MCP can
 discover the node, run workflows, and read those reports using its existing
 tools. All settings use the same save node and execution path.
 
 See the [API and MCP guide](docs/api_and_mcp.md) for requests, Python examples,
-and agent setup. These additions are not included in the published 2.0.10
-download yet.
+and agent setup. Use ComfyUI's own workflow and job tools to automate the same
+save node and read its results.
 
 ## Privacy And Safety
 

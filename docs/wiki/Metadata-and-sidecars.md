@@ -42,7 +42,7 @@ collide. Use distinct prefixes or folders when each format needs its own sidecar
 | `projections` | A1111 text and optional Civitai manifest |
 | `save` | Save warnings, redactions, and sidecar status |
 
-The sidecar schema version has its own lifecycle. A CiviScribe 2.0.10 save can
+The sidecar schema version has its own lifecycle. A CiviScribe 2.0.11 save can
 correctly use sidecar schema `2.0.0`.
 
 ## Workflow and manifest switches

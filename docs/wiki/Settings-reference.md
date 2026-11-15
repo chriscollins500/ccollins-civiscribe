@@ -1,6 +1,6 @@
 # Settings reference
 
-These are the controls declared by CiviScribe 2.0.10. Display names may be
+These are the controls declared by CiviScribe 2.0.11. Display names may be
 translated by ComfyUI. The internal names are included for API workflows.
 
 ## Connections

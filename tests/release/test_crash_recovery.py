@@ -31,15 +31,29 @@ def _worker(directory: Path, operation: str, after: bool, channel: Connection) -
         def replace_at_boundary(source: Path, target: Path) -> Path:
             if not after:
                 _checkpoint(channel)
-            result = replace(source, target)
+            try:
+                result = replace(source, target)
+            except OSError as exc:
+                channel.send(
+                    {
+                        "operation": "cache_replace",
+                        "errno": exc.errno,
+                        "winerror": getattr(exc, "winerror", None),
+                    }
+                )
+                raise
             if after:
                 _checkpoint(channel)
             return result
 
         with patch.object(Path, "replace", replace_at_boundary):
-            BoundedJsonCache(directory / "cache.json", schema_name="crash-test").merge(
+            result = BoundedJsonCache(directory / "cache.json", schema_name="crash-test").merge(
                 {"cacheKey": "new", "value": 2}
             )
+            if not result.written:
+                channel.send(
+                    {"operation": "cache_merge", "issues": [i.code for i in result.issues]}
+                )
     else:
         link = os.link
 

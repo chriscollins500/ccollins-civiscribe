@@ -1,8 +1,8 @@
 # Native API and Comfy MCP integration
 
-This integration is available in source builds on `main` after the published
-2.0.10 release. Updating the source and restarting ComfyUI loads it. The
-published 2.0.10 package does not acquire new endpoints automatically.
+This integration is included in CiviScribe 2.0.11 and newer. Update the node
+and restart ComfyUI to load it. Earlier releases do not include these endpoints
+or save reports.
 
 CiviScribe uses ComfyUI's server, native V3 node schema, queue, history,
 WebSocket events, and image downloads. The official local Comfy MCP discovers

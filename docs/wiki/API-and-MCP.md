@@ -1,9 +1,8 @@
 # API and MCP
 
-Source builds on `main` after the published 2.0.10 release add API discovery,
-metadata preflight, and machine-readable save reports. Update the node source
-and restart ComfyUI to load them. Existing 2.0.10 downloads do not include this
-new integration yet.
+CiviScribe 2.0.11 adds API discovery, metadata preflight, and machine-readable
+save reports. Update the node and restart ComfyUI to load them. Earlier
+releases do not include this integration.
 
 ## Automate the same node
 

@@ -4,7 +4,7 @@ CiviScribe saves your ComfyUI images with the prompts, settings, and model
 resources used to make them. Choose PNG, JPEG, or WebP, save the image, and
 upload it to Civitai when you are ready.
 
-This guide covers CiviScribe **2.0.10**. Start with the quick start, then use
+This guide covers CiviScribe **2.0.11**. Start with the quick start, then use
 the task guides when you need more control.
 
 ## Start here
@@ -44,7 +44,15 @@ For a first save, connect your final `IMAGE`, keep PNG and the default metadata
 settings, and press **Run**. Civitai lookup starts disabled, so ordinary saving
 works offline.
 
-## What changed in 2.0.10
+## What changed in 2.0.11
+
+Applications and AI agents can use native API discovery, read-only metadata
+preflight, and JSON save reports through ComfyUI and the official local MCP.
+The reports describe the files actually saved, including sidecar and metadata
+status. Development dependencies and quality checks have also been refreshed.
+[API and MCP guide](https://github.com/chriscollins500/ccollins-civiscribe/wiki/API-and-MCP)
+
+## Earlier changes in 2.0.10
 
 Model matching now checks the hash algorithm, full digest conflicts, exact
 file, and requested version together. Large workflows avoid unnecessary

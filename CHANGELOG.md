@@ -1,6 +1,10 @@
 # Changelog
 
+All notable CiviScribe changes are documented here.
+
 ## Unreleased
+
+## 2.0.11 - 2026-11-15
 
 - Added native ComfyUI API discovery, OpenAPI documentation, and bounded
   read-only metadata preflight for active save branches. Added versioned JSON
@@ -19,8 +23,6 @@
 - Hardened development-tool URL construction, streamed response limits,
   resolved-path containment, Windows junction handling, and package staging.
   The save node's image and metadata behavior is unchanged.
-
-All notable CiviScribe changes are documented here.
 
 ## 2.0.10 - 2026-11-14
 
