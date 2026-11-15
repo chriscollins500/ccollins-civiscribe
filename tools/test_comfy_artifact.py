@@ -23,6 +23,7 @@ def run(  # noqa: PLR0913 - explicit isolated runtime and artifact coordinates
     commit: str,
     channel: str,
     *,
+    mcp_python: Path,
     working_tree: bool = False,
 ) -> None:
     main_file = comfy.resolve() / "main.py"
@@ -66,6 +67,7 @@ def run(  # noqa: PLR0913 - explicit isolated runtime and artifact coordinates
                     **os.environ,
                     "CIVISCRIBE_E2E_BASE_URL": url,
                     "CIVISCRIBE_E2E_CHANNEL": channel,
+                    "CIVISCRIBE_E2E_MCP_PYTHON": str(mcp_python.resolve()),
                 }
                 subprocess.run(  # noqa: S603
                     [node, str(ROOT / "node_modules/@playwright/test/cli.js"), "test"],
@@ -109,6 +111,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--comfy", type=Path, required=True)
     parser.add_argument("--python", type=Path, required=True)
+    parser.add_argument("--mcp-python", type=Path, required=True)
     parser.add_argument("--directory", type=Path, default=ROOT / "dist")
     parser.add_argument("--commit", required=True)
     parser.add_argument("--channel", default="chromium")
@@ -120,6 +123,7 @@ def main() -> None:
         args.directory,
         args.commit,
         args.channel,
+        mcp_python=args.mcp_python,
         working_tree=args.working_tree,
     )
 

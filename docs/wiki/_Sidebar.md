@@ -12,6 +12,7 @@
 - [Civitai lookup and hashing](https://github.com/chriscollins500/ccollins-civiscribe/wiki/Civitai-lookup-and-hashing)
 - [Manual resource identities](https://github.com/chriscollins500/ccollins-civiscribe/wiki/Manual-resource-identities)
 - [Workflow examples](https://github.com/chriscollins500/ccollins-civiscribe/wiki/Workflow-examples)
+- [API and MCP](https://github.com/chriscollins500/ccollins-civiscribe/wiki/API-and-MCP)
 - [Metadata and sidecars](https://github.com/chriscollins500/ccollins-civiscribe/wiki/Metadata-and-sidecars)
 - [Privacy and saving safety](https://github.com/chriscollins500/ccollins-civiscribe/wiki/Privacy-and-saving-safety)
 - [Troubleshooting](https://github.com/chriscollins500/ccollins-civiscribe/wiki/Troubleshooting)

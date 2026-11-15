@@ -9,6 +9,7 @@ import folder_paths
 from comfy_api.latest import io, ui
 
 from .adapters import identity_services_from_comfy, image_frames_from_comfy
+from .adapters.api_output import saved_images_with_report
 from .domain import ImageFormat
 from .identity import HashingMode, IdentityResolutionOptions
 from .orchestration import MetadataRequest, SaveRequest, save_image_batch
@@ -316,7 +317,7 @@ class CiviScribeSaveImage(io.ComfyNode):
             )
             for image in outcome.saved_images
         ]
-        return io.NodeOutput(images, ui=ui.SavedImages(results))
+        return io.NodeOutput(images, ui=saved_images_with_report(results, outcome))
 
 
 def registered_nodes() -> tuple[type[io.ComfyNode], ...]:

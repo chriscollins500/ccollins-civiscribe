@@ -9,6 +9,10 @@ and examples. `_Sidebar.md` and `_Footer.md` provide wiki navigation.
 The [repository maintenance guide](repository_maintenance.md) records the
 community pages, issue forms, labels, security checks, and history protection.
 
+The [native API and MCP contract](api_and_mcp.md) defines read-only discovery,
+static preflight, native history reports, and integration with the official
+Comfy MCP.
+
 These documents define the clean V2 rewrite of the unreleased
 `comfyui-civitai-save-node` prototype.
 

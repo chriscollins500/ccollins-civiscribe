@@ -170,6 +170,20 @@ It does not export legacy node mappings.
 The schema is authored directly in V3. It is never generated from a V1
 `INPUT_TYPES` dictionary.
 
+## Native API and MCP integration
+
+The [versioned API contract](api_and_mcp.md) adds thin routes on the existing
+ComfyUI server through `ComfyExtension.on_load`. Static preflight reuses the
+bounded active-graph scanner without invoking model files, caches, identity
+lookup, storage, or execution. It explicitly reports that nothing is committed.
+
+Native SavedImages outputs include a strict JSON text projection of the
+existing `SaveOutcome`, so ComfyUI history and the official Comfy MCP's
+`job` status can expose actual committed files and warnings. Report failure
+preserves the native preview. The single `GenerationRecord` remains the
+source for image metadata and sidecars. No second queue, job database, MCP
+server, persistent receipt store, or outbound HTTP client is introduced.
+
 ## 5. Domain Model
 
 ### GenerationRecord

@@ -32,6 +32,21 @@ test("documented API example saves independent PNG and WebP branches", async ({
     ["3", "webp", "image/webp"],
   ]) {
     const [image] = result.outputs[nodeId].images;
+    const report = JSON.parse(result.outputs[nodeId].text[0]);
+    expect(report.schema).toBe("ccollins-civiscribe.save-result");
+    expect(report.schemaVersion).toBe("1.0.0");
+    expect(report.images[0]).toMatchObject({
+      filename: image.filename,
+      subfolder: image.subfolder,
+      type: image.type,
+      format: extension,
+      width: 64,
+      height: 64,
+      sidecarStatus: "written",
+      sidecarFilename: `${extension}_0001.json`,
+    });
+    expect(report).not.toHaveProperty("prompt");
+    expect(report).not.toHaveProperty("workflow");
     expect(image.filename).toBe(`${extension}_0001.${extension}`);
     expect(image.subfolder).toBe("CiviScribeDemo");
     const saved = await request.get("/view", { params: image });

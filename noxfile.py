@@ -123,7 +123,11 @@ def e2e(session: nox.Session) -> None:
     }
     if sys.platform == "win32":
         environment["NODE_USE_SYSTEM_CA"] = "1"
-    for name in ("CIVISCRIBE_E2E_BASE_URL", "CIVISCRIBE_E2E_CHANNEL"):
+    for name in (
+        "CIVISCRIBE_E2E_BASE_URL",
+        "CIVISCRIBE_E2E_CHANNEL",
+        "CIVISCRIBE_E2E_MCP_PYTHON",
+    ):
         if value := os.environ.get(name):
             environment[name] = value
     session.run("npm", "ci", external=True, env=environment)

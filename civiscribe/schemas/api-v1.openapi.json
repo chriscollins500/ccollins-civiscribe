@@ -1,0 +1,627 @@
+{
+  "openapi": "3.1.0",
+  "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
+  "info": {
+    "title": "CiviScribe native ComfyUI integration",
+    "version": "2.0.10",
+    "description": "Versioned read-only discovery and metadata preflight. Use ComfyUI /prompt, /history, /view and /ws for execution. SaveResult is emitted as strict JSON in native ui.text and official Comfy MCP job.text_outputs. This API inherits the host ComfyUI server's access controls; it adds no listener or authentication service."
+  },
+  "paths": {
+    "/civiscribe/v1/capabilities": {
+      "get": {
+        "operationId": "civiscribeCapabilities",
+        "summary": "Discover installed capabilities and native integration paths",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Capabilities"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/civiscribe/v1/openapi.json": {
+      "get": {
+        "operationId": "civiscribeOpenApi",
+        "summary": "Read this OpenAPI document",
+        "responses": {
+          "200": {
+            "description": "OpenAPI 3.1 document",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/civiscribe/v1/preflight": {
+      "post": {
+        "operationId": "civiscribePreflight",
+        "summary": "Analyze selected active save branches without executing or writing",
+        "description": "Maximum strict UTF-8 request size: 1048576 bytes; nesting: 32; graph nodes: 4096; selected save nodes: 32. Prompts and workflow payloads are not echoed. No hashing, model-file reads, cache writes, or network lookup occurs. Static values can differ from runtime values. This does not replace ComfyUI's executable-workflow validation.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreflightRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Preflight"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Selected save node missing or inactive",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request or graph limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "application/json required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Preflight unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Capabilities": {
+        "type": "object",
+        "properties": {
+          "schema": {
+            "const": "ccollins-civiscribe.api"
+          },
+          "schemaVersion": {
+            "const": "1.0.0"
+          },
+          "version": {
+            "type": "string"
+          },
+          "nodeId": {
+            "type": "string"
+          },
+          "formats": {
+            "const": [
+              "png",
+              "jpeg",
+              "webp"
+            ]
+          },
+          "endpoints": {
+            "type": "object",
+            "properties": {
+              "capabilities": {
+                "type": "string"
+              },
+              "preflight": {
+                "type": "string"
+              },
+              "openapi": {
+                "type": "string"
+              },
+              "nodeSchema": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "capabilities",
+              "preflight",
+              "openapi",
+              "nodeSchema"
+            ],
+            "additionalProperties": false
+          },
+          "execution": {
+            "type": "object",
+            "properties": {
+              "submit": {
+                "type": "string"
+              },
+              "history": {
+                "type": "string"
+              },
+              "view": {
+                "type": "string"
+              },
+              "events": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "submit",
+              "history",
+              "view",
+              "events"
+            ],
+            "additionalProperties": false
+          },
+          "mcp": {
+            "type": "object",
+            "properties": {
+              "provider": {
+                "const": "Comfy-Org/comfy-mcp"
+              },
+              "tools": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "saveReports": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "provider",
+              "tools",
+              "saveReports"
+            ],
+            "additionalProperties": false
+          },
+          "preflight": {
+            "type": "object",
+            "properties": {
+              "readOnly": {
+                "const": true
+              },
+              "networkRequests": {
+                "const": false
+              },
+              "modelFileReads": {
+                "const": false
+              },
+              "runtimeValuesResolved": {
+                "const": false
+              },
+              "maxRequestBytes": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "maxDepth": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "maxNodes": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "maxSaveNodes": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "readOnly",
+              "networkRequests",
+              "modelFileReads",
+              "runtimeValuesResolved",
+              "maxRequestBytes",
+              "maxDepth",
+              "maxNodes",
+              "maxSaveNodes"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "schema",
+          "schemaVersion",
+          "version",
+          "nodeId",
+          "formats",
+          "endpoints",
+          "execution",
+          "mcp",
+          "preflight"
+        ],
+        "additionalProperties": false
+      },
+      "PreflightRequest": {
+        "type": "object",
+        "properties": {
+          "prompt": {
+            "type": "object",
+            "minProperties": 1,
+            "maxProperties": 4096
+          },
+          "save_node_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "prompt"
+        ],
+        "additionalProperties": false
+      },
+      "Preflight": {
+        "type": "object",
+        "properties": {
+          "schema": {
+            "const": "ccollins-civiscribe.preflight"
+          },
+          "schemaVersion": {
+            "const": "1.0.0"
+          },
+          "phase": {
+            "const": "static"
+          },
+          "committed": {
+            "const": false
+          },
+          "nodes": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 32,
+            "items": {
+              "type": "object",
+              "properties": {
+                "saveNodeId": {
+                  "type": "string"
+                },
+                "activeNodeIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "selectedStageNodeId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "workflowType": {
+                  "enum": [
+                    null,
+                    "txt2img",
+                    "img2img"
+                  ]
+                },
+                "settings": {
+                  "type": "object",
+                  "properties": {
+                    "seed": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ]
+                    },
+                    "steps": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ]
+                    },
+                    "sampler": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "scheduler": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "cfg_scale": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "guidance": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "denoise": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "width": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ]
+                    },
+                    "height": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ]
+                    },
+                    "batch_size": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ]
+                    },
+                    "clip_skip": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "seed",
+                    "steps",
+                    "sampler",
+                    "scheduler",
+                    "cfg_scale",
+                    "guidance",
+                    "denoise",
+                    "width",
+                    "height",
+                    "batch_size",
+                    "clip_skip"
+                  ],
+                  "additionalProperties": false
+                },
+                "resources": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "description": "Shared Civitai resource projection. Static detection precedes identity enrichment."
+                  }
+                },
+                "issues": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "code": {
+                        "type": "string"
+                      },
+                      "severity": {
+                        "enum": [
+                          "warning",
+                          "error"
+                        ]
+                      },
+                      "nodeId": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "inputName": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "code",
+                      "severity",
+                      "nodeId",
+                      "inputName"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "required": [
+                "saveNodeId",
+                "activeNodeIds",
+                "selectedStageNodeId",
+                "workflowType",
+                "settings",
+                "resources",
+                "issues"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "schema",
+          "schemaVersion",
+          "phase",
+          "committed",
+          "nodes"
+        ],
+        "additionalProperties": false
+      },
+      "SaveResult": {
+        "type": "object",
+        "properties": {
+          "schema": {
+            "const": "ccollins-civiscribe.save-result"
+          },
+          "schemaVersion": {
+            "const": "1.0.0"
+          },
+          "version": {
+            "type": "string"
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "filename": {
+                  "type": "string"
+                },
+                "subfolder": {
+                  "type": "string"
+                },
+                "type": {
+                  "const": "output"
+                },
+                "format": {
+                  "enum": [
+                    "png",
+                    "jpeg",
+                    "webp"
+                  ]
+                },
+                "width": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "height": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "metadataStatus": {
+                  "enum": [
+                    "complete",
+                    "partial",
+                    "minimal"
+                  ]
+                },
+                "sidecarStatus": {
+                  "enum": [
+                    "not_requested",
+                    "written",
+                    "failed"
+                  ]
+                },
+                "sidecarFilename": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "filename",
+                "subfolder",
+                "type",
+                "format",
+                "width",
+                "height",
+                "metadataStatus",
+                "sidecarStatus",
+                "sidecarFilename"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "batchIndex": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "code",
+                "batchIndex"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "schema",
+          "schemaVersion",
+          "version",
+          "images",
+          "warnings"
+        ],
+        "additionalProperties": false
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "code"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "additionalProperties": false
+      }
+    }
+  }
+}

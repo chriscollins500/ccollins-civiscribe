@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Added native ComfyUI API discovery, OpenAPI documentation, and bounded
+  read-only metadata preflight for active save branches. Added versioned JSON
+  save reports in native history and official Comfy MCP job text outputs,
+  preserving previews and the existing save path. Added an isolated real-MCP
+  end-to-end gate and API/agent examples without new runtime dependencies.
 - Pinned the reviewed upstream wheel checker with wheel-filename 2.1.0.
   Added valid and malformed wheel regressions covering all 14 checker rules,
   archive structure, and the installed checker's exact source commit.

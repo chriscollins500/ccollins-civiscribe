@@ -27,6 +27,20 @@ sensitive data before attaching them.
 - Release archives are built from an allowlist and scanned for private paths,
   secrets, caches, and development-only content.
 
+## Native API integration
+
+CiviScribe's discovery, OpenAPI, and metadata-preflight routes run on the
+existing ComfyUI server and inherit its access controls and middleware. They
+add no listener or authentication service. Preflight accepts bounded strict
+JSON and performs no execution, model-file reads, directory creation, cache
+writes, or Civitai lookup. It does not echo prompts or raw workflow payloads.
+
+Save reports use standard ComfyUI history text outputs and the official MCP's
+job text projection. They contain committed output descriptors and status
+codes. They add no persistent catalog. Operators remain responsible for
+controlling access to the host ComfyUI's workflow, history, and output routes.
+See the [API contract](docs/api_and_mcp.md) for exact limits and boundaries.
+
 ## Verify a release download
 
 CiviScribe publishes signed build provenance for the GitHub release assets,

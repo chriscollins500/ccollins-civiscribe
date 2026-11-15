@@ -20,6 +20,7 @@ DOCUMENTS = (
     ".github/pull_request_template.md",
     "docs/README.md",
     "docs/repository_maintenance.md",
+    "docs/api_and_mcp.md",
 )
 _LINK = re.compile(r"!?\[[^\]\n]*\]\((<[^>]+>|[^\s)]+)\s*\)")
 _JSON_BLOCK = re.compile(r"^```json\s*\n(.*?)^```\s*$", re.MULTILINE | re.DOTALL)

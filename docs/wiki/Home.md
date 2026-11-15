@@ -22,6 +22,7 @@ the task guides when you need more control.
 | Enable lookup or choose a hashing mode | [Civitai lookup and hashing](https://github.com/chriscollins500/ccollins-civiscribe/wiki/Civitai-lookup-and-hashing) |
 | Assign verified model identities myself | [Manual resource identities](https://github.com/chriscollins500/ccollins-civiscribe/wiki/Manual-resource-identities) |
 | Connect multiple branches or save formats | [Workflow examples](https://github.com/chriscollins500/ccollins-civiscribe/wiki/Workflow-examples) |
+| Automate saves or connect an AI agent | [API and MCP](https://github.com/chriscollins500/ccollins-civiscribe/wiki/API-and-MCP) |
 | Inspect metadata or a JSON sidecar | [Metadata and sidecars](https://github.com/chriscollins500/ccollins-civiscribe/wiki/Metadata-and-sidecars) |
 | Understand what gets shared | [Privacy and saving safety](https://github.com/chriscollins500/ccollins-civiscribe/wiki/Privacy-and-saving-safety) |
 | Fix a problem | [Troubleshooting](https://github.com/chriscollins500/ccollins-civiscribe/wiki/Troubleshooting) |

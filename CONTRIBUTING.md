@@ -179,6 +179,14 @@ To exercise an existing clean ComfyUI checkout without touching Desktop, use
 directory, loads only the staged CiviScribe package, uses CPU and a free loopback
 port, and stops only its own process. Never point browser UAT at a working session.
 
+The API/MCP gate additionally requires `--mcp-python` pointing to an existing
+environment with the official Comfy MCP and CLI. Hosted validation uses
+comfy-mcp 0.10.0 and comfy-cli 1.26.0 as test tools. The gate exercises real
+stdio negotiation, native node discovery, workflow validation and submission,
+JSON save reports, and output URLs. Neither tool is a node runtime dependency.
+For `nox -s e2e`, also supply `CIVISCRIBE_E2E_MCP_PYTHON` along with the isolated
+server URL. See [the API/MCP reference](docs/api_and_mcp.md).
+
 Sources checked 2026-09-12: [Comfy publishing](https://docs.comfy.org/registry/publishing),
 [GitHub attestations](https://docs.github.com/en/actions/how-tos/secure-your-work/use-artifact-attestations/use-artifact-attestations),
 [pip-audit](https://github.com/pypa/pip-audit).

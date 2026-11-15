@@ -38,6 +38,9 @@ class _ComfyNode:
 
 
 class _ComfyExtension:
+    async def on_load(self) -> None:
+        raise NotImplementedError
+
     async def get_node_list(self) -> list[type[_ComfyNode]]:
         raise NotImplementedError
 
@@ -115,6 +118,9 @@ class _SavedImages:
     def __init__(self, results: list[_SavedResult]) -> None:
         self.results = results
 
+    def as_dict(self) -> dict[str, object]:
+        return {"images": self.results}
+
 
 def _fake_comfy_modules() -> dict[str, ModuleType]:
     io_module = ModuleType("comfy_api.latest.io")
@@ -143,7 +149,16 @@ def _fake_comfy_modules() -> dict[str, ModuleType]:
     vars(comfy_api)["latest"] = latest
     folder_paths = ModuleType("folder_paths")
     vars(folder_paths)["get_output_directory"] = lambda: _OUTPUT_DIRECTORY["path"]
+    web = ModuleType("aiohttp.web")
+    vars(web)["Response"] = SimpleNamespace
+    aiohttp = ModuleType("aiohttp")
+    vars(aiohttp)["web"] = web
+    server = ModuleType("server")
+    vars(server)["PromptServer"] = SimpleNamespace(instance=SimpleNamespace(routes=object()))
     return {
+        "aiohttp": aiohttp,
+        "aiohttp.web": web,
+        "server": server,
         "comfy_api": comfy_api,
         "comfy_api.latest": latest,
         "comfy_api.latest.io": io_module,
@@ -183,9 +198,30 @@ def test_native_v3_entrypoint_registers_civiscribe_node() -> None:
         try:
             extension = asyncio.run(module.comfy_entrypoint())
             assert isinstance(extension, _ComfyExtension)
+            extension_module = sys.modules[f"{SYNTHETIC_PACKAGE}.civiscribe.extension"]
+            with patch.object(extension_module, "register_routes") as register:
+                asyncio.run(extension.on_load())
+                register.assert_called_once()
+                assert register.call_args.kwargs["node_id"] == "CCollins_CiviScribe_SaveImage"
             nodes = asyncio.run(extension.get_node_list())
             assert len(nodes) == 1
             assert nodes[0].__name__ == "CiviScribeSaveImage"
+        finally:
+            for name in tuple(sys.modules):
+                if name == SYNTHETIC_PACKAGE or name.startswith(f"{SYNTHETIC_PACKAGE}."):
+                    sys.modules.pop(name, None)
+
+
+def test_api_report_failure_preserves_native_preview() -> None:
+    with patch.dict(sys.modules, _fake_comfy_modules()):
+        module = _load_root_entrypoint()
+        try:
+            asyncio.run(module.comfy_entrypoint())
+            adapter = sys.modules[f"{SYNTHETIC_PACKAGE}.civiscribe.adapters.api_output"]
+            with patch.object(adapter, "save_report", side_effect=RuntimeError("private detail")):
+                preview = adapter.saved_images_with_report([], object())
+                assert isinstance(preview, _SavedImages)
+                assert preview.as_dict() == {"images": []}
         finally:
             for name in tuple(sys.modules):
                 if name == SYNTHETIC_PACKAGE or name.startswith(f"{SYNTHETIC_PACKAGE}."):
@@ -285,6 +321,9 @@ def test_candidate_node_returns_preview_for_exact_committed_file(tmp_path: Path)
             assert result.outputs == (batch,)
             assert result.outputs[0] is batch
             assert len(result.ui.results) == 1
+            report = json.loads(result.ui.as_dict()["text"][0])
+            assert report["schema"] == "ccollins-civiscribe.save-result"
+            assert report["images"][0]["filename"] == result.ui.results[0]["filename"]
             preview = result.ui.results[0]
             assert preview["type"] == "output"
             assert preview["subfolder"] == "nested"
