@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Hardened development-tool URL construction, streamed response limits,
+  resolved-path containment, Windows junction handling, and package staging.
+  The save node's image and metadata behavior is unchanged.
+
 All notable CiviScribe changes are documented here.
 
 ## 2.0.10 - 2026-11-14

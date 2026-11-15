@@ -50,6 +50,30 @@ def test_validator_accepts_projected_sidecar(tmp_path: Path) -> None:
     assert validate_sidecar(path).errors == ()
 
 
+@pytest.mark.parametrize("linked_input", ["sidecar", "schema"])
+def test_validator_rejects_links_outside_the_selected_parent(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, linked_input: str
+) -> None:
+    selected = tmp_path / "selected"
+    selected.mkdir()
+    sidecar = selected / "image.json"
+    _write_json(sidecar, _projection_payload())
+    schema = selected / "schema.json"
+    _write_json(schema, {})
+    linked = sidecar if linked_input == "sidecar" else schema
+    outside = tmp_path / "outside.json"
+    outside.write_text("DO_NOT_READ", encoding="utf-8")
+    original = Path.resolve
+
+    def resolve(path: Path, strict: bool = False) -> Path:
+        return original(outside if path == linked else path, strict=strict)
+
+    monkeypatch.setattr(Path, "resolve", resolve)
+    result = validate_sidecar(sidecar, schema_path=schema)
+    assert result.errors == (f"{linked_input}_unreadable:ValueError",)
+    assert str(tmp_path) not in repr(result)
+
+
 def test_validator_rejects_duplicate_keys_and_malformed_json(tmp_path: Path) -> None:
     duplicate = tmp_path / "duplicate.json"
     duplicate.write_text('{"schemaName":"one","schemaName":"two"}', encoding="utf-8")

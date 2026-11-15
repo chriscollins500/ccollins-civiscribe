@@ -9,6 +9,7 @@ from pathlib import Path
 import pytest
 
 from civiscribe.version import __version__
+from tools import release_bundle
 from tools.build_release import build_release
 from tools.release_bundle import (
     MANIFEST,
@@ -21,6 +22,16 @@ from tools.release_bundle import (
 )
 
 COMMIT = "a" * 40
+
+
+def test_staging_checks_payload_paths_before_writing_outside_destination(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(release_bundle, "verify_bundle", lambda *args, **kwargs: None)
+    monkeypatch.setattr(release_bundle, "_runtime_payload", lambda _: {"../outside.py": b"unsafe"})
+    with pytest.raises(ValueError, match="audit_path_outside_selected_root"):
+        stage_node(tmp_path, COMMIT, tmp_path / "installed")
+    assert not (tmp_path / "outside.py").exists()
 
 
 def _bundle(tmp_path: Path, *, change_sdist: bool = False) -> None:

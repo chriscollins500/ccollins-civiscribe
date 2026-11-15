@@ -93,18 +93,22 @@ development tools. Their source and sinks were reviewed against the tool's
 actual execution boundary. These tools run as explicit operator-invoked
 commands. The save node does not expose their arguments through a service.
 
-| Findings | Reviewed boundary |
-| --- | --- |
-| #10, Civitai auditor request | HTTPS is restricted to `civitai.com`, redirects are disabled, and live identity selectors are positive version IDs or validated hex hashes. |
-| #2, Registry coverage request | The Registry URL is restricted to HTTPS `api.comfy.org/comfy-nodes`, port 443, with credentials, query strings, and fragments rejected. Redirects are disabled. |
-| #1, ComfyUI schema request | `--object-info-url` is an explicit operator-selected audit target. The tool is a local CLI without an inbound request handler or elevated service identity. |
-| #3–#5, Workflow corpus paths | The operator supplies the roots. Traversal is bounded, symlinks are excluded, and only structural class/input summaries enter reports. |
-| #9, Sidecar validator paths | The operator explicitly selects the sidecar and optional schema for read-only JSON validation. |
-| #6–#8, Package staging paths | The operator selects a new destination. Bundle verification and the archive allowlist run before file creation. |
+The follow-up hardening adds source checks at the file and request boundaries.
+It preserves the tools' use as operator-invoked commands.
 
-Source-specific review notes accompany the findings. Their GitHub status is
-open pending the maintainer's decision on dismissal. New findings need their
-own review. The extended suite and local-input analysis are enabled.
+| Original findings | Source hardening |
+| --- | --- |
+| #10, Civitai auditor request | Canonical requests are constructed only for the public enums, model-version, and hash routes on HTTPS `civitai.com`. Credentials, nonstandard ports, query strings, fragments, invalid selectors, and unrelated routes are rejected. |
+| #2, Registry coverage request | The URL is revalidated at the request boundary, and the request uses the fixed official endpoint. Responses are streamed within a 32 MiB decoded-byte limit. |
+| #1, ComfyUI schema request | The operator still selects the ComfyUI origin, including localhost or a LAN host. The request targets `object_info`, preserves reverse-proxy prefixes, rejects credentials, queries, and fragments, disables redirects, and streams within 32 MiB using system TLS trust. |
+| #3–#5, Workflow corpus paths | Selected roots and discovered files are resolved before use and checked for containment. Directory symlinks and Windows junctions are excluded, including when selected as roots. |
+| #9, Sidecar validator paths | The selected sidecar and schema are resolved before reading. A link that leaves its selected parent directory is rejected with a sanitized error. |
+| #6–#8, Package staging paths | The selected new destination and each verified archive member are resolved and checked for containment. Files are created exclusively, so an existing file cannot be overwritten. |
+
+These changes do not turn a CLI into a privileged service or restrict explicitly
+selected input folders to this repository. The extended suite and local-input
+analysis remain enabled. Findings are left for a fresh source scan to resolve;
+none are dismissed or excluded from analysis.
 
 ## Documentation checks
 

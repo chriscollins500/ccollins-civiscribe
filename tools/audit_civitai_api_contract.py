@@ -398,6 +398,49 @@ def _decode_response(response: httpx.Response, *, max_response_bytes: int) -> _F
     return _FetchResult(payload=payload, error=error)
 
 
+def _version_selector(identifier: str) -> int | None:
+    if not identifier.isascii() or not identifier.isdecimal():
+        return None
+    try:
+        return _positive_int(int(identifier))
+    except ValueError:
+        return None
+
+
+def _contract_target(url: str) -> str | None:
+    """Construct a canonical target from the three supported contract routes."""
+    try:
+        parsed = httpx.URL(url)
+    except httpx.InvalidURL:
+        return None
+    if (
+        parsed.scheme != "https"
+        or parsed.host != "civitai.com"
+        or parsed.port not in {None, 443}
+        or parsed.username
+        or parsed.password
+        or parsed.query
+        or parsed.fragment
+    ):
+        return None
+    if parsed.path == "/api/v1/enums":
+        return ENUMS_URL
+    prefix, _, identifier = parsed.path.rpartition("/")
+    if not identifier.isascii() or not identifier.isalnum():
+        return None
+    if prefix == "/api/v1/model-versions" and identifier.isdecimal():
+        version_id = _version_selector(identifier)
+        return f"{API_BASE_URL}/model-versions/{version_id}" if version_id is not None else None
+    target = None
+    if (
+        prefix == "/api/v1/model-versions/by-hash"
+        and len(identifier) in {8, 10, 12, 64}
+        and re.fullmatch(r"[0-9A-Fa-f]+", identifier) is not None
+    ):
+        target = f"{API_BASE_URL}/model-versions/by-hash/{identifier}"
+    return target
+
+
 def fetch_public_json(
     url: str,
     *,
@@ -408,8 +451,8 @@ def fetch_public_json(
 ) -> _FetchResult:
     """Fetch one fixed-host public JSON response using verified HTTPS."""
 
-    parsed = httpx.URL(url)
-    if parsed.scheme != "https" or parsed.host != "civitai.com":
+    target = _contract_target(url)
+    if target is None:
         return _FetchResult(error="endpoint_invalid")
 
     contexts = tuple(tls_contexts or create_tls_contexts())
@@ -424,7 +467,7 @@ def fetch_public_json(
                     headers={"Accept": "application/json", "User-Agent": USER_AGENT},
                     trust_env=False,
                 ) as client,
-                client.stream("GET", url) as response,
+                client.stream("GET", target) as response,
             ):
                 result = _decode_response(response, max_response_bytes=max_response_bytes)
         except (httpx.HTTPError, OSError, ssl.SSLError):
@@ -489,11 +532,13 @@ def audit_live_response_contract(
     """Fetch and validate one caller-selected public identity response."""
 
     if endpoint_kind == "model_version":
-        if not identifier.isdecimal() or int(identifier) < 1:
+        version_id = _version_selector(identifier)
+        if version_id is None:
             return ResponseContractAudit(endpoint_kind, errors=("identifier_invalid",))
-        suffix = f"model-versions/{identifier}"
+        suffix = f"model-versions/{version_id}"
         expected_hash = None
     elif endpoint_kind == "hash":
+        version_id = None
         if re.fullmatch(r"[0-9A-Fa-f]+", identifier) is None or len(identifier) not in {
             8,
             10,
@@ -522,7 +567,7 @@ def audit_live_response_contract(
         fetched.payload,
         endpoint_kind=endpoint_kind,
         expected_hash=expected_hash,
-        expected_version_id=int(identifier) if endpoint_kind == "model_version" else None,
+        expected_version_id=version_id,
         tls_context_source=fetched.tls_context_source,
     )
 

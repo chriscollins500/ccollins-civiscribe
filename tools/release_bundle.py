@@ -13,6 +13,7 @@ import zipfile
 from pathlib import Path
 
 from civiscribe.version import __version__
+from tools.audit_paths import scoped_path
 from tools.build_release import (
     DEFAULT_ROOT_NAME,
     FIXED_ZIP_TIMESTAMP,
@@ -185,11 +186,13 @@ def stage_node(
 ) -> None:
     verify_bundle(directory, commit, allow_working_tree=allow_working_tree)
     runtime = _runtime_payload(directory)
-    destination.mkdir(parents=True, exist_ok=False)
+    root = scoped_path(destination.parent, destination)
+    root.mkdir(parents=True, exist_ok=False)
     for name, payload in runtime.items():
-        path = destination / name
+        path = scoped_path(root, root / name)
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_bytes(payload)
+        with path.open("xb") as output:
+            output.write(payload)
 
 
 def main() -> None:

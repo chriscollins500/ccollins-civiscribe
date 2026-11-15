@@ -30,6 +30,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from civiscribe.identity.civitai_client import read_bounded_json  # noqa: E402
 from civiscribe.tls import create_tls_contexts  # noqa: E402
 from civiscribe.workflow.classify import (  # noqa: E402
     compact_class,
@@ -42,6 +43,8 @@ from civiscribe.workflow.classify import (  # noqa: E402
     resource_input_specs,
 )
 from civiscribe.workflow.model import PromptNode  # noqa: E402
+from tools.audit_paths import scoped_path  # noqa: E402
+from tools.build_release import _is_link_like  # noqa: E402
 
 DEFAULT_OBJECT_INFO_URL = "http://127.0.0.1:8000/object_info"
 DEFAULT_REGISTRY_COMFY_NODES_URL = "https://api.comfy.org/comfy-nodes"
@@ -1167,8 +1170,8 @@ def _walk_json_files(
     discovered: list[Path] = []
     try:
         for current, raw_directories, raw_files in os.walk(root, followlinks=False):
-            current_path = Path(current)
             try:
+                current_path = scoped_path(root, Path(current))
                 depth = len(current_path.relative_to(root).parts)
             except ValueError:
                 observation.issue_counts["workflow_root_escape_rejected"] += 1
@@ -1176,7 +1179,7 @@ def _walk_json_files(
             safe_directories = []
             for directory_name in sorted(raw_directories):
                 directory = current_path / directory_name
-                if directory.is_symlink():
+                if _is_link_like(directory):
                     observation.issue_counts["workflow_directory_symlink_skipped"] += 1
                 elif depth >= limits.max_directory_depth:
                     observation.issue_counts["workflow_directory_depth_exceeded"] += 1
@@ -1187,10 +1190,15 @@ def _walk_json_files(
                 candidate = current_path / file_name
                 if candidate.suffix.casefold() != ".json":
                     continue
-                if candidate.is_symlink():
+                if _is_link_like(candidate):
                     observation.issue_counts["workflow_file_symlink_skipped"] += 1
                     continue
-                discovered.append(candidate)
+                try:
+                    selected = scoped_path(root, candidate)
+                except ValueError:
+                    observation.issue_counts["workflow_root_escape_rejected"] += 1
+                    continue
+                discovered.append(selected)
                 if len(discovered) >= limits.max_files_per_root:
                     observation.issue_counts["workflow_file_count_limit_exceeded"] += 1
                     observation.files_discovered = len(discovered)
@@ -1206,8 +1214,13 @@ def _discover_workflow_files(
     observation: _RootObservation,
     limits: WorkflowAuditLimits,
 ) -> list[Path]:
-    if root.is_symlink():
+    if _is_link_like(root):
         observation.issue_counts["workflow_root_symlink_rejected"] += 1
+        return []
+    try:
+        root = scoped_path(root.parent, root)
+    except ValueError:
+        observation.issue_counts["workflow_root_escape_rejected"] += 1
         return []
     if root.is_file():
         if root.suffix.casefold() != ".json":
@@ -1338,11 +1351,42 @@ def _read_json(path: Path) -> object:
         return json.load(handle)
 
 
-def _fetch_json(url: str, timeout_seconds: float) -> object:
-    with httpx.Client(timeout=timeout_seconds, follow_redirects=False, trust_env=False) as client:
-        response = client.get(url, headers={"Accept": "application/json"})
+def _fetch_json(
+    url: str,
+    timeout_seconds: float,
+    *,
+    transport: httpx.BaseTransport | None = None,
+) -> object:
+    endpoint = httpx.URL(url)
+    path = endpoint.path.rstrip("/")
+    if (
+        endpoint.scheme not in {"http", "https"}
+        or not endpoint.host
+        or endpoint.username
+        or endpoint.password
+        or endpoint.query
+        or endpoint.fragment
+        or not path.endswith("/object_info")
+        or any(part in {".", ".."} for part in path.split("/"))
+    ):
+        raise ValueError("object_info_url_rejected")
+    origin = endpoint.copy_with(path=path.removesuffix("object_info"))
+    with (
+        httpx.Client(
+            base_url=origin,
+            timeout=timeout_seconds,
+            follow_redirects=False,
+            trust_env=False,
+            verify=create_tls_contexts()[0][1],
+            transport=transport,
+        ) as client,
+        client.stream("GET", "object_info", headers={"Accept": "application/json"}) as response,
+    ):
         response.raise_for_status()
-        return response.json()
+        payload, error = read_bounded_json(response, MAX_REGISTRY_RESPONSE_BYTES)
+        if error is not None:
+            raise ValueError(f"object_info_{error}")
+        return payload
 
 
 def _validate_official_registry_url(url: str) -> None:
@@ -1367,22 +1411,23 @@ def _registry_page_payload(
     page: int,
     page_size: int,
 ) -> Mapping[str, Any]:
-    response = client.get(
-        url,
+    _validate_official_registry_url(url)
+    with client.stream(
+        "GET",
+        DEFAULT_REGISTRY_COMFY_NODES_URL,
         params={"page": page, "pageSize": page_size},
         headers={
             "Accept": "application/json",
             "User-Agent": "CCollins-CiviScribe-Node-Audit/2.0",
         },
-    )
-    if response.status_code != httpx.codes.OK:
-        raise ValueError("official_registry_http_error")
-    if len(response.content) > MAX_REGISTRY_RESPONSE_BYTES:
+    ) as response:
+        if response.status_code != httpx.codes.OK:
+            raise ValueError("official_registry_http_error")
+        payload, error = read_bounded_json(response, MAX_REGISTRY_RESPONSE_BYTES)
+    if error == "response_too_large":
         raise ValueError("official_registry_response_too_large")
-    try:
-        payload = response.json()
-    except (json.JSONDecodeError, UnicodeDecodeError, RecursionError) as error:
-        raise ValueError("official_registry_json_invalid") from error
+    if error is not None:
+        raise ValueError("official_registry_json_invalid")
     if not isinstance(payload, Mapping):
         raise ValueError("official_registry_response_not_object")
     return payload

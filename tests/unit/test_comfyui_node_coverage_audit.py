@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import json
+import os
+import ssl
+from collections.abc import Iterator
 from pathlib import Path
 from typing import Any, cast
 
@@ -12,6 +15,102 @@ from tools import audit_comfyui_node_coverage as audit
 EXPECTED_TWO = 2
 EXPECTED_THREE = 3
 EXPECTED_FIVE = 5
+
+
+@pytest.fixture
+def object_info_tls(monkeypatch: pytest.MonkeyPatch) -> None:
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+    monkeypatch.setattr(audit, "create_tls_contexts", lambda: (("test_system", context),))
+
+
+@pytest.mark.usefixtures("object_info_tls")
+@pytest.mark.parametrize(
+    "url",
+    [
+        "http://127.0.0.1:8188/object_info",
+        "http://192.0.2.10:8000/comfy/object_info/",
+        "https://comfy.example.invalid/prefix/object_info",
+    ],
+)
+def test_object_info_fetch_preserves_selected_origins_and_proxy_prefixes(url: str) -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        assert str(request.url) == url.rstrip("/")
+        assert request.method == "GET"
+        assert request.headers["Accept"] == "application/json"
+        return httpx.Response(200, json={"SaveImage": {"input": {}}})
+
+    assert audit._fetch_json(url, 1.0, transport=httpx.MockTransport(handler)) == {
+        "SaveImage": {"input": {}}
+    }
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "file:///object_info",
+        "http://127.0.0.1:8188/queue",
+        "http://operator:DO_NOT_RECORD@127.0.0.1:8188/object_info",
+        "http://127.0.0.1:8188/object_info?token=DO_NOT_RECORD",
+        "http://127.0.0.1:8188/object_info#DO_NOT_RECORD",
+    ],
+)
+def test_object_info_fetch_rejects_other_routes_and_secret_bearing_urls(url: str) -> None:
+    def handler(_request: httpx.Request) -> httpx.Response:
+        pytest.fail("Rejected schema URL must not reach the transport")
+
+    with pytest.raises(ValueError, match="object_info_url_rejected"):
+        audit._fetch_json(url, 1.0, transport=httpx.MockTransport(handler))
+
+
+@pytest.mark.usefixtures("object_info_tls")
+def test_object_info_fetch_bounds_streaming_and_does_not_follow_redirects(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(audit, "MAX_REGISTRY_RESPONSE_BYTES", 32)
+
+    class OversizedResponse(httpx.SyncByteStream):
+        def __iter__(self) -> Iterator[bytes]:
+            yield b"x" * 33
+            pytest.fail("Oversized response must be closed before consuming more data")
+
+    with pytest.raises(ValueError, match="object_info_response_too_large"):
+        audit._fetch_json(
+            "http://127.0.0.1:8188/object_info",
+            1.0,
+            transport=httpx.MockTransport(
+                lambda _: httpx.Response(200, stream=OversizedResponse())
+            ),
+        )
+
+    requests = []
+
+    def redirect(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        return httpx.Response(302, headers={"Location": "https://example.invalid/private"})
+
+    with pytest.raises(httpx.HTTPStatusError):
+        audit._fetch_json(
+            "http://127.0.0.1:8188/object_info", 1.0, transport=httpx.MockTransport(redirect)
+        )
+    assert len(requests) == 1
+
+
+def test_workflow_audit_excludes_windows_junction_directories_and_roots(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root = tmp_path / "selected"
+    junction = root / "junction"
+    _write_json(junction / "outside.json", {"1": {"class_type": "DO_NOT_RECORD"}})
+    _write_json(root / "safe.json", {"1": {"class_type": "KSampler", "inputs": {}}})
+    monkeypatch.setattr(os.path, "isjunction", lambda path: path == junction, raising=False)
+
+    report = audit.analyze_workflow_roots([root, junction])
+    roots = _roots(report)
+    assert roots[0]["filesDiscovered"] == 1
+    assert roots[0]["issueCounts"] == {"workflow_directory_symlink_skipped": 1}
+    assert roots[1]["filesDiscovered"] == 0
+    assert roots[1]["issueCounts"] == {"workflow_root_symlink_rejected": 1}
+    assert "DO_NOT_RECORD" not in json.dumps(report)
 
 
 def _write_json(path: Path, payload: object) -> None:
@@ -410,6 +509,31 @@ def test_official_registry_fetch_rejects_nonofficial_url() -> None:
             "https://example.invalid/comfy-nodes",
             transport=httpx.MockTransport(lambda request: httpx.Response(500)),
         )
+
+
+def test_registry_request_revalidates_target_and_uses_a_bounded_stream(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(audit, "MAX_REGISTRY_RESPONSE_BYTES", 32)
+
+    class OversizedResponse(httpx.SyncByteStream):
+        def __iter__(self) -> Iterator[bytes]:
+            yield b"x" * 33
+            pytest.fail("Registry response must not be fully buffered")
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        assert str(request.url).startswith(audit.DEFAULT_REGISTRY_COMFY_NODES_URL + "?")
+        return httpx.Response(200, stream=OversizedResponse())
+
+    with httpx.Client(transport=httpx.MockTransport(handler)) as client:
+        with pytest.raises(ValueError, match="official_registry_url_rejected"):
+            audit._registry_page_payload(
+                client, "https://example.invalid/comfy-nodes", page=1, page_size=1
+            )
+        with pytest.raises(ValueError, match="official_registry_response_too_large"):
+            audit._registry_page_payload(
+                client, "https://api.comfy.org:443/comfy-nodes/", page=1, page_size=1
+            )
 
 
 def test_repeatable_workflow_roots_parse_api_ui_and_nested_subgraphs(

@@ -14,6 +14,7 @@ from jsonschema import Draft202012Validator
 from jsonschema.exceptions import SchemaError
 
 from civiscribe.schemas import sidecar_schema_path
+from tools.audit_paths import scoped_path
 
 _ABSOLUTE_PATH = re.compile(r"(?i)(?:[a-z]:[\\/]|\\\\|/(?:Users|home)/)")
 _BEARER_SECRET = re.compile(r"(?i)\bBearer\s+[A-Za-z0-9._~+/=-]{8,}")
@@ -62,10 +63,11 @@ def _reject_duplicate_keys(pairs: list[tuple[str, JsonValue]]) -> dict[str, Json
 
 
 def _load_json(path: Path) -> JsonValue:
+    selected = scoped_path(path.parent, path)
     return cast(
         JsonValue,
         json.loads(
-            path.read_text(encoding="utf-8"),
+            selected.read_text(encoding="utf-8"),
             object_pairs_hook=_reject_duplicate_keys,
         ),
     )

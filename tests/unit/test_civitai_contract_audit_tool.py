@@ -18,9 +18,77 @@ from tools.audit_civitai_api_contract import (
     audit_live_contract,
     audit_live_response_contract,
     audit_model_version_payload,
+    fetch_public_json,
 )
 
 TEST_CONTEXTS = (("test_system", ssl.create_default_context()),)
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "http://civitai.com/api/v1/enums",
+        "https://example.invalid/api/v1/enums",
+        "https://civitai.com.example.invalid/api/v1/enums",
+        "https://civitai.com:444/api/v1/enums",
+        "https://operator@civitai.com/api/v1/enums",
+        "https://civitai.com/api/v1/enums?token=DO_NOT_RECORD",
+        "https://civitai.com/api/v1/enums#DO_NOT_RECORD",
+        "https://civitai.com/api/v1/models",
+        "https://civitai.com/api/v1/model-versions/0",
+        "https://civitai.com/api/v1/model-versions/-1",
+        "https://civitai.com/api/v1/model-versions/\uff11\uff12",
+        "https://civitai.com/api/v1/model-versions/" + "9" * 5_000,
+        "https://civitai.com/api/v1/model-versions/by-hash/gggggggg",
+        "https://civitai.com/api/v1/model-versions/by-hash/abcd",
+        "https://civitai.com/api/v1/model-versions/by-hash/aa%2fbbccdd",
+        "https://[invalid",
+    ],
+)
+def test_fetch_rejects_unsupported_targets_without_a_request(url: str) -> None:
+    def handler(_request: httpx.Request) -> httpx.Response:
+        pytest.fail("Rejected target must not reach the transport")
+
+    result = fetch_public_json(
+        url, transport=httpx.MockTransport(handler), tls_contexts=TEST_CONTEXTS
+    )
+    assert result.error == "endpoint_invalid"
+    assert result.payload is None
+
+
+@pytest.mark.parametrize(
+    ("url", "expected"),
+    [
+        (ENUMS_URL, ENUMS_URL),
+        ("https://civitai.com:443/api/v1/model-versions/0020", f"{API_BASE_URL}/model-versions/20"),
+        (
+            f"{API_BASE_URL}/model-versions/by-hash/AB12CD34",
+            f"{API_BASE_URL}/model-versions/by-hash/AB12CD34",
+        ),
+    ],
+)
+def test_fetch_constructs_only_public_contract_routes(url: str, expected: str) -> None:
+    requests = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        assert str(request.url) == expected
+        assert request.method == "GET"
+        assert "Authorization" not in request.headers
+        return httpx.Response(200, json={"ok": True})
+
+    result = fetch_public_json(
+        url, transport=httpx.MockTransport(handler), tls_contexts=TEST_CONTEXTS
+    )
+    assert result.error is None
+    assert result.payload == {"ok": True}
+    assert len(requests) == 1
+
+
+@pytest.mark.parametrize("identifier", ["\uff11\uff12", "9" * 5_000])
+def test_model_version_selector_rejects_nonascii_and_unbounded_integers(identifier: str) -> None:
+    result = audit_live_response_contract(endpoint_kind="model_version", identifier=identifier)
+    assert result.errors == ("identifier_invalid",)
 
 
 def _payload() -> dict[str, object]:
