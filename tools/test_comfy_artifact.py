@@ -68,6 +68,9 @@ def run(  # noqa: PLR0913 - explicit isolated runtime and artifact coordinates
                     "CIVISCRIBE_E2E_BASE_URL": url,
                     "CIVISCRIBE_E2E_CHANNEL": channel,
                     "CIVISCRIBE_E2E_MCP_PYTHON": str(mcp_python.resolve()),
+                    "PATH": os.pathsep.join(
+                        (str(mcp_python.resolve().parent), os.environ.get("PATH", os.defpath))
+                    ),
                 }
                 subprocess.run(  # noqa: S603
                     [node, str(ROOT / "node_modules/@playwright/test/cli.js"), "test"],

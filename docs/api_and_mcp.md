@@ -222,8 +222,8 @@ CiviScribe runtime dependency.
 
 On November 15, 2026, the local Windows exact-ZIP gate passed all 11 browser,
 HTTP, accessibility, and real MCP tests with ComfyUI 0.44.2, frontend 1.57.6,
-Comfy MCP 0.10.0, and Comfy CLI 1.23.0. The same gate is required in hosted
-validation with the pinned CLI 1.26.0. A test-server pass does not install or
+Comfy MCP 0.10.0, and Comfy CLI 1.26.0. The same gate is required in hosted
+validation with those pinned tools. A test-server pass does not install or
 restart a working Desktop session.
 
 Primary references checked November 15, 2026:

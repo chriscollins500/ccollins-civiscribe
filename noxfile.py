@@ -130,6 +130,10 @@ def e2e(session: nox.Session) -> None:
     ):
         if value := os.environ.get(name):
             environment[name] = value
+    if mcp_python := os.environ.get("CIVISCRIBE_E2E_MCP_PYTHON"):
+        environment["PATH"] = os.pathsep.join(
+            (str(Path(mcp_python).resolve().parent), os.environ.get("PATH", os.defpath))
+        )
     session.run("npm", "ci", external=True, env=environment)
     session.run("npm", "run", "test:e2e", external=True, env=environment)
 

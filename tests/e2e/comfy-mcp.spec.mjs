@@ -21,24 +21,20 @@ test("official Comfy MCP discovers, validates, runs, and reads CiviScribe report
   ).toBeTruthy();
   const temporary = testInfo.outputPath("mcp");
   await mkdir(temporary, { recursive: true });
-  const child = spawn(
-    python,
-    ["-c", "from comfy_mcp.server import main; main()"],
-    {
-      cwd: temporary,
-      env: {
-        ...process.env,
-        COMFY_BIN: join(
-          dirname(python),
-          process.platform === "win32" ? "comfy.exe" : "comfy",
-        ),
-        COMFY_LOCAL_URL: baseURL,
-        COMFYUI_URL: baseURL,
-      },
-      windowsHide: true,
-      stdio: ["pipe", "pipe", "ignore"],
+  const child = spawn("comfy-mcp", [], {
+    cwd: temporary,
+    env: {
+      ...process.env,
+      COMFY_BIN: join(
+        dirname(python),
+        process.platform === "win32" ? "comfy.exe" : "comfy",
+      ),
+      COMFY_LOCAL_URL: baseURL,
+      COMFYUI_URL: baseURL,
     },
-  );
+    windowsHide: true,
+    stdio: ["pipe", "pipe", "ignore"],
+  });
   const lines = createInterface({ input: child.stdout });
   const pending = new Map();
   let sequence = 0;
@@ -83,7 +79,7 @@ test("official Comfy MCP discovers, validates, runs, and reads CiviScribe report
         .map((item) => item.text)
         .join("\n")
         .replaceAll(
-          /(?:[A-Z]:[\\/]|\/(?:Users|home|tmp)\/)[^\n]*/gi,
+          /(?:\b[A-Z]:[\\/]|\/(?:Users|home|tmp)\/)[^\n]*/gi,
           "[local path redacted]",
         )
         .slice(0, 1000);
