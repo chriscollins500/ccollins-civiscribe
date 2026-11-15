@@ -1,5 +1,7 @@
 <div align="center">
 
+![CCollins' CiviScribe](https://raw.githubusercontent.com/chriscollins500/ccollins-civiscribe/main/assets/branding/civiscribe-banner.png)
+
 # CCollins' CiviScribe
 
 ### Your image should remember how it was made.
@@ -16,6 +18,12 @@ understand your image.**
 **Save once. Share with context. No metadata expertise required.**
 
 </div>
+
+[Quick start](https://github.com/chriscollins500/ccollins-civiscribe/wiki/Quick-start)
+· [User guide](https://github.com/chriscollins500/ccollins-civiscribe/wiki)
+· [Releases](https://github.com/chriscollins500/ccollins-civiscribe/releases)
+· [ComfyUI Registry](https://registry.comfy.org/nodes/ccollins-civiscribe)
+· [Get help](SUPPORT.md)
 
 ---
 
@@ -324,10 +332,15 @@ Contributor guidance is in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Support The Project
 
-Found a workflow CiviScribe does not understand? Open a
-[GitHub issue](https://github.com/chriscollins500/ccollins-civiscribe/issues)
-with the node class names and a safely redacted workflow or sidecar. Never post
-private prompts, local paths, tokens, or images you do not want to share.
+Found a workflow CiviScribe does not understand? Use the
+[bug report form](https://github.com/chriscollins500/ccollins-civiscribe/issues/new?template=bug_report.yml)
+with the node class names and a safely redacted workflow or sidecar. Ask questions,
+share workflows, and suggest features in
+[GitHub Discussions](https://github.com/chriscollins500/ccollins-civiscribe/discussions).
+The [support guide](SUPPORT.md) explains where to start and what to include.
+
+Contributions are welcome through the [contributor guide](CONTRIBUTING.md).
+Our [community guidelines](CODE_OF_CONDUCT.md) apply to project conversations.
 
 CiviScribe is available under the [MIT License](LICENSE).
 

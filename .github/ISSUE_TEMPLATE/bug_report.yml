@@ -1,0 +1,62 @@
+name: Report a bug
+description: Something failed or saved unexpected metadata, pixels, or filenames.
+labels: [bug, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve CiviScribe. A small reproducible example is especially helpful.
+        Review attachments and logs for private prompts, paths, images, and credentials before posting.
+        Report security vulnerabilities privately using the Security tab.
+  - type: input
+    id: versions
+    attributes:
+      label: CiviScribe and ComfyUI versions
+      description: Include the installed CiviScribe version and ComfyUI/Desktop version. Enter unknown if you cannot find one.
+      placeholder: CiviScribe 2.0.10, ComfyUI Desktop with ComfyUI 0.44.2
+    validations:
+      required: true
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Installation
+      options:
+        - ComfyUI Desktop
+        - ComfyUI portable
+        - Manual ComfyUI installation
+        - Other or unsure
+  - type: dropdown
+    id: format
+    attributes:
+      label: Affected image formats
+      multiple: true
+      options: [PNG, JPEG, WebP]
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Describe the connections and settings that trigger the problem. Include relevant node class names and whether multiple save branches are involved.
+      placeholder: |
+        1. Connect ...
+        2. Set ...
+        3. Run ...
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Expected and actual result
+      description: Tell us what you expected and what the saved file, preview, or sidecar actually shows.
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostic codes or error excerpt
+      description: Optional sanitized excerpt from the sidecar or ComfyUI log. Include the affected resource's status when relevant.
+      render: text
+  - type: textarea
+    id: example
+    attributes:
+      label: Minimal example
+      description: Optional small, reviewed workflow or synthetic image example. Explain any model or custom-node requirements.

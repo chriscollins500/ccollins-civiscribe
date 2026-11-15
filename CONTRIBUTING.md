@@ -2,6 +2,19 @@
 
 CiviScribe targets the current ComfyUI Desktop release and Python 3.12.
 
+## Ways to contribute
+
+Questions and early ideas fit well in
+[Discussions](https://github.com/chriscollins500/ccollins-civiscribe/discussions).
+The [support guide](SUPPORT.md) links the bug and feature forms. Small fixes,
+documentation improvements, and reviewed translations are welcome through
+pull requests. Follow the [community guidelines](CODE_OF_CONDUCT.md).
+
+For code changes, describe the trigger and resulting behavior. Include a
+focused synthetic regression when it catches a bug or preserves an important
+contract. Review fixtures, logs, screenshots, and examples for private content.
+The pull-request template provides space to record validation and limitations.
+
 ## Development
 
 Create or update the locked environment with `uv sync`, install frontend
@@ -12,10 +25,25 @@ python -m nox -s python frontend build
 ```
 
 The Python session runs formatting, linting, strict typing, locale and golden
-fixture validation, sidecar validation, and the test suite with 100 percent
+fixture validation, sidecar and repository-documentation checks, and the test suite with 100 percent
 line and branch coverage. The frontend session runs formatting, linting,
 TypeScript checks, and Node tests. The build session creates and audits the
 wheel, source distribution, and ComfyUI private-test ZIP.
+
+For documentation work, run the offline documentation check directly.
+
+```powershell
+python -m tools.validate_repository_docs
+```
+
+It checks local links, wiki destinations, documented node inputs, and JSON
+examples. Hosted Validation also runs this check. Dependency review checks
+new dependency changes for moderate-or-higher known vulnerabilities. CodeQL
+uses the extended suite with local and remote input sources. Dependabot
+proposes weekly updates for uv, npm, and pinned GitHub Actions.
+
+The [repository maintenance guide](docs/repository_maintenance.md) records
+labels, history protection, security settings, and the publication process.
 
 ### Dependency update baseline
 

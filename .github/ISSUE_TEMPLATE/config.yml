@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Read the CiviScribe guide
+    url: https://github.com/chriscollins500/ccollins-civiscribe/wiki
+    about: Installation, every setting, filename recipes, workflow examples, and troubleshooting.
+  - name: Ask a question or discuss an idea
+    url: https://github.com/chriscollins500/ccollins-civiscribe/discussions
+    about: Get usage help, share a workflow, or discuss a feature suggestion.
+  - name: Report a security vulnerability privately
+    url: https://github.com/chriscollins500/ccollins-civiscribe/security/advisories/new
+    about: Send a confidential report through GitHub private vulnerability reporting.

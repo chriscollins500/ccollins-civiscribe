@@ -6,6 +6,9 @@ Its reviewed source pages are in [`wiki/`](wiki/). Publish these Markdown
 pages unchanged to the GitHub wiki repository after reviewing their links
 and examples. `_Sidebar.md` and `_Footer.md` provide wiki navigation.
 
+The [repository maintenance guide](repository_maintenance.md) records the
+community pages, issue forms, labels, security checks, and history protection.
+
 These documents define the clean V2 rewrite of the unreleased
 `comfyui-civitai-save-node` prototype.
 

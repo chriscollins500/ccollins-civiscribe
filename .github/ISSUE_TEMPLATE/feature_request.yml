@@ -1,0 +1,27 @@
+name: Suggest an improvement
+description: Describe something CiviScribe could make easier or support more accurately.
+labels: [enhancement, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe the outcome you want in your own words. You can also start a conversation in GitHub Discussions.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do?
+      description: Explain the workflow or task and what currently gets in the way.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would help?
+      description: Describe the behavior you would like. A simple filename, connection diagram, or expected metadata example can help.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Examples or additional context
+      description: Optional relevant node class names, image formats, or a redacted workflow. Review attachments for private content.

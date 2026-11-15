@@ -6,9 +6,11 @@ Security fixes apply to the current CiviScribe 2.x release line.
 
 ## Reporting
 
-Report suspected vulnerabilities privately to the repository owner before
-opening a public issue. Do not include API tokens, private model paths, prompts,
-workflows, generated images, or other sensitive data in a report.
+Use [GitHub private vulnerability reporting](https://github.com/chriscollins500/ccollins-civiscribe/security/advisories/new)
+to send suspected vulnerabilities to the repository maintainer. Include the
+affected version, minimal reproduction steps, and the expected impact. Review
+reports for API tokens, private paths, prompts, workflows, images, and other
+sensitive data before attaching them.
 
 ## Security boundaries
 
@@ -28,11 +30,11 @@ workflows, generated images, or other sensitive data in a report.
 ## Verify a release download
 
 CiviScribe publishes signed build provenance for the GitHub release assets,
-including the ZIP sent to the ComfyUI Registry. To check the 2.0.9 Registry
+including the ZIP sent to the ComfyUI Registry. To check the 2.0.10 Registry
 ZIP, run this in its download folder with GitHub CLI:
 
 ```powershell
-gh attestation verify ccollins-civiscribe-2.0.9-registry.zip --repo chriscollins500/ccollins-civiscribe --signer-workflow chriscollins500/ccollins-civiscribe/.github/workflows/publish.yml --source-ref refs/heads/main --source-digest 5262524168e7ba16661359778ad0e4ca277a3dac --deny-self-hosted-runners
+gh attestation verify ccollins-civiscribe-2.0.10-registry.zip --repo chriscollins500/ccollins-civiscribe --signer-workflow chriscollins500/ccollins-civiscribe/.github/workflows/publish.yml --source-ref refs/heads/main --source-digest bba5ec8e0c52c5157246ac8d84cceaf1f53bb1fa --deny-self-hosted-runners
 ```
 
 For other releases, use the asset filename and the full commit for the

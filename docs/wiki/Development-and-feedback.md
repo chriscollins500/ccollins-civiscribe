@@ -46,6 +46,11 @@ repository. `_Sidebar.md` and `_Footer.md` provide navigation. API examples
 live in `docs/examples`. Publish the reviewed pages to the wiki Git repository
 and check the rendered links after an update.
 
+The [repository maintenance guide](https://github.com/chriscollins500/ccollins-civiscribe/blob/main/docs/repository_maintenance.md)
+records issue forms, labels, ownership, history protection, dependency review,
+and GitHub security settings. The normal Python gate checks documentation
+links, documented inputs, and JSON examples offline.
+
 The in-node localization files cover English, Arabic, Persian, Spanish,
 French, Japanese, Korean, Portuguese (Brazil), Russian, Turkish, Simplified
 Chinese, and Traditional Chinese. The wiki is currently written in English.

@@ -90,6 +90,10 @@ def python(session: nox.Session) -> None:
     )
     _run_python_module(
         session,
+        "tools.validate_repository_docs",
+    )
+    _run_python_module(
+        session,
         "pytest",
         "--disable-socket",
         "--cov=civiscribe",
