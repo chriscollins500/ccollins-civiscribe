@@ -70,9 +70,16 @@ record and catalog pointer when determining availability.
 - Dependency review checks introduced dependency changes for moderate-or-higher
   known vulnerabilities. It runs on pull requests and supports manual ref
   comparisons through its workflow-dispatch inputs.
+- Dependency pull requests also run the release-interruption tests,
+  benchmarks, and supply-chain audits. This covers compatibility that the
+  normal unit and frontend tests cannot establish alone.
 - Dependabot proposes uv, npm, and GitHub Actions updates weekly on Mondays
   at 09:00 America/New_York. Compatible minor and patch proposals are grouped
   by ecosystem. Major updates receive separate review.
+
+Dependabot excludes TypeScript 6.1 and newer, and pytest 9.2 and newer,
+under the existing compiler-API and benchmark-tool constraints. Review those
+ignores together with their upstream compatibility fixes before lifting them.
 
 Review the TypeScript, pytest, and minimatch compatibility notes before
 merging dependency changes. The locked project gates determine whether an

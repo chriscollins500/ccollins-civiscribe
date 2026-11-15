@@ -40,6 +40,13 @@ jobs:
       - name: Run Python, frontend, and release validation
         run: python -m nox -s python frontend build
 
+      - name: Check release regressions and audits for dependency proposals
+        if: >-
+          github.event_name == 'pull_request' &&
+          (github.actor == 'dependabot[bot]' ||
+          contains(github.event.pull_request.labels.*.name, 'dependencies'))
+        run: python -m nox -s release-tests bench supply-chain
+
       - name: Upload audited release artifacts
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:

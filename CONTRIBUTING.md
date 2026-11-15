@@ -41,6 +41,9 @@ examples. Hosted Validation also runs this check. Dependency review checks
 new dependency changes for moderate-or-higher known vulnerabilities. CodeQL
 uses the extended suite with local and remote input sources. Dependabot
 proposes weekly updates for uv, npm, and pinned GitHub Actions.
+Dependency pull requests also run release-interruption tests, benchmarks,
+and supply-chain audits. Dependabot respects the TypeScript and pytest
+compatibility limits documented below.
 
 The [repository maintenance guide](docs/repository_maintenance.md) records
 labels, history protection, security settings, and the publication process.

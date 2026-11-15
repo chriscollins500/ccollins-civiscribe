@@ -9,6 +9,10 @@ updates:
       timezone: America/New_York
     open-pull-requests-limit: 5
     labels: [dependencies]
+    # pytest-benchmark 5.3 uses Node._nodeid, removed in pytest 9.2.
+    ignore:
+      - dependency-name: pytest
+        versions: [">=9.2"]
     groups:
       python-minor-and-patch:
         update-types: [minor, patch]
@@ -21,6 +25,10 @@ updates:
       timezone: America/New_York
     open-pull-requests-limit: 5
     labels: [dependencies]
+    # typescript-eslint's compiler API requires TypeScript below 6.1.
+    ignore:
+      - dependency-name: typescript
+        versions: [">=6.1"]
     groups:
       frontend-minor-and-patch:
         update-types: [minor, patch]
