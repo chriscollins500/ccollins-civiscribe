@@ -20,6 +20,28 @@ exported from the banner at quality 98 with 4:4:4 chroma to meet GitHub's
 1 MB upload limit. A black matte above and below the full banner produces a
 1680×840 image, matching GitHub's 2:1 preview shape without cropping the text.
 
+## Public roadmap
+
+The [CiviScribe public roadmap](https://github.com/users/chriscollins500/projects/2)
+was added on November 15, 2026 and is linked to this repository's Projects tab.
+The [roadmap guide](../ROADMAP.md)
+explains the priorities, status meanings, recent releases, and feedback routes.
+
+The Roadmap board groups work by status. All items provides a table, and the
+release timeline uses actual publication dates for completed versions.
+Future ideas remain undated until a maintainer approves a delivery plan.
+
+Use Planned for accepted maintenance priorities, In progress for started work,
+Under consideration for uncommitted ideas, and Done for released work with
+release-note evidence. Deferred output-location controls and possible adapters
+for other applications remain under consideration; they do not change the
+current product or filesystem boundaries.
+
+Draft project items capture ideas and release summaries without opening
+artificial bug reports. Link or convert an item to an issue when there is a
+specific implementation task. Review the public board and roadmap guide when
+priorities or release status change.
+
 ## Issues and pull requests
 
 The bug form asks for versions, steps, expected/actual behavior, and optional

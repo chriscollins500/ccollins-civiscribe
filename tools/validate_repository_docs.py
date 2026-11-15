@@ -13,6 +13,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 REPOSITORY_URL = "https://github.com/chriscollins500/ccollins-civiscribe"
 DOCUMENTS = (
     "README.md",
+    "ROADMAP.md",
     "SUPPORT.md",
     "SECURITY.md",
     "CONTRIBUTING.md",
