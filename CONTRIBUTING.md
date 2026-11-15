@@ -184,7 +184,7 @@ environment with the official Comfy MCP and CLI. Hosted validation uses
 comfy-mcp 0.10.0 and comfy-cli 1.26.0 as test tools. The gate exercises real
 stdio negotiation, native node discovery, workflow validation and submission,
 JSON save reports, and output URLs. Neither tool is a node runtime dependency.
-For `nox -s e2e`, also supply `CIVISCRIBE_E2E_MCP_PYTHON` along with the isolated
+For `nox -s e2e`, also supply an absolute `CIVISCRIBE_E2E_MCP_PYTHON` path with the isolated
 server URL. See [the API/MCP reference](docs/api_and_mcp.md).
 
 Sources checked 2026-09-12: [Comfy publishing](https://docs.comfy.org/registry/publishing),
