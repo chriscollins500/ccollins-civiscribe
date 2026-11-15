@@ -2,6 +2,27 @@
 
 All notable CiviScribe changes are documented here.
 
+## 2.0.10 - 2026-11-14
+
+- Civitai file matching now checks the hash algorithm, known full digests,
+  exact file, and requested version before crediting a resource. Conflicting
+  file evidence stays unresolved. Local identity mappings use the same file
+  and digest checks.
+- Date patterns such as `%date:YYYY.MM.DD%` work in the browser and direct
+  workflows. Ordinary filename patterns skip searching the graph. Widget
+  references share a single search through nested workflows.
+- Release validation compares the source archive with the tested node and
+  wheel, then passes an explicit list of tested files to GitHub.
+  Publication verifies their GitHub/Sigstore signatures and checks the
+  Registry ZIP again before upload.
+- Refreshed frontend development dependencies, including the fix for the
+  minimatch advisory, and added a frontend dependency audit to the release
+  checks. Updated the ComfyUI browser test baseline to 0.44.2.
+- Added a complete GitHub wiki with installation, every node control,
+  filename and counter recipes, workflow wiring examples, final prompt
+  overrides, resource identities, hashing, metadata, privacy, troubleshooting,
+  and release verification. Wiki source is versioned in `docs/wiki`.
+
 ## 2.0.9 - 2026-10-28
 
 - Added `%model_noext%` for filenames and subfolders without the model file

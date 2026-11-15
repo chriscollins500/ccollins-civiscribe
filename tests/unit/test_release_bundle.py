@@ -1,17 +1,21 @@
 from __future__ import annotations
 
+import io
 import json
+import tarfile
 import zipfile
 from pathlib import Path
 
 import pytest
 
+from civiscribe.version import __version__
 from tools.build_release import build_release
 from tools.release_bundle import (
     MANIFEST,
     ROOT,
     artifact_names,
     prepare_bundle,
+    release_assets,
     stage_node,
     verify_bundle,
 )
@@ -19,18 +23,33 @@ from tools.release_bundle import (
 COMMIT = "a" * 40
 
 
-def _bundle(tmp_path: Path) -> None:
+def _bundle(tmp_path: Path, *, change_sdist: bool = False) -> None:
     wheel, sdist, private, _, *reports = artifact_names()
     build_release(ROOT, tmp_path / private)
     with (
         zipfile.ZipFile(tmp_path / private) as archive,
         zipfile.ZipFile(tmp_path / wheel, "w") as output,
+        tarfile.open(tmp_path / sdist, "w:gz") as source,
     ):
-        for name in archive.namelist():
-            relative = name.partition("/")[2]
-            if relative.startswith("civiscribe/"):
-                output.writestr(relative, archive.read(name))
-    (tmp_path / sdist).write_bytes(b"synthetic sdist integrity fixture")
+        runtime = {n.partition("/")[2]: archive.read(n) for n in archive.namelist()}
+        for name, data in runtime.items():
+            if name.startswith("civiscribe/"):
+                output.writestr(name, data)
+        metadata = b"Metadata-Version: 2.4\nName: ccollins-civiscribe\n"
+        output.writestr(f"ccollins_civiscribe-{__version__}.dist-info/METADATA", metadata)
+        runtime.update(
+            {
+                n: (ROOT / n).read_bytes()
+                for n in ("pyproject.toml", ".gitignore", "locales/README.md")
+            }
+        )
+        runtime["PKG-INFO"] = metadata
+        if change_sdist:
+            runtime["civiscribe/node.py"] = b" " * len(runtime["civiscribe/node.py"])
+        for name, data in runtime.items():
+            member = tarfile.TarInfo(f"{sdist.removesuffix('.tar.gz')}/{name}")
+            member.size = len(data)
+            source.addfile(member, io.BytesIO(data))
     for name in reports:
         (tmp_path / name).write_text("{}", encoding="utf-8")
     prepare_bundle(tmp_path, COMMIT)
@@ -81,3 +100,15 @@ def test_local_working_tree_bundle_cannot_pass_publication_verification(tmp_path
     with pytest.raises(ValueError, match="identity"):
         verify_bundle(tmp_path, COMMIT)
     verify_bundle(tmp_path, COMMIT, allow_working_tree=True)
+
+
+def test_release_asset_list_excludes_stale_files_from_a_previous_build(tmp_path: Path) -> None:
+    _bundle(tmp_path)
+    (tmp_path / "old-build.zip").write_bytes(b"stale")
+    verify_bundle(tmp_path, COMMIT)
+    assert {p.name for p in release_assets(tmp_path)} == {*artifact_names(), MANIFEST}
+
+
+def test_source_distribution_must_contain_the_tested_node_bytes(tmp_path: Path) -> None:
+    with pytest.raises(ValueError, match="source distribution payload differs"):
+        _bundle(tmp_path, change_sdist=True)

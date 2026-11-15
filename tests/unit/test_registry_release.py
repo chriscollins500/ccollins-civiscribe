@@ -37,7 +37,7 @@ def test_registry_metadata_uses_permanent_release_identity() -> None:
     assert metadata["project"]["description"] == REGISTRY_DESCRIPTION
     assert metadata["project"]["urls"] == {
         "Repository": "https://github.com/chriscollins500/ccollins-civiscribe",
-        "Documentation": "https://github.com/chriscollins500/ccollins-civiscribe#readme",
+        "Documentation": "https://github.com/chriscollins500/ccollins-civiscribe/wiki",
         "Bug Tracker": "https://github.com/chriscollins500/ccollins-civiscribe/issues",
     }
     assert metadata["tool"]["comfy"] == {
@@ -138,7 +138,27 @@ def test_publish_gates_are_dependencies_not_merely_unconnected_steps() -> None:
         commands = "\n".join(step.get("run", "") for step in jobs[job_id]["steps"])
         assert "release_bundle verify" in commands
         assert "uv build" not in commands and "nox -s" not in commands
-    assert jobs["publish"]["permissions"] == {"contents": "read"}
+    assert jobs["publish"]["permissions"] == {"contents": "read", "attestations": "read"}
+
+
+def test_release_uses_the_verified_asset_list_and_checks_provenance_before_each_upload() -> None:
+    jobs = _workflow("publish.yml")["jobs"]
+    github = jobs["github-release"]["steps"]
+    registry = [step.get("run", "") for step in jobs["publish"]["steps"]]
+    signing = next(
+        index
+        for index, step in enumerate(github)
+        if step.get("uses", "").startswith("actions/attest@")
+    )
+    commands = [step.get("run", "") for step in github]
+    publishing = next(index for index, cmd in enumerate(commands) if "gh release create" in cmd)
+    verifying = next(index for index, cmd in enumerate(commands) if "--attestations all" in cmd)
+    assert signing < verifying < publishing
+    assert github[signing]["with"]["subject-path"] == "${{ steps.bundle.outputs.paths }}"
+    assert "${assets[@]}" in commands[publishing] and "dist/*" not in commands[publishing]
+    assert registry.index(
+        next(cmd for cmd in registry if "--attestations registry" in cmd)
+    ) < registry.index(next(cmd for cmd in registry if "tools.publish_registry_bundle" in cmd))
 
 
 def test_candidate_requires_exact_artifact_matrix_conformance_and_live_uat() -> None:

@@ -1,7 +1,45 @@
 import AxeBuilder from "@axe-core/playwright";
+import { readFile } from "node:fs/promises";
+import { URL } from "node:url";
+
 import { expect, test } from "@playwright/test";
 
 const NODE_ID = "CCollins_CiviScribe_SaveImage";
+
+test("documented API example saves independent PNG and WebP branches", async ({
+  request,
+}) => {
+  const example = JSON.parse(
+    await readFile(
+      new URL("../../docs/examples/save-demo-api.json", import.meta.url),
+      "utf8",
+    ),
+  );
+  const queued = await request.post("/prompt", { data: example });
+  expect(queued.ok(), await queued.text()).toBe(true);
+  const { prompt_id: promptId } = await queued.json();
+  let result;
+  await expect
+    .poll(async () => {
+      const history = await request.get(`/history/${promptId}`);
+      result = (await history.json())[promptId];
+      return result?.status?.completed;
+    })
+    .toBe(true);
+  expect(result.status.status_str).toBe("success");
+  for (const [nodeId, extension, mime] of [
+    ["2", "png", "image/png"],
+    ["3", "webp", "image/webp"],
+  ]) {
+    const [image] = result.outputs[nodeId].images;
+    expect(image.filename).toBe(`${extension}_0001.${extension}`);
+    expect(image.subfolder).toBe("CiviScribeDemo");
+    const saved = await request.get("/view", { params: image });
+    expect(saved.ok()).toBe(true);
+    expect(saved.headers()["content-type"]).toContain(mime);
+    expect((await saved.body()).length).toBeGreaterThan(0);
+  }
+});
 const LOCALES = [
   "ar",
   "en",

@@ -1,5 +1,11 @@
 # CiviScribe V2 Design Authority
 
+For the user guide, start with the
+[CiviScribe wiki](https://github.com/chriscollins500/ccollins-civiscribe/wiki).
+Its reviewed source pages are in [`wiki/`](wiki/). Publish these Markdown
+pages unchanged to the GitHub wiki repository after reviewing their links
+and examples. `_Sidebar.md` and `_Footer.md` provide wiki navigation.
+
 These documents define the clean V2 rewrite of the unreleased
 `comfyui-civitai-save-node` prototype.
 

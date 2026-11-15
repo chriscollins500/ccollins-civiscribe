@@ -3,7 +3,7 @@ import type { ComfyGraph, ComfyNode, ComfyWidget } from "./types.js";
 export type FilenameReplacement = (value: string) => string;
 
 const configuredWidgets = new WeakSet<ComfyWidget>();
-const DATE_PART = /dd?|MM?|hh?|mm?|ss?|yyy?y?/g;
+const DATE_PART = /dd?|DD?|MM?|hh?|HH?|mm?|ss?|yyy?y?|YYY?Y?/g;
 const UNSAFE_REPLACEMENT_CHARACTERS = new Set([
   "/",
   "?",
@@ -20,38 +20,47 @@ function graphNodes(graph: ComfyGraph): ComfyNode[] {
   return graph.nodes ?? graph._nodes ?? [];
 }
 
-function collectNodes(
-  graph: ComfyGraph,
-  visited: WeakSet<object> = new WeakSet(),
-): ComfyNode[] {
-  if (visited.has(graph)) {
-    return [];
-  }
-  visited.add(graph);
-
-  const collected: ComfyNode[] = [];
-  for (const node of graphNodes(graph)) {
-    if (node.subgraph !== undefined) {
-      collected.push(...collectNodes(node.subgraph, visited));
+function indexReplacementNodes(graph: ComfyGraph) {
+  const aliases = new Map<string, ComfyNode>();
+  const titles = new Map<string, ComfyNode>();
+  const visited = new WeakSet<ComfyGraph>();
+  const pending: ({ graph: ComfyGraph } | { node: ComfyNode })[] = [{ graph }];
+  let item: (typeof pending)[number] | undefined;
+  while ((item = pending.pop()) !== undefined) {
+    if ("node" in item) {
+      const { node } = item;
+      const alias = node.properties?.["Node name for S&R"];
+      if (typeof alias === "string" && !aliases.has(alias))
+        aliases.set(alias, node);
+      if (node.title !== undefined && !titles.has(node.title))
+        titles.set(node.title, node);
+    } else if (!visited.has(item.graph)) {
+      visited.add(item.graph);
+      // Preserve ComfyUI's child-before-parent order, including shared subgraphs.
+      for (const node of [...graphNodes(item.graph)].reverse()) {
+        pending.push({ node });
+        if (node.subgraph !== undefined) pending.push({ graph: node.subgraph });
+      }
     }
-    collected.push(node);
   }
-  return collected;
+  return (name: string) => aliases.get(name) ?? titles.get(name);
 }
 
 function formatDate(format: string, now: Date): string {
   return format.replace(DATE_PART, (part) => {
-    if (part === "yy") {
+    if (part.toLowerCase() === "yy") {
       return String(now.getFullYear()).slice(-2);
     }
-    if (part === "yyyy") {
+    if (part.toLowerCase() === "yyyy") {
       return String(now.getFullYear());
     }
 
     const values: Record<string, number> = {
       d: now.getDate(),
+      D: now.getDate(),
       M: now.getMonth() + 1,
       h: now.getHours(),
+      H: now.getHours(),
       m: now.getMinutes(),
       s: now.getSeconds(),
     };
@@ -60,16 +69,6 @@ function formatDate(format: string, now: Date): string {
       ? part
       : String(numeric).padStart(part.length, "0");
   });
-}
-
-function replacementNode(
-  nodes: ComfyNode[],
-  name: string,
-): ComfyNode | undefined {
-  return (
-    nodes.find((node) => node.properties?.["Node name for S&R"] === name) ??
-    nodes.find((node) => node.title === name)
-  );
 }
 
 function primitiveText(value: unknown): string {
@@ -103,20 +102,20 @@ export function applyComfyFilenameReplacements(
   value: string,
   now: Date = new Date(),
 ): string {
-  const nodes = collectNodes(graph);
+  let findNode: ReturnType<typeof indexReplacementNodes> | undefined;
   return value.replace(/%([^%]+)%/g, (match, token: string) => {
+    if (token.startsWith("date:")) return formatDate(token.slice(5), now);
     const segments = token.split(".");
     if (segments.length !== 2) {
-      return token.startsWith("date:")
-        ? formatDate(token.slice(5), now)
-        : match;
+      return match;
     }
 
     const [nodeName, widgetName] = segments;
     if (nodeName === undefined || widgetName === undefined) {
       return match;
     }
-    const node = replacementNode(nodes, nodeName);
+    findNode ??= indexReplacementNodes(graph);
+    const node = findNode(nodeName);
     const widget = node?.widgets?.find(
       (candidate) => candidate.name === widgetName,
     );

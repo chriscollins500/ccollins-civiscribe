@@ -429,6 +429,9 @@ def test_strong_hash_does_not_promote_parent_model_to_text_encoder(
         version_id=TEXT_ENCODER_VERSION_ID,
         model_type=model_type,
     )
+    files = payload["files"]
+    assert isinstance(files, list)
+    files[0]["hashes"] = {hash_algorithm: SHA256}
 
     def handler(request: httpx.Request) -> httpx.Response:
         requests.append(request)
@@ -1019,6 +1022,79 @@ def test_response_without_matching_hash_is_rejected() -> None:
     ]
 
 
+@pytest.mark.parametrize(
+    ("local", "returned"),
+    [
+        (HashRecord(sha256=SHA256), {"BLAKE3": SHA256}),
+        (HashRecord(blake3=SHA256), {"SHA256": SHA256}),
+        (HashRecord(crc32="DEADBEEF"), {"AutoV1": "deadbeef"}),
+    ],
+)
+def test_exact_digest_under_another_algorithm_cannot_identify_a_file(
+    local: HashRecord, returned: dict[str, str]
+) -> None:
+    payload = _payload()
+    files = payload["files"]
+    assert isinstance(files, list)
+    files[0]["hashes"] = returned
+    result = _client(lambda _: httpx.Response(200, json=payload)).lookup(_resource(hashes=local))
+    assert result.identity is None
+    assert result.diagnostic_reason == "no_hash_match"
+
+
+def test_short_hash_cannot_override_a_different_known_full_digest() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path.endswith(SHA256):
+            return httpx.Response(404)
+        payload = _payload()
+        files = payload["files"]
+        assert isinstance(files, list)
+        files[0]["hashes"] = {"AutoV2": AUTO_V2, "SHA256": "b" * 64}
+        return httpx.Response(200, json=payload)
+
+    result = _client(handler).lookup(_resource(hashes=HashRecord(sha256=SHA256, auto_v2=AUTO_V2)))
+    assert result.status is LookupStatus.CONFLICT
+    assert result.identity is None
+    assert result.diagnostic_reason == "hash_identity_conflict"
+
+
+@pytest.mark.parametrize("fallback", [False, True])
+def test_same_hash_on_two_distinct_files_never_picks_the_first(fallback: bool) -> None:
+    payload = _payload()
+    files = payload["files"]
+    assert isinstance(files, list)
+    files.append({**files[0], "id": files[0]["id"] + 1})
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if fallback and request.method == "GET":
+            return httpx.Response(
+                200, json=_payload(air=f"urn:air:sdxl:lora:civitai:{MODEL_ID}@{MODEL_VERSION_ID}")
+            )
+        return httpx.Response(200, json=[payload] if fallback else payload)
+
+    result = _client(handler).lookup(_resource())
+    assert result.status is LookupStatus.CONFLICT
+    assert result.diagnostic_reason == "multiple_matching_files"
+    assert result.identity is None
+    assert result.attempted_hashes == ("SHA256",)
+
+
+def test_explicit_and_followup_version_requests_require_the_returned_version() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        if "/by-hash/" in request.url.path:
+            return httpx.Response(200, json=_payload(air=None))
+        return httpx.Response(200, json=_payload(air=None, version_id=MODEL_VERSION_ID + 1))
+
+    client = _client(handler)
+    for result in (
+        client.complete_version(_resource(), MODEL_VERSION_ID),
+        client.lookup(_resource()),
+    ):
+        assert result.status is LookupStatus.CONFLICT
+        assert result.identity is None
+        assert result.diagnostic_reason == "requested_version_mismatch"
+
+
 def test_invalid_response_shapes_are_rejected() -> None:
     non_mapping = _client(
         lambda _request: httpx.Response(200, json=["not", "a", "mapping"])
@@ -1586,7 +1662,7 @@ def test_non_air_identity_comparison(
         model_version_id=MODEL_VERSION_ID,
     )
 
-    assert client_module._same_identity(left, right) is expected
+    assert left.same_target(right) is expected
 
 
 def test_tls_contexts_require_verification_and_tls_1_2_or_newer() -> None:

@@ -35,6 +35,7 @@ from .civitai_contract import (
     normalize_model_file_format,
 )
 from .hash_values import (
+    full_digests_conflict,
     hash_record_from_mapping,
     iter_hashes,
     merge_hashes,
@@ -236,23 +237,18 @@ def _http_failure(status: int) -> tuple[str, bool]:
     return "http_error", False
 
 
-def _bounded_json(response: httpx.Response, max_bytes: int) -> _RequestResult:
+def read_bounded_json(response: httpx.Response, max_bytes: int) -> tuple[object, str | None]:
+    """Read one streamed Site API response within its decoded byte budget."""
+
     content = bytearray()
-    for chunk in response.iter_bytes():
+    for chunk in response.iter_bytes(chunk_size=min(64 * 1024, max_bytes + 1)):
+        if len(chunk) > max_bytes - len(content):
+            return None, "response_too_large"
         content.extend(chunk)
-        if len(content) > max_bytes:
-            return _RequestResult(
-                failure_reason="response_too_large",
-                http_status=response.status_code,
-            )
     try:
-        payload = json.loads(content.decode("utf-8"))
-    except (UnicodeDecodeError, json.JSONDecodeError):
-        return _RequestResult(
-            failure_reason="malformed_json",
-            http_status=response.status_code,
-        )
-    return _RequestResult(payload=payload, http_status=response.status_code)
+        return json.loads(content.decode("utf-8")), None
+    except (ValueError, RecursionError):
+        return None, "malformed_json"
 
 
 class _ClientGroup:
@@ -344,11 +340,16 @@ class _ClientGroup:
                             retry_after_seconds=retry_after_seconds,
                             tls_source=source,
                         )
-                    result = _bounded_json(
+                    payload, error = read_bounded_json(
                         response,
                         max_response_bytes or self._config.max_response_bytes,
                     )
-                    return replace(result, tls_source=source)
+                    return _RequestResult(
+                        payload=payload,
+                        failure_reason=error,
+                        http_status=response.status_code,
+                        tls_source=source,
+                    )
             except httpx.HTTPError as exc:
                 reason, retryable = _failure_from_exception(exc)
                 last_failure = _RequestResult(
@@ -419,20 +420,30 @@ def _model_type(payload: Mapping[str, object]) -> str | None:
 
 def _matching_file(
     payload: Mapping[str, object],
-    queried_hash: str,
-) -> Mapping[str, object] | None:
+    queried_hash: tuple[str, str],
+    known: HashRecord,
+) -> tuple[Mapping[str, object] | None, tuple[ScanIssue, ...]]:
+    """A digest is evidence only for its own algorithm and a single file."""
+
     files = payload.get("files")
-    if not isinstance(files, list):
-        return None
-    normalized = queried_hash.casefold()
-    for value in files:
+    algorithm, digest = queried_hash
+    matched = None
+    for value in files if isinstance(files, list) else ():
         file = _mapping(value)
         hashes = hash_record_from_mapping(file.get("hashes"))
-        if hashes is not None and any(
-            candidate.casefold() == normalized for _name, candidate in iter_hashes(hashes)
+        if hashes is None or not any(
+            name == algorithm and candidate.casefold() == digest.casefold()
+            for name, candidate in iter_hashes(hashes)
         ):
-            return file
-    return None
+            continue
+        if full_digests_conflict(known, hashes):
+            return None, (ScanIssue("civitai_response_file_digest_conflict"),)
+        if matched is not None and matched != file:
+            return None, (ScanIssue("civitai_response_file_match_ambiguous"),)
+        matched = file
+    if matched is None:
+        return None, (ScanIssue("civitai_response_hash_mismatch"),)
+    return matched, ()
 
 
 def _identity_ids(payload: Mapping[str, object]) -> tuple[int | None, int | None]:
@@ -463,15 +474,17 @@ def _parse_payload_identity(  # noqa: PLR0911
     payload: object,
     *,
     resource: ResourceRecord,
-    queried_hash: str | None = None,
+    queried_hash: tuple[str, str] | None = None,
     allow_ambiguous_types: bool = False,
     allow_file_role_evidence: bool = False,
 ) -> tuple[_PayloadIdentity | None, tuple[ScanIssue, ...]]:
     if not isinstance(payload, Mapping):
         return None, (ScanIssue("civitai_response_schema_invalid"),)
-    file = _matching_file(payload, queried_hash) if queried_hash is not None else None
-    if queried_hash is not None and file is None:
-        return None, (ScanIssue("civitai_response_hash_mismatch"),)
+    file = None
+    if queried_hash is not None:
+        file, file_issues = _matching_file(payload, queried_hash, resource.hashes)
+        if file_issues:
+            return None, file_issues
 
     model_id, version_id = _identity_ids(payload)
     if version_id is None:
@@ -566,16 +579,6 @@ def _parse_payload_identity(  # noqa: PLR0911
     return _PayloadIdentity(resolved, file_hashes or HashRecord()), tuple(issues)
 
 
-def _same_identity(left: ResourceIdentity, right: ResourceIdentity) -> bool:
-    if left.canonical_air is not None or right.canonical_air is not None:
-        return left.canonical_air == right.canonical_air
-    return (
-        left.model_id == right.model_id
-        and left.model_version_id == right.model_version_id
-        and left.resource_type == right.resource_type
-    )
-
-
 _DIAGNOSTIC_PRIORITY = {
     "multiple_compatible_candidates_conflict": 60,
     "hash_identity_conflict": 50,
@@ -584,6 +587,17 @@ _DIAGNOSTIC_PRIORITY = {
     "no_hash_match": 20,
     "multiple_compatible_candidates": 10,
 }
+
+_CONFLICT_REASONS = {
+    "civitai_response_role_identity_conflict": "multiple_compatible_candidates_conflict",
+    "civitai_response_file_digest_conflict": "hash_identity_conflict",
+    "civitai_response_file_match_ambiguous": "multiple_matching_files",
+    "civitai_response_version_id_conflict": "requested_version_mismatch",
+}
+
+
+def _conflict_reason(issues: tuple[ScanIssue, ...]) -> str | None:
+    return next((_CONFLICT_REASONS[i.code] for i in issues if i.code in _CONFLICT_REASONS), None)
 
 
 def _preferred_diagnostics(
@@ -630,11 +644,17 @@ def _select_role_compatible_identity(
         parsed, issues = _parse_payload_identity(
             candidate,
             resource=resource,
-            queried_hash=queried_hash,
+            queried_hash=("SHA256", queried_hash),
             allow_ambiguous_types=True,
             allow_file_role_evidence=True,
         )
         if parsed is None:
+            if reason := _conflict_reason(issues):
+                return (
+                    None,
+                    issues,
+                    _AttemptDiagnostics(reason=reason, candidate_count=len(payload)),
+                )
             continue
         matches.append((parsed, issues))
     if not matches:
@@ -649,7 +669,13 @@ def _select_role_compatible_identity(
         )
 
     selected, selected_issues = matches[0]
-    if any(not _same_identity(selected.identity, item.identity) for item, _issues in matches[1:]):
+    hashes = selected.hashes
+    for item, _issues in matches[1:]:
+        if selected.identity.same_target(item.identity) and not full_digests_conflict(
+            hashes, item.hashes
+        ):
+            hashes = merge_hashes(hashes, item.hashes)
+            continue
         return (
             None,
             (ScanIssue("civitai_response_role_identity_conflict"),),
@@ -659,9 +685,6 @@ def _select_role_compatible_identity(
                 compatible_candidate_count=len(matches),
             ),
         )
-    hashes = selected.hashes
-    for item, _issues in matches[1:]:
-        hashes = merge_hashes(hashes, item.hashes)
     return (
         _PayloadIdentity(selected.identity, hashes),
         (*selected_issues, ScanIssue("civitai_duplicate_hash_role_disambiguated")),
@@ -724,7 +747,7 @@ class CivitaiClient:
         version_id: int,
         resource: ResourceRecord,
         *,
-        queried_hash: str | None = None,
+        queried_hash: tuple[str, str] | None = None,
         allow_ambiguous_types: bool = False,
     ) -> tuple[_PayloadIdentity | None, _RequestResult, tuple[ScanIssue, ...]]:
         response = clients.get(self._url(f"model-versions/{version_id}"))
@@ -736,6 +759,8 @@ class CivitaiClient:
             queried_hash=queried_hash,
             allow_ambiguous_types=allow_ambiguous_types,
         )
+        if identity is not None and identity.identity.model_version_id != version_id:
+            return None, response, (ScanIssue("civitai_response_version_id_conflict"),)
         return identity, response, issues
 
     def _sha256_role_attempt(
@@ -806,7 +831,7 @@ class CivitaiClient:
         identity, issues = _parse_payload_identity(
             response.payload,
             resource=resource,
-            queried_hash=hash_value,
+            queried_hash=(algorithm, hash_value),
         )
         diagnostics = _AttemptDiagnostics(
             reason=(
@@ -848,7 +873,7 @@ class CivitaiClient:
             clients,
             version_id,
             resource,
-            queried_hash=hash_value,
+            queried_hash=(algorithm, hash_value),
             allow_ambiguous_types=used_ambiguous_type,
         )
         if detailed is not None:
@@ -884,10 +909,7 @@ class CivitaiClient:
                 attempt_diagnostics.append(diagnostics)
                 issues.extend(attempt_issues)
                 last_failure = response
-                if any(
-                    issue.code == "civitai_response_role_identity_conflict"
-                    for issue in attempt_issues
-                ):
+                if reason := _conflict_reason(attempt_issues):
                     return CivitaiLookupResult(
                         status=LookupStatus.CONFLICT,
                         issues=tuple(issues),
@@ -897,9 +919,7 @@ class CivitaiClient:
                         retryable=response.retryable,
                         retry_after_seconds=response.retry_after_seconds,
                         tls_source=response.tls_source,
-                        diagnostic_reason=(
-                            diagnostics.reason or "multiple_compatible_candidates_conflict"
-                        ),
+                        diagnostic_reason=reason,
                         candidate_count=diagnostics.candidate_count,
                         compatible_candidate_count=(diagnostics.compatible_candidate_count),
                     )
@@ -976,20 +996,21 @@ class CivitaiClient:
         ) as clients:
             identity, response, issues = self._details(clients, version_id, resource)
         if identity is None:
+            conflict = _conflict_reason(issues)
             diagnostic_reason = (
                 "model_version_not_found"
                 if response.failure_reason == "no_matching_result"
                 else response.failure_reason
             )
             return CivitaiLookupResult(
-                status=LookupStatus.FAILED,
+                status=LookupStatus.CONFLICT if conflict else LookupStatus.FAILED,
                 issues=(*issues, ScanIssue("civitai_lookup_failed", node_id=resource.node_id)),
-                failure_reason=response.failure_reason,
+                failure_reason="identity_conflict" if conflict else response.failure_reason,
                 http_status=response.http_status,
                 retryable=response.retryable,
                 retry_after_seconds=response.retry_after_seconds,
                 tls_source=response.tls_source,
-                diagnostic_reason=diagnostic_reason,
+                diagnostic_reason=conflict or diagnostic_reason,
                 candidate_count=(0 if response.http_status == httpx.codes.NOT_FOUND else None),
                 compatible_candidate_count=(
                     0 if response.http_status == httpx.codes.NOT_FOUND else None

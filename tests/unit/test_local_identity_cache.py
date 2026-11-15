@@ -95,6 +95,25 @@ def test_identity_cache_id_only_record_is_partial(tmp_path: Path) -> None:
     assert result.identity.model_version_id == MODEL_VERSION_ID
 
 
+def test_cache_preserves_two_files_with_the_same_version_and_digest(tmp_path: Path) -> None:
+    cache = _cache(tmp_path)
+    hashes = HashRecord(sha256="a" * 64)
+    for file_id in ("30", "31"):
+        assert cache.put(replace(_identity(air=None), file_id=file_id), hashes) == ()
+    result = cache.lookup(replace(model_resource(), hashes=hashes))
+    assert result.identity is None
+    assert result.status is ResourceStatus.CONFLICT
+
+
+def test_short_hash_in_cache_cannot_override_an_incompatible_full_hash(tmp_path: Path) -> None:
+    cache = _cache(tmp_path)
+    assert cache.put(_identity(), HashRecord(sha256="b" * 64, auto_v2="a" * 10)) == ()
+    result = cache.lookup(
+        replace(model_resource(), hashes=HashRecord(sha256="c" * 64, auto_v2="a" * 10))
+    )
+    assert result.identity is None
+
+
 def test_identity_cache_rejects_air_and_id_conflict(tmp_path: Path) -> None:
     cache = _cache(tmp_path)
     cache.store.merge(
@@ -264,8 +283,8 @@ def test_identity_cache_compares_partial_identities_and_unmatched_hashes() -> No
     same = _identity(air=None)
     different = _identity(air=None, model_id=99, version_id=100)
 
-    assert local_cache_module._same_identity(left, same) is True
-    assert local_cache_module._same_identity(left, different) is False
+    assert left.same_target(same) is True
+    assert left.same_target(different) is False
     assert (
         local_cache_module._best_match_rank(
             HashRecord(sha256="a" * 64),

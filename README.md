@@ -105,6 +105,10 @@ installations.
 
 For most people, that is the entire setup.
 
+The [CiviScribe wiki](https://github.com/chriscollins500/ccollins-civiscribe/wiki)
+includes a complete settings reference, filename recipes, workflow examples,
+and help with prompts, resource identification, and troubleshooting.
+
 ### Recommended everyday settings
 
 | Setting                | Recommended value | Why                                                          |

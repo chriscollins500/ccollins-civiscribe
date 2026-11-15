@@ -224,6 +224,14 @@ def bench(session: nox.Session) -> None:
 @nox.session(python=False, name="supply-chain")
 def supply_chain(session: nox.Session) -> None:
     """Audit locked runtime requirements and retain standard SBOM/license reports."""
+    session.run(
+        "npm",
+        "audit",
+        "--package-lock-only",
+        "--audit-level=moderate",
+        external=True,
+        env={"NODE_USE_SYSTEM_CA": "1", "npm_config_cache": str(TOOL_CACHE_ROOT / "npm-cache")},
+    )
     (PROJECT_ROOT / "dist").mkdir(exist_ok=True)
     _run_uv(
         session,

@@ -22,7 +22,12 @@ wheel, source distribution, and ComfyUI private-test ZIP.
 The 2026-10-28 refresh uses Pillow 13, NumPy 2.5.4, truststore 0.10.5, and a
 direct certifi security minimum of 2026.10.23. The Python lockfile also includes
 uv so Nox prefers the project's tested tool over an older executable on PATH.
-CI uses Node 24.22.2 and tests the built node against ComfyUI 0.43.0.
+CI uses Node 24.22.2. The browser job targets the ComfyUI 0.44.2 Desktop
+baseline. The November 14 frontend lock refresh pins minimatch 11.0.8 for
+typescript-estree 8.72.2, which still requests the affected 10.x series.
+The release supply-chain session checks the frontend lock for moderate or
+higher advisories. Review the override when updating that parser. See the
+[minimatch advisory](https://github.com/advisories/GHSA-g3hv-75wg-m249).
 
 Two development constraints are deliberate:
 
@@ -96,8 +101,14 @@ Missing readers or a failed browser test block release; they are not silent skip
 Update the ComfyUI revision deliberately when adopting a newer Desktop baseline.
 
 The **Publish to ComfyUI Registry** workflow runs only from `main`, depends on all
-candidate checks, attests the existing files, then publishes unchanged artifacts
-to GitHub and the Registry. The Registry adapter uses the pinned official CLI's
+candidate checks, signs the manifest and its seven named assets using GitHub
+artifact attestations, and verifies all eight before creating the GitHub release.
+The source archive is also compared with the audited node files and wheel
+package metadata before its checksum enters the manifest.
+The Registry job independently verifies the ZIP against the same source commit,
+publication workflow, main ref and hosted-runner policy before uploading it.
+See [download verification](SECURITY.md#verify-a-release-download).
+The Registry adapter uses the pinned official CLI's
 request schema but uploads the already-audited ZIP, avoiding the CLI's automatic
 repack. Description synchronization and paginated readback still follow upload.
 Published versions and assets are never overwritten; use a new version after a

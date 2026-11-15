@@ -1,0 +1,103 @@
+{
+  "prompt": {
+    "1": {
+      "class_type": "CheckpointLoaderSimple",
+      "inputs": {
+        "ckpt_name": "REPLACE_WITH_YOUR_CHECKPOINT.safetensors"
+      }
+    },
+    "2": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "clip": [
+          "1",
+          1
+        ],
+        "text": "a lighthouse at dawn"
+      }
+    },
+    "3": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "clip": [
+          "1",
+          1
+        ],
+        "text": "low quality"
+      }
+    },
+    "4": {
+      "class_type": "EmptyLatentImage",
+      "inputs": {
+        "width": 1024,
+        "height": 768,
+        "batch_size": 1
+      }
+    },
+    "5": {
+      "class_type": "KSampler",
+      "inputs": {
+        "model": [
+          "1",
+          0
+        ],
+        "positive": [
+          "2",
+          0
+        ],
+        "negative": [
+          "3",
+          0
+        ],
+        "latent_image": [
+          "4",
+          0
+        ],
+        "seed": 123,
+        "steps": 20,
+        "cfg": 7.0,
+        "sampler_name": "euler",
+        "scheduler": "normal",
+        "denoise": 1.0
+      }
+    },
+    "6": {
+      "class_type": "VAEDecode",
+      "inputs": {
+        "samples": [
+          "5",
+          0
+        ],
+        "vae": [
+          "1",
+          2
+        ]
+      }
+    },
+    "7": {
+      "class_type": "CCollins_CiviScribe_SaveImage",
+      "inputs": {
+        "images": [
+          "6",
+          0
+        ],
+        "filename_prefix": "CiviScribeDemo/%model_noext%_%seed%_%counter:4%",
+        "output_format": "png",
+        "write_sidecar_json": true,
+        "jpeg_quality": 100,
+        "jpeg_alpha_background": "#FFFFFF",
+        "webp_lossless": true,
+        "webp_quality": 100,
+        "include_workflow": true,
+        "include_civitai_manifest": true,
+        "enable_civitai_lookup": false,
+        "preferred_primary_model_air": "",
+        "hashing_mode": "cached_or_fast",
+        "lookup_timeout_seconds": 4.0,
+        "lookup_cache_results": true,
+        "advanced_manual_identities_enabled": false,
+        "manual_resource_identities_json": "[]"
+      }
+    }
+  }
+}

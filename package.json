@@ -1,8 +1,13 @@
 {
   "name": "ccollins-civiscribe-frontend",
   "private": true,
-  "version": "2.0.9",
+  "version": "2.0.10",
   "type": "module",
+  "overrides": {
+    "@typescript-eslint/typescript-estree@8.72.2": {
+      "minimatch": "11.0.8"
+    }
+  },
   "engines": {
     "node": "^24.22.2 || >=26.12.1"
   },

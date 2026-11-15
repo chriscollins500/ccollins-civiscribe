@@ -171,19 +171,10 @@ def _cache_key(identity: ResourceIdentity, hashes: HashRecord) -> str:
             "hashes": hash_record_to_mapping(hashes),
             "modelId": identity.model_id,
             "modelVersionId": identity.model_version_id,
+            **({"fileId": identity.file_id} if identity.file_id is not None else {}),
         }
     )
     return hashlib.sha256(source.encode("utf-8")).hexdigest()
-
-
-def _same_identity(left: ResourceIdentity, right: ResourceIdentity) -> bool:
-    if left.canonical_air is not None or right.canonical_air is not None:
-        return left.canonical_air == right.canonical_air
-    return (
-        left.model_id == right.model_id
-        and left.model_version_id == right.model_version_id
-        and left.resource_type == right.resource_type
-    )
 
 
 def _best_match_rank(resource: HashRecord, cached: HashRecord) -> int | None:
@@ -218,7 +209,7 @@ class IdentityCache:
             return IdentityCacheLookup(issues=tuple(issues))
         best_rank = min(rank for rank, _record in candidates)
         best = tuple(record for rank, record in candidates if rank == best_rank)
-        if any(not _same_identity(best[0].identity, item.identity) for item in best[1:]):
+        if any(not best[0].identity.same_target(item.identity) for item in best[1:]):
             return IdentityCacheLookup(
                 status=ResourceStatus.CONFLICT,
                 issues=(*issues, ScanIssue("identity_cache_conflict", node_id=resource.node_id)),

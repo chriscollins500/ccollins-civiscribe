@@ -24,3 +24,18 @@ workflows, generated images, or other sensitive data in a report.
 - Persistent caches reject absolute paths and secret-bearing values.
 - Release archives are built from an allowlist and scanned for private paths,
   secrets, caches, and development-only content.
+
+## Verify a release download
+
+CiviScribe publishes signed build provenance for the GitHub release assets,
+including the ZIP sent to the ComfyUI Registry. To check the 2.0.9 Registry
+ZIP, run this in its download folder with GitHub CLI:
+
+```powershell
+gh attestation verify ccollins-civiscribe-2.0.9-registry.zip --repo chriscollins500/ccollins-civiscribe --signer-workflow chriscollins500/ccollins-civiscribe/.github/workflows/publish.yml --source-ref refs/heads/main --source-digest 5262524168e7ba16661359778ad0e4ca277a3dac --deny-self-hosted-runners
+```
+
+For other releases, use the asset filename and the full commit for the
+expected release tag. A successful check ties those bytes to this repository,
+commit, and publication workflow on a GitHub-hosted runner. See the
+[GitHub CLI verification reference](https://cli.github.com/manual/gh_attestation_verify).

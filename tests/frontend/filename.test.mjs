@@ -52,6 +52,39 @@ test("ComfyUI filename replacements preserve unknown patterns and survive cycles
   );
 });
 
+test("ordinary filenames and dotted dates never need the graph", () => {
+  const graph = {
+    get nodes() {
+      throw new Error("unexpected graph traversal");
+    },
+  };
+  const now = new Date(2026, 6, 18, 14, 5, 6);
+  assert.equal(
+    applyComfyFilenameReplacements(
+      graph,
+      "%date:YYYY.MM.DD%_%date:YY-HH%_%date:yyy%_%counter%",
+      now,
+    ),
+    "2026.07.18_26-14_yyy_%counter%",
+  );
+});
+
+test("repeated widget references traverse a shared subgraph once per filename", () => {
+  let visits = 0;
+  const shared = {
+    get nodes() {
+      visits++;
+      return [{ title: "Sampler", widgets: [{ name: "seed", value: 42 }] }];
+    },
+  };
+  const graph = { nodes: [{ subgraph: shared }, { subgraph: shared }] };
+  assert.equal(
+    applyComfyFilenameReplacements(graph, "%Sampler.seed%_%Sampler.seed%"),
+    "42_42",
+  );
+  assert.equal(visits, 1);
+});
+
 test("filename serialization applies the injected ComfyUI resolver", () => {
   const widget = {
     name: "filename_prefix",

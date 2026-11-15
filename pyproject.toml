@@ -32,7 +32,7 @@ classifiers = [
 
 [project.urls]
 Repository = "https://github.com/chriscollins500/ccollins-civiscribe"
-Documentation = "https://github.com/chriscollins500/ccollins-civiscribe#readme"
+Documentation = "https://github.com/chriscollins500/ccollins-civiscribe/wiki"
 "Bug Tracker" = "https://github.com/chriscollins500/ccollins-civiscribe/issues"
 
 [tool.comfy]

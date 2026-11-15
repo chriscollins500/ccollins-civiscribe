@@ -18,7 +18,7 @@ import httpx
 
 from civiscribe.domain import IdentitySource
 from civiscribe.identity.air import parse_air
-from civiscribe.identity.civitai_client import USER_AGENT
+from civiscribe.identity.civitai_client import USER_AGENT, read_bounded_json
 from civiscribe.identity.civitai_contract import (
     SUPPORTED_MODEL_FILE_TYPES,
     SUPPORTED_MODEL_TYPES,
@@ -339,6 +339,7 @@ def audit_model_version_payload(
     *,
     endpoint_kind: str,
     expected_hash: str | None = None,
+    expected_version_id: int | None = None,
     tls_context_source: str | None = None,
 ) -> ResponseContractAudit:
     """Validate fields CiviScribe consumes without retaining the raw response."""
@@ -352,6 +353,8 @@ def audit_model_version_payload(
 
     version_id = _positive_int(payload.get("id"))
     errors = [] if version_id is not None else ["model_version_id_invalid"]
+    if expected_version_id is not None and version_id != expected_version_id:
+        errors.append("requested_version_mismatch")
     model_id, model_errors = _model_contract(payload)
     errors.extend(model_errors)
     air_errors, warnings = _air_contract(
@@ -363,11 +366,21 @@ def audit_model_version_payload(
     base_model = payload.get("baseModel")
     if base_model is not None and _safe_string(base_model) is None:
         errors.append("base_model_invalid")
-    file_errors, file_count = _files_contract(
-        payload.get("files"),
-        expected_hash=expected_hash,
-    )
-    errors.extend(file_errors)
+    model = payload.get("model")
+    files = payload.get("files")
+    file_count: int | None
+    if (
+        isinstance(model, Mapping)
+        and model.get("mode") in ("Archived", "TakenDown")
+        and (files is None or files == [])
+    ):
+        file_count = 0
+        warnings.append("files_withheld_by_moderation")
+        if expected_hash is not None:
+            errors.append("requested_hash_missing")
+    else:
+        file_errors, file_count = _files_contract(files, expected_hash=expected_hash)
+        errors.extend(file_errors)
 
     return ResponseContractAudit(
         endpoint_kind,
@@ -381,13 +394,8 @@ def audit_model_version_payload(
 def _decode_response(response: httpx.Response, *, max_response_bytes: int) -> _FetchResult:
     if response.status_code != httpx.codes.OK:
         return _FetchResult(error=f"http_status_{response.status_code}")
-    content = response.content
-    if len(content) > max_response_bytes:
-        return _FetchResult(error="response_too_large")
-    try:
-        return _FetchResult(payload=json.loads(content.decode("utf-8")))
-    except (UnicodeDecodeError, json.JSONDecodeError):
-        return _FetchResult(error="malformed_json")
+    payload, error = read_bounded_json(response, max_response_bytes)
+    return _FetchResult(payload=payload, error=error)
 
 
 def fetch_public_json(
@@ -407,18 +415,18 @@ def fetch_public_json(
     contexts = tuple(tls_contexts or create_tls_contexts())
     for source, context in contexts:
         try:
-            with httpx.Client(
-                transport=transport,
-                verify=context,
-                timeout=httpx.Timeout(timeout_seconds),
-                follow_redirects=False,
-                headers={"Accept": "application/json", "User-Agent": USER_AGENT},
-                trust_env=False,
-            ) as client:
-                result = _decode_response(
-                    client.get(url),
-                    max_response_bytes=max_response_bytes,
-                )
+            with (
+                httpx.Client(
+                    transport=transport,
+                    verify=context,
+                    timeout=httpx.Timeout(timeout_seconds),
+                    follow_redirects=False,
+                    headers={"Accept": "application/json", "User-Agent": USER_AGENT},
+                    trust_env=False,
+                ) as client,
+                client.stream("GET", url) as response,
+            ):
+                result = _decode_response(response, max_response_bytes=max_response_bytes)
         except (httpx.HTTPError, OSError, ssl.SSLError):
             continue
         return _FetchResult(
@@ -514,6 +522,7 @@ def audit_live_response_contract(
         fetched.payload,
         endpoint_kind=endpoint_kind,
         expected_hash=expected_hash,
+        expected_version_id=int(identifier) if endpoint_kind == "model_version" else None,
         tls_context_source=fetched.tls_context_source,
     )
 

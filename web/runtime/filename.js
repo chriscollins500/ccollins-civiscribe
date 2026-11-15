@@ -1,5 +1,5 @@
 const configuredWidgets = new WeakSet();
-const DATE_PART = /dd?|MM?|hh?|mm?|ss?|yyy?y?/g;
+const DATE_PART = /dd?|DD?|MM?|hh?|HH?|mm?|ss?|yyy?y?|YYY?Y?/g;
 const UNSAFE_REPLACEMENT_CHARACTERS = new Set([
     "/",
     "?",
@@ -14,32 +14,47 @@ const UNSAFE_REPLACEMENT_CHARACTERS = new Set([
 function graphNodes(graph) {
     return graph.nodes ?? graph._nodes ?? [];
 }
-function collectNodes(graph, visited = new WeakSet()) {
-    if (visited.has(graph)) {
-        return [];
-    }
-    visited.add(graph);
-    const collected = [];
-    for (const node of graphNodes(graph)) {
-        if (node.subgraph !== undefined) {
-            collected.push(...collectNodes(node.subgraph, visited));
+function indexReplacementNodes(graph) {
+    const aliases = new Map();
+    const titles = new Map();
+    const visited = new WeakSet();
+    const pending = [{ graph }];
+    let item;
+    while ((item = pending.pop()) !== undefined) {
+        if ("node" in item) {
+            const { node } = item;
+            const alias = node.properties?.["Node name for S&R"];
+            if (typeof alias === "string" && !aliases.has(alias))
+                aliases.set(alias, node);
+            if (node.title !== undefined && !titles.has(node.title))
+                titles.set(node.title, node);
         }
-        collected.push(node);
+        else if (!visited.has(item.graph)) {
+            visited.add(item.graph);
+            // Preserve ComfyUI's child-before-parent order, including shared subgraphs.
+            for (const node of [...graphNodes(item.graph)].reverse()) {
+                pending.push({ node });
+                if (node.subgraph !== undefined)
+                    pending.push({ graph: node.subgraph });
+            }
+        }
     }
-    return collected;
+    return (name) => aliases.get(name) ?? titles.get(name);
 }
 function formatDate(format, now) {
     return format.replace(DATE_PART, (part) => {
-        if (part === "yy") {
+        if (part.toLowerCase() === "yy") {
             return String(now.getFullYear()).slice(-2);
         }
-        if (part === "yyyy") {
+        if (part.toLowerCase() === "yyyy") {
             return String(now.getFullYear());
         }
         const values = {
             d: now.getDate(),
+            D: now.getDate(),
             M: now.getMonth() + 1,
             h: now.getHours(),
+            H: now.getHours(),
             m: now.getMinutes(),
             s: now.getSeconds(),
         };
@@ -48,10 +63,6 @@ function formatDate(format, now) {
             ? part
             : String(numeric).padStart(part.length, "0");
     });
-}
-function replacementNode(nodes, name) {
-    return (nodes.find((node) => node.properties?.["Node name for S&R"] === name) ??
-        nodes.find((node) => node.title === name));
 }
 function primitiveText(value) {
     if (value === undefined || value === null) {
@@ -76,19 +87,20 @@ function sanitizeReplacement(value) {
     }).join("");
 }
 export function applyComfyFilenameReplacements(graph, value, now = new Date()) {
-    const nodes = collectNodes(graph);
+    let findNode;
     return value.replace(/%([^%]+)%/g, (match, token) => {
+        if (token.startsWith("date:"))
+            return formatDate(token.slice(5), now);
         const segments = token.split(".");
         if (segments.length !== 2) {
-            return token.startsWith("date:")
-                ? formatDate(token.slice(5), now)
-                : match;
+            return match;
         }
         const [nodeName, widgetName] = segments;
         if (nodeName === undefined || widgetName === undefined) {
             return match;
         }
-        const node = replacementNode(nodes, nodeName);
+        findNode ??= indexReplacementNodes(graph);
+        const node = findNode(nodeName);
         const widget = node?.widgets?.find((candidate) => candidate.name === widgetName);
         if (widget === undefined) {
             return match;

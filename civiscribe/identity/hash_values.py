@@ -66,8 +66,18 @@ def iter_hashes(hashes: HashRecord) -> Iterator[tuple[str, str]]:
             yield name, value
 
 
+def full_digests_conflict(left: HashRecord, right: HashRecord) -> bool:
+    """Two known full digests for the same algorithm must describe the same bytes."""
+    return any(
+        a is not None and b is not None and a.casefold() != b.casefold()
+        for a, b in ((left.sha256, right.sha256), (left.blake3, right.blake3))
+    )
+
+
 def matching_hashes(left: HashRecord, right: HashRecord) -> tuple[str, ...]:
-    """Return algorithms whose present values agree."""
+    """Return matching algorithms only when the full digests are consistent."""
+    if full_digests_conflict(left, right):
+        return ()
 
     return tuple(
         name
@@ -91,6 +101,7 @@ def merge_hashes(primary: HashRecord, secondary: HashRecord) -> HashRecord:
 
 __all__ = [
     "HASH_PRIORITY",
+    "full_digests_conflict",
     "hash_record_from_mapping",
     "hash_record_to_mapping",
     "iter_hashes",

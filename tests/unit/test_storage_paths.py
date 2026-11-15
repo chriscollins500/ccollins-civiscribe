@@ -51,6 +51,11 @@ def test_generation_tokens_are_single_safe_filename_components(tmp_path: Path) -
     assert plan.stem == "140506_model_name_Q8.gguf_123456789_multistep_res_2m"
 
 
+def test_date_letters_and_periods_agree_with_frontend_serialization(tmp_path: Path) -> None:
+    plan = resolve_output_plan(tmp_path, "%date:YYYY.MM.DD%_%date:YY-HH%_%date:yyy%", values=VALUES)
+    assert plan.stem == "2026.07.18_26-14_yyy"
+
+
 def test_missing_generation_tokens_use_stable_safe_fallbacks(tmp_path: Path) -> None:
     plan = resolve_output_plan(
         tmp_path,

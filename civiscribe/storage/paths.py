@@ -136,10 +136,12 @@ def _expand_tokens(
 def _format_date(format_text: str, now: datetime) -> str:
     def replace_part(match: re.Match[str]) -> str:
         part = match.group(0)
-        if part == "yy":
+        if part.lower() == "yy":
             return str(now.year)[-2:]
         if part in {"yyyy", "YYYY"}:
             return str(now.year)
+        if part.lower() == "yyy":
+            return part
         if part[0] in {"d", "D"}:
             value = now.day
         elif part[0] == "M":

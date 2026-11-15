@@ -114,6 +114,18 @@ class ResourceIdentity:
     model_name: str | None = None
     model_version_name: str | None = None
 
+    def same_target(self, other: ResourceIdentity) -> bool:
+        """Compare the resource and file identified by two pieces of evidence."""
+        if self.file_id != other.file_id:
+            return False
+        if self.canonical_air is not None or other.canonical_air is not None:
+            return self.canonical_air == other.canonical_air
+        return (
+            self.model_id == other.model_id
+            and self.model_version_id == other.model_version_id
+            and self.resource_type == other.resource_type
+        )
+
 
 __all__ = [
     "HashRecord",

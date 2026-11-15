@@ -37,6 +37,20 @@ role. AutoV1, AutoV2, AutoV3, CRC32, and BLAKE3 never enter that bulk path.
 Local identity mappings retain precedence over API results. Conflicting hash
 results remain conflicts; no result is selected by filename.
 
+On 2026-11-14 the anonymous enum, model-version 2734704, and full SHA-256
+`09d005300dd8dcbbd489bb75ada6254145c84c2c9c3d7cc1829e3c5dedcb42ce`
+checks all passed. The [version and hash reference](https://developer.civitai.com/site/reference/model-versions.md)
+documents case-insensitive hash values, per-file hash algorithms and file
+withholding on archived or taken-down models. The auditor reports withheld
+files separately. A by-hash response still needs matching file evidence.
+
+Runtime matching checks the digest under the algorithm requested. Equal
+strings under different algorithms are distinct evidence. A matching short
+hash cannot override a contradictory full SHA-256 or BLAKE3. Multiple matching
+file entries with different details are ambiguous. A model-version details
+response must identify the version requested, including when it is fetched to
+enrich an earlier hash match.
+
 ### Additional Returned Hash Fields
 
 The development contract auditor also recognizes two additional response fields.

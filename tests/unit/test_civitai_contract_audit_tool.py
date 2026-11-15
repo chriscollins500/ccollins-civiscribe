@@ -270,6 +270,31 @@ def test_live_response_audit_uses_only_selected_public_identifier() -> None:
     assert result.tls_context_source == "test_system"
 
 
+def test_live_version_check_detects_a_valid_record_for_the_wrong_id() -> None:
+    result = audit_live_response_contract(
+        endpoint_kind="model_version",
+        identifier="21",
+        transport=httpx.MockTransport(lambda _: httpx.Response(200, json=_model_version_payload())),
+        tls_contexts=TEST_CONTEXTS,
+    )
+    assert result.errors == ("requested_version_mismatch",)
+
+
+@pytest.mark.parametrize("mode", ["Archived", "TakenDown"])
+def test_moderation_can_withhold_files_but_never_proves_a_hash(mode: str) -> None:
+    payload = _model_version_payload()
+    model = payload["model"]
+    assert isinstance(model, dict)
+    model["mode"] = mode
+    del payload["files"]
+    by_version = audit_model_version_payload(payload, endpoint_kind="model_version")
+    by_hash = audit_model_version_payload(payload, endpoint_kind="hash", expected_hash="a" * 64)
+    assert by_version.valid
+    assert by_version.observed_file_count == 0
+    assert by_version.warnings == ("files_withheld_by_moderation",)
+    assert by_hash.errors == ("requested_hash_missing",)
+
+
 def test_live_response_audit_rejects_identifier_and_sanitizes_failure() -> None:
     invalid = audit_live_response_contract(
         endpoint_kind="hash",

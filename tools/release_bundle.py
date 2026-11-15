@@ -8,14 +8,21 @@ import json
 import re
 import shutil
 import subprocess
+import tarfile
 import zipfile
 from pathlib import Path
 
 from civiscribe.version import __version__
-from tools.build_release import DEFAULT_ROOT_NAME, FIXED_ZIP_TIMESTAMP, audit_release
+from tools.build_release import (
+    DEFAULT_ROOT_NAME,
+    FIXED_ZIP_TIMESTAMP,
+    MAX_MEMBER_BYTES,
+    audit_release,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = "release-manifest.json"
+RELEASE_REPOSITORY = "chriscollins500/ccollins-civiscribe"
 
 
 def artifact_names() -> tuple[str, ...]:
@@ -28,6 +35,39 @@ def artifact_names() -> tuple[str, ...]:
         "runtime-sbom.json",
         "development-licenses.json",
     )
+
+
+def release_assets(directory: Path) -> tuple[Path, ...]:
+    """The complete public asset list, even when dist holds older builds too."""
+    return tuple(directory / name for name in (*artifact_names(), MANIFEST))
+
+
+def verify_attestations(directory: Path, commit: str, *, registry_only: bool) -> None:
+    """Check the exact bytes against the protected main publication workflow."""
+    gh = shutil.which("gh")
+    if gh is None:
+        raise ValueError("GitHub CLI is required to verify release attestations")
+    assets = (directory / artifact_names()[3],) if registry_only else release_assets(directory)
+    for asset in assets:
+        subprocess.run(  # noqa: S603 - resolved CLI, fixed policy and allowlisted assets
+            [
+                gh,
+                "attestation",
+                "verify",
+                str(asset),
+                "--repo",
+                RELEASE_REPOSITORY,
+                "--signer-workflow",
+                f"{RELEASE_REPOSITORY}/.github/workflows/publish.yml",
+                "--source-ref",
+                "refs/heads/main",
+                "--source-digest",
+                commit,
+                "--deny-self-hosted-runners",
+            ],
+            check=True,
+            timeout=90,
+        )
 
 
 def _facts(path: Path) -> dict[str, str | int]:
@@ -48,16 +88,48 @@ def _runtime_payload(directory: Path) -> dict[str, bytes]:
         }
 
 
+def _verify_sdist(path: Path, runtime: dict[str, bytes], package_metadata: bytes) -> None:
+    """Check the source archive against the node and wheel without extracting it."""
+    prefix = path.name.removesuffix(".tar.gz") + "/"
+    expected = {
+        **runtime,
+        "pyproject.toml": (ROOT / "pyproject.toml").read_bytes(),
+        "locales/README.md": (ROOT / "locales/README.md").read_bytes(),
+        ".gitignore": (ROOT / ".gitignore").read_bytes(),
+        "PKG-INFO": package_metadata,
+    }
+    with tarfile.open(path, "r|gz") as archive:
+        for member in archive:
+            relative = member.name.removeprefix(prefix)
+            content = expected.pop(relative, None)
+            if (
+                not member.name.startswith(prefix)
+                or not member.isfile()
+                or content is None
+                or member.size != len(content)
+                or member.size > MAX_MEMBER_BYTES
+            ):
+                raise ValueError("unexpected source distribution member")
+            reader = archive.extractfile(member)
+            if reader is None or reader.read() != content:
+                raise ValueError("source distribution payload differs from the validated package")
+    if expected:
+        raise ValueError("source distribution is missing required files")
+
+
 def validate_payloads(directory: Path) -> None:
     """Compare module bytes, not merely filenames or source-tree timestamps."""
     runtime = _runtime_payload(directory)
+    expected = {name: value for name, value in runtime.items() if name.startswith("civiscribe/")}
     with zipfile.ZipFile(directory / artifact_names()[0]) as wheel:
         modules = {
             name: wheel.read(name) for name in wheel.namelist() if name.startswith("civiscribe/")
         }
-    expected = {name: value for name, value in runtime.items() if name.startswith("civiscribe/")}
-    if modules != expected:
-        raise ValueError("wheel and custom-node runtime differ")
+        if modules != expected:
+            raise ValueError("wheel and custom-node runtime differ")
+        metadata_name = f"ccollins_civiscribe-{__version__}.dist-info/METADATA"
+        package_metadata = wheel.read(metadata_name)
+    _verify_sdist(directory / artifact_names()[1], runtime, package_metadata)
     with zipfile.ZipFile(directory / artifact_names()[3]) as registry:
         expected_registry = {**runtime, "pyproject.toml": (ROOT / "pyproject.toml").read_bytes()}
         if (
@@ -127,21 +199,39 @@ def main() -> None:
     parser.add_argument("--commit", required=True)
     parser.add_argument("--destination", type=Path)
     parser.add_argument(
+        "--list-paths", action="store_true", help="print one verified asset per line"
+    )
+    parser.add_argument(
+        "--attestations", choices=("all", "registry"), help="verify signed provenance"
+    )
+    parser.add_argument(
         "--working-tree", action="store_true", help="local testing only; not publishable"
     )
     args = parser.parse_args()
+    if args.attestations and args.mode != "verify":
+        parser.error("--attestations requires verify")
+    if args.list_paths and args.mode == "stage":
+        parser.error("--list-paths requires prepare or verify")
     if args.mode == "prepare":
         _check_source(args.commit, allow_working_tree=args.working_tree)
         prepare_bundle(args.directory, args.commit, working_tree=args.working_tree)
     elif args.mode == "verify":
         verify_bundle(args.directory, args.commit, allow_working_tree=args.working_tree)
+        if args.attestations:
+            verify_attestations(
+                args.directory, args.commit, registry_only=args.attestations == "registry"
+            )
     elif args.destination is None:
         parser.error("stage requires --destination (a new isolated custom-node directory)")
     else:
         stage_node(
             args.directory, args.commit, args.destination, allow_working_tree=args.working_tree
         )
-    print(f"release bundle {args.mode}: passed")
+    if args.list_paths:
+        for asset in release_assets(args.directory):
+            print(asset.as_posix())
+    else:
+        print(f"release bundle {args.mode}: passed")
 
 
 def _check_source(commit: str, *, allow_working_tree: bool) -> None:

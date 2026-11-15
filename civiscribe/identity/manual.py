@@ -259,16 +259,6 @@ def _match_score(resource: ResourceRecord, match: _ManualMatch) -> int | None:
     return score
 
 
-def _same_identity(left: ResourceIdentity, right: ResourceIdentity) -> bool:
-    if left.canonical_air is not None or right.canonical_air is not None:
-        return left.canonical_air == right.canonical_air
-    return (
-        left.model_id == right.model_id
-        and left.model_version_id == right.model_version_id
-        and left.resource_type == right.resource_type
-    )
-
-
 def _safe_partial_type(resource: ResourceRecord, identity: ResourceIdentity) -> ResourceIdentity:
     if identity.resource_type is not None:
         return identity
@@ -288,7 +278,7 @@ def _apply_manual_record(
         return resource, ()
     best_score = max(score for score, _record in scored)
     best = tuple(record for score, record in scored if score == best_score)
-    if any(not _same_identity(best[0].identity, item.identity) for item in best[1:]):
+    if any(not best[0].identity.same_target(item.identity) for item in best[1:]):
         return (
             replace(
                 resource,

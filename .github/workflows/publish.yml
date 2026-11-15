@@ -40,11 +40,19 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           test "$(gh api "repos/$GITHUB_REPOSITORY/environments/release" --jq '[.protection_rules[] | select(.type == "required_reviewers") | .reviewers[]] | length > 0')" = true
-      - run: python -m tools.release_bundle verify --commit "$GITHUB_SHA"
+      - name: Select the verified release files
+        id: bundle
+        run: |
+          python -m tools.release_bundle verify --commit "$GITHUB_SHA" --list-paths > "$RUNNER_TEMP/release-paths"
+          { echo 'paths<<EOF'; cat "$RUNNER_TEMP/release-paths"; echo EOF; } >> "$GITHUB_OUTPUT"
       - name: Attest the tested, unchanged artifacts
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6
         with:
-          subject-path: dist/*
+          subject-path: ${{ steps.bundle.outputs.paths }}
+      - name: Verify each signed asset before creating the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python -m tools.release_bundle verify --commit "$GITHUB_SHA" --attestations all
       - name: Prepare update notes
         run: python -m tools.prepare_registry_changelog --output "$RUNNER_TEMP/civiscribe-registry-changelog.md"
       - name: Publish GitHub release without replacing existing tags or assets
@@ -53,7 +61,8 @@ jobs:
         run: |
           VERSION=$(python -c 'from civiscribe.version import __version__; print(__version__)')
           test -z "$(git ls-remote --tags origin "refs/tags/v$VERSION")"
-          gh release create "v$VERSION" dist/* --target "$GITHUB_SHA" --title "CiviScribe $VERSION" --notes-file "$RUNNER_TEMP/civiscribe-registry-changelog.md"
+          mapfile -t assets < "$RUNNER_TEMP/release-paths"
+          gh release create "v$VERSION" "${assets[@]}" --target "$GITHUB_SHA" --title "CiviScribe $VERSION" --notes-file "$RUNNER_TEMP/civiscribe-registry-changelog.md"
 
   publish:
     if: github.ref == 'refs/heads/main'
@@ -63,6 +72,7 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: read
+      attestations: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
@@ -75,9 +85,11 @@ jobs:
       - name: Install pinned publishing tools
         run: python -m pip install "comfy-cli==1.23.0" "httpx==0.28.1"
       - name: Preflight helper imports before creating an immutable version
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           python -c "from tools.verify_registry_listing import load_project_registry_metadata; load_project_registry_metadata()"
-          python -m tools.release_bundle verify --commit "$GITHUB_SHA"
+          python -m tools.release_bundle verify --commit "$GITHUB_SHA" --attestations registry
       - name: Prepare Registry update notes
         run: python -m tools.prepare_registry_changelog --output "$RUNNER_TEMP/civiscribe-registry-changelog.md"
       - name: Publish the previously tested Registry archive (no rebuild)
