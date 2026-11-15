@@ -105,10 +105,17 @@ It preserves the tools' use as operator-invoked commands.
 | #9, Sidecar validator paths | The selected sidecar and schema are resolved before reading. A link that leaves its selected parent directory is rejected with a sanitized error. |
 | #6–#8, Package staging paths | The selected new destination and each verified archive member are resolved and checked for containment. Files are created exclusively, so an existing file cannot be overwritten. |
 
-These changes do not turn a CLI into a privileged service or restrict explicitly
-selected input folders to this repository. The extended suite and local-input
-analysis remain enabled. Findings are left for a fresh source scan to resolve;
-none are dismissed or excluded from analysis.
+The November 14, 2026 scan of commit
+[`280b2e3`](https://github.com/chriscollins500/ccollins-civiscribe/commit/280b2e30f72e607c79b774ae9ed4e70712b5a9b6)
+cleared the three request-related warnings. It still reports ten path findings,
+including the defensive `resolve()` and link checks themselves. The scan job
+completed successfully; that result does not mean there are zero findings.
+
+The file tools intentionally accept operator-selected local paths, including
+folders outside this repository. The remaining local-input findings require a
+reviewed trust model or a narrower CLI input contract before they can be
+considered resolved. The extended suite and local-input analysis remain enabled.
+This change leaves the findings visible without dismissals or source exclusions.
 
 ## Documentation checks
 
