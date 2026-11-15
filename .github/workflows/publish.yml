@@ -83,7 +83,7 @@ jobs:
           name: release-${{ github.sha }}
           path: dist
       - name: Install pinned publishing tools
-        run: python -m pip install "comfy-cli==1.23.0" "httpx==0.28.1"
+        run: python -m pip install "comfy-cli==1.26.0" "httpx==0.28.1"
       - name: Preflight helper imports before creating an immutable version
         env:
           GH_TOKEN: ${{ github.token }}

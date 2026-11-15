@@ -42,8 +42,8 @@ new dependency changes for moderate-or-higher known vulnerabilities. CodeQL
 uses the extended suite with local and remote input sources. Dependabot
 proposes weekly updates for uv, npm, and pinned GitHub Actions.
 Dependency pull requests also run release-interruption tests, benchmarks,
-and supply-chain audits. Dependabot respects the TypeScript and pytest
-compatibility limits documented below.
+and supply-chain audits. Frontend tests check the native compiler/backend
+pairing. The Python lock retains upstream dependency compatibility bounds.
 
 The [repository maintenance guide](docs/repository_maintenance.md) records
 labels, history protection, security settings, and the publication process.
@@ -53,25 +53,40 @@ labels, history protection, security settings, and the publication process.
 The 2026-10-28 refresh uses Pillow 13, NumPy 2.5.4, truststore 0.10.5, and a
 direct certifi security minimum of 2026.10.23. The Python lockfile also includes
 uv so Nox prefers the project's tested tool over an older executable on PATH.
-CI uses Node 24.22.2. The browser job targets the ComfyUI 0.44.2 Desktop
-baseline. The November 14 frontend lock refresh pins minimatch 11.0.8 for
-typescript-estree 8.72.2, which still requests the affected 10.x series.
-The release supply-chain session checks the frontend lock for moderate or
-higher advisories. Review the override when updating that parser. See the
-[minimatch advisory](https://github.com/advisories/GHSA-g3hv-75wg-m249).
+CI uses Node 24.22.3. The browser job targets the ComfyUI 0.44.2 Desktop
+baseline. The November 14 frontend migration uses TypeScript 7.0.2, Oxlint
+1.93.0, and oxlint-tsgolint 7.0.2007. ESLint, typescript-eslint, and the old
+parser-specific minimatch override are removed. The release supply-chain
+session checks the frontend lock for moderate or higher advisories.
+The [migration evidence](docs/frontend_lint_migration.md) documents the frozen
+rule contract, negative cases, and unchanged generated JavaScript.
 
-Two development constraints are deliberate:
+Development compatibility checks are deliberate:
 
-- TypeScript stays on 6.0.x because typescript-eslint 8.72.1 requires a compiler
-  API below 6.1; TypeScript 7 is not compatible with that API.
-- pytest stays below 9.2 because pytest-benchmark 5.3.0 accesses the removed
-  private `Node._nodeid` attribute. The benchmark session must pass before this
-  cap is lifted.
+- TypeScript and oxlint-tsgolint must use the same TypeScript release. The
+  frontend contract test verifies this pairing and preserves all previously
+  enabled lint checks, severities, and options.
+- pytest 9.2 is paired with pytest-benchmark 5.3.1, which fixes access to the
+  removed private `Node._nodeid` attribute. The old pytest cap is removed.
+- The latest check-wheel-contents 0.6.3 requires wheel-filename 1.x. Version
+  2.1.0 removes parser and exception names that the checker imports, so the
+  lock retains 1.4.2. No upstream requirements are overridden.
+
+The November 14 refresh upgrades all other locked dependencies to their latest
+compatible stable releases, including 22 Python packages. The publishing
+workflow pins Comfy CLI 1.26.0; its Registry imports, configuration parser, and
+publication method signature were checked offline without publishing a version.
 
 Refresh lockfiles with `python -m uv --system-certs lock --upgrade` and
 `npm update`, then run the full candidate profile below. Recheck these upstream
-constraints when lifting either cap; do not patch installed third-party files.
+constraints when updating either toolchain; do not patch installed third-party files.
 Keep `NODE_USE_SYSTEM_CA=1` on Windows.
+
+Additional primary sources checked 2026-11-14:
+[pytest-benchmark compatibility fix](https://pytest-benchmark.readthedocs.io/en/latest/changelog.html),
+[wheel-filename breaking changes](https://github.com/wheelodex/wheel-filename/blob/master/CHANGELOG.md),
+[Comfy CLI 1.26.0](https://github.com/Comfy-Org/comfy-cli/releases/tag/v1.26.0),
+[Node 24.22.3 security release](https://nodejs.org/en/blog/release/v24.22.3).
 
 Primary sources checked 2026-10-28:
 [Pillow 13 changes](https://pillow.readthedocs.io/en/stable/releasenotes/13.0.0.html),

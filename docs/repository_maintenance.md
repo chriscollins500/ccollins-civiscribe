@@ -77,13 +77,12 @@ record and catalog pointer when determining availability.
   at 09:00 America/New_York. Compatible minor and patch proposals are grouped
   by ecosystem. Major updates receive separate review.
 
-Dependabot excludes TypeScript 6.1 and newer, and pytest 9.2 and newer,
-under the existing compiler-API and benchmark-tool constraints. Review those
-ignores together with their upstream compatibility fixes before lifting them.
-
-Review the TypeScript, pytest, and minimatch compatibility notes before
-merging dependency changes. The locked project gates determine whether an
-update works with CiviScribe.
+The previous pytest and TypeScript exclusions are removed after validating
+pytest 9.2 with pytest-benchmark 5.3.1 and TypeScript 7 with Oxlint. Frontend
+contract tests verify compiler/backend pairing and the retained lint checks.
+Review the [frontend migration evidence](frontend_lint_migration.md) and
+upstream compatibility bounds before merging dependency changes. The locked
+project gates determine whether an update works with CiviScribe.
 [Contributor guide](../CONTRIBUTING.md)
 
 ## CodeQL triage

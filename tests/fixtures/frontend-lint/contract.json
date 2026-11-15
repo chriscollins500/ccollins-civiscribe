@@ -1,0 +1,1310 @@
+{
+  "sourceCommit": "0915e46538e30798ae7bd694545a0990eaae70f4",
+  "baselineVersions": {
+    "eslint": "10.15.0",
+    "@eslint/js": "10.0.1",
+    "typescript-eslint": "8.72.2",
+    "typescript": "6.0.3",
+    "prettier": "3.10.1"
+  },
+  "rules": {
+    "ts": {
+      "for-direction": [2],
+      "no-async-promise-executor": [2],
+      "no-case-declarations": [2],
+      "no-compare-neg-zero": [2],
+      "no-cond-assign": [2, "except-parens"],
+      "no-constant-binary-expression": [
+        2,
+        {
+          "checkRelationalComparisons": false
+        }
+      ],
+      "no-constant-condition": [
+        2,
+        {
+          "checkLoops": "allExceptWhileTrue"
+        }
+      ],
+      "no-control-regex": [2],
+      "no-debugger": [2],
+      "no-delete-var": [2],
+      "no-dupe-else-if": [2],
+      "no-duplicate-case": [2],
+      "no-empty": [
+        2,
+        {
+          "allowEmptyCatch": false
+        }
+      ],
+      "no-empty-character-class": [2],
+      "no-empty-pattern": [
+        2,
+        {
+          "allowObjectPatternsAsParameters": false
+        }
+      ],
+      "no-empty-static-block": [2],
+      "no-ex-assign": [2],
+      "no-extra-boolean-cast": [2, {}],
+      "no-fallthrough": [
+        2,
+        {
+          "allowEmptyCase": false,
+          "reportUnusedFallthroughComment": false
+        }
+      ],
+      "no-global-assign": [
+        2,
+        {
+          "exceptions": []
+        }
+      ],
+      "no-invalid-regexp": [2, {}],
+      "no-irregular-whitespace": [
+        2,
+        {
+          "skipComments": false,
+          "skipJSXText": false,
+          "skipRegExps": false,
+          "skipStrings": true,
+          "skipTemplates": false
+        }
+      ],
+      "no-loss-of-precision": [2],
+      "no-misleading-character-class": [
+        2,
+        {
+          "allowEscape": false
+        }
+      ],
+      "no-nonoctal-decimal-escape": [2],
+      "no-octal": [2],
+      "no-prototype-builtins": [2],
+      "no-regex-spaces": [2],
+      "no-self-assign": [
+        2,
+        {
+          "props": true
+        }
+      ],
+      "no-shadow-restricted-names": [
+        2,
+        {
+          "reportGlobalThis": true
+        }
+      ],
+      "no-sparse-arrays": [2],
+      "no-unassigned-vars": [2],
+      "no-unexpected-multiline": [2],
+      "no-unsafe-finally": [2],
+      "no-unsafe-optional-chaining": [
+        2,
+        {
+          "disallowArithmeticOperators": false
+        }
+      ],
+      "no-unused-labels": [2],
+      "no-unused-private-class-members": [2],
+      "no-useless-assignment": [2],
+      "no-useless-backreference": [2],
+      "no-useless-catch": [2],
+      "no-useless-escape": [
+        2,
+        {
+          "allowRegexCharacters": []
+        }
+      ],
+      "preserve-caught-error": [
+        2,
+        {
+          "requireCatchParameter": false,
+          "errorClassNames": []
+        }
+      ],
+      "require-yield": [2],
+      "use-isnan": [
+        2,
+        {
+          "enforceForIndexOf": false,
+          "enforceForSwitchCase": true
+        }
+      ],
+      "valid-typeof": [
+        2,
+        {
+          "requireStringLiterals": false
+        }
+      ],
+      "no-var": [2],
+      "prefer-const": [
+        2,
+        {
+          "destructuring": "any",
+          "ignoreReadBeforeAssign": false
+        }
+      ],
+      "prefer-rest-params": [2],
+      "prefer-spread": [2],
+      "@typescript-eslint/await-thenable": [2],
+      "@typescript-eslint/ban-ts-comment": [
+        2,
+        {
+          "minimumDescriptionLength": 10
+        }
+      ],
+      "@typescript-eslint/no-array-constructor": [2],
+      "@typescript-eslint/no-array-delete": [2],
+      "@typescript-eslint/no-base-to-string": [2],
+      "@typescript-eslint/no-confusing-void-expression": [2],
+      "@typescript-eslint/no-deprecated": [2],
+      "@typescript-eslint/no-duplicate-enum-values": [2],
+      "@typescript-eslint/no-duplicate-type-constituents": [2],
+      "@typescript-eslint/no-dynamic-delete": [2],
+      "@typescript-eslint/no-empty-object-type": [2],
+      "@typescript-eslint/no-explicit-any": [2],
+      "@typescript-eslint/no-extra-non-null-assertion": [2],
+      "@typescript-eslint/no-extraneous-class": [2],
+      "@typescript-eslint/no-floating-promises": [2],
+      "@typescript-eslint/no-for-in-array": [2],
+      "@typescript-eslint/no-generated-empty-object-type": [2],
+      "@typescript-eslint/no-implied-eval": [2],
+      "@typescript-eslint/no-invalid-void-type": [2],
+      "@typescript-eslint/no-meaningless-void-operator": [2],
+      "@typescript-eslint/no-misused-new": [2],
+      "@typescript-eslint/no-misused-promises": [2],
+      "@typescript-eslint/no-misused-spread": [2],
+      "@typescript-eslint/no-mixed-enums": [2],
+      "@typescript-eslint/no-namespace": [2],
+      "@typescript-eslint/no-non-null-asserted-nullish-coalescing": [2],
+      "@typescript-eslint/no-non-null-asserted-optional-chain": [2],
+      "@typescript-eslint/no-non-null-assertion": [2],
+      "@typescript-eslint/no-redundant-type-constituents": [2],
+      "@typescript-eslint/no-require-imports": [2],
+      "@typescript-eslint/no-this-alias": [2],
+      "@typescript-eslint/no-unnecessary-boolean-literal-compare": [2],
+      "@typescript-eslint/no-unnecessary-condition": [2],
+      "@typescript-eslint/no-unnecessary-template-expression": [2],
+      "@typescript-eslint/no-unnecessary-type-arguments": [2],
+      "@typescript-eslint/no-unnecessary-type-assertion": [2],
+      "@typescript-eslint/no-unnecessary-type-constraint": [2],
+      "@typescript-eslint/no-unnecessary-type-conversion": [2],
+      "@typescript-eslint/no-unnecessary-type-parameters": [2],
+      "@typescript-eslint/no-unsafe-argument": [2],
+      "@typescript-eslint/no-unsafe-assignment": [2],
+      "@typescript-eslint/no-unsafe-call": [2],
+      "@typescript-eslint/no-unsafe-declaration-merging": [2],
+      "@typescript-eslint/no-unsafe-enum-assignment": [2],
+      "@typescript-eslint/no-unsafe-enum-comparison": [2],
+      "@typescript-eslint/no-unsafe-function-type": [2],
+      "@typescript-eslint/no-unsafe-member-access": [2],
+      "@typescript-eslint/no-unsafe-return": [2],
+      "@typescript-eslint/no-unsafe-unary-minus": [2],
+      "@typescript-eslint/no-unused-expressions": [
+        2,
+        {
+          "allowShortCircuit": false,
+          "allowTaggedTemplates": false,
+          "allowTernary": false
+        }
+      ],
+      "@typescript-eslint/no-unused-vars": [2],
+      "@typescript-eslint/no-useless-constructor": [2],
+      "@typescript-eslint/no-useless-default-assignment": [2],
+      "@typescript-eslint/no-wrapper-object-types": [2],
+      "@typescript-eslint/only-throw-error": [2],
+      "@typescript-eslint/prefer-as-const": [2],
+      "@typescript-eslint/prefer-literal-enum-member": [2],
+      "@typescript-eslint/prefer-namespace-keyword": [2],
+      "@typescript-eslint/prefer-promise-reject-errors": [2],
+      "@typescript-eslint/prefer-reduce-type-parameter": [2],
+      "@typescript-eslint/prefer-return-this-type": [2],
+      "@typescript-eslint/related-getter-setter-pairs": [2],
+      "@typescript-eslint/require-await": [2],
+      "@typescript-eslint/restrict-plus-operands": [
+        2,
+        {
+          "allowAny": false,
+          "allowBoolean": false,
+          "allowNullish": false,
+          "allowNumberAndString": false,
+          "allowRegExp": false
+        }
+      ],
+      "@typescript-eslint/restrict-template-expressions": [
+        2,
+        {
+          "allowAny": false,
+          "allowBoolean": false,
+          "allowNever": false,
+          "allowNullish": false,
+          "allowNumber": false,
+          "allowRegExp": false
+        }
+      ],
+      "@typescript-eslint/return-await": [2, "error-handling-correctness-only"],
+      "@typescript-eslint/triple-slash-reference": [2],
+      "@typescript-eslint/unbound-method": [2],
+      "@typescript-eslint/unified-signatures": [2],
+      "@typescript-eslint/use-unknown-in-catch-callback-variable": [2]
+    },
+    "mjs": {
+      "constructor-super": [2],
+      "for-direction": [2],
+      "getter-return": [
+        2,
+        {
+          "allowImplicit": false
+        }
+      ],
+      "no-async-promise-executor": [2],
+      "no-case-declarations": [2],
+      "no-class-assign": [2],
+      "no-compare-neg-zero": [2],
+      "no-cond-assign": [2, "except-parens"],
+      "no-const-assign": [2],
+      "no-constant-binary-expression": [
+        2,
+        {
+          "checkRelationalComparisons": false
+        }
+      ],
+      "no-constant-condition": [
+        2,
+        {
+          "checkLoops": "allExceptWhileTrue"
+        }
+      ],
+      "no-control-regex": [2],
+      "no-debugger": [2],
+      "no-delete-var": [2],
+      "no-dupe-args": [2],
+      "no-dupe-class-members": [2],
+      "no-dupe-else-if": [2],
+      "no-dupe-keys": [2],
+      "no-duplicate-case": [2],
+      "no-empty": [
+        2,
+        {
+          "allowEmptyCatch": false
+        }
+      ],
+      "no-empty-character-class": [2],
+      "no-empty-pattern": [
+        2,
+        {
+          "allowObjectPatternsAsParameters": false
+        }
+      ],
+      "no-empty-static-block": [2],
+      "no-ex-assign": [2],
+      "no-extra-boolean-cast": [2, {}],
+      "no-fallthrough": [
+        2,
+        {
+          "allowEmptyCase": false,
+          "reportUnusedFallthroughComment": false
+        }
+      ],
+      "no-func-assign": [2],
+      "no-global-assign": [
+        2,
+        {
+          "exceptions": []
+        }
+      ],
+      "no-import-assign": [2],
+      "no-invalid-regexp": [2, {}],
+      "no-irregular-whitespace": [
+        2,
+        {
+          "skipComments": false,
+          "skipJSXText": false,
+          "skipRegExps": false,
+          "skipStrings": true,
+          "skipTemplates": false
+        }
+      ],
+      "no-loss-of-precision": [2],
+      "no-misleading-character-class": [
+        2,
+        {
+          "allowEscape": false
+        }
+      ],
+      "no-new-native-nonconstructor": [2],
+      "no-nonoctal-decimal-escape": [2],
+      "no-obj-calls": [2],
+      "no-octal": [2],
+      "no-prototype-builtins": [2],
+      "no-redeclare": [
+        2,
+        {
+          "builtinGlobals": true
+        }
+      ],
+      "no-regex-spaces": [2],
+      "no-self-assign": [
+        2,
+        {
+          "props": true
+        }
+      ],
+      "no-setter-return": [2],
+      "no-shadow-restricted-names": [
+        2,
+        {
+          "reportGlobalThis": true
+        }
+      ],
+      "no-sparse-arrays": [2],
+      "no-this-before-super": [2],
+      "no-unassigned-vars": [2],
+      "no-undef": [
+        2,
+        {
+          "typeof": false
+        }
+      ],
+      "no-unexpected-multiline": [2],
+      "no-unreachable": [2],
+      "no-unsafe-finally": [2],
+      "no-unsafe-negation": [
+        2,
+        {
+          "enforceForOrderingRelations": false
+        }
+      ],
+      "no-unsafe-optional-chaining": [
+        2,
+        {
+          "disallowArithmeticOperators": false
+        }
+      ],
+      "no-unused-labels": [2],
+      "no-unused-private-class-members": [2],
+      "no-useless-assignment": [2],
+      "no-useless-backreference": [2],
+      "no-useless-catch": [2],
+      "no-useless-escape": [
+        2,
+        {
+          "allowRegexCharacters": []
+        }
+      ],
+      "no-with": [2],
+      "preserve-caught-error": [
+        2,
+        {
+          "requireCatchParameter": false,
+          "errorClassNames": []
+        }
+      ],
+      "require-yield": [2],
+      "use-isnan": [
+        2,
+        {
+          "enforceForIndexOf": false,
+          "enforceForSwitchCase": true
+        }
+      ],
+      "valid-typeof": [
+        2,
+        {
+          "requireStringLiterals": false
+        }
+      ],
+      "@typescript-eslint/ban-ts-comment": [
+        2,
+        {
+          "minimumDescriptionLength": 10
+        }
+      ],
+      "@typescript-eslint/no-array-constructor": [2],
+      "@typescript-eslint/no-duplicate-enum-values": [2],
+      "@typescript-eslint/no-dynamic-delete": [2],
+      "@typescript-eslint/no-empty-object-type": [2],
+      "@typescript-eslint/no-explicit-any": [2],
+      "@typescript-eslint/no-extra-non-null-assertion": [2],
+      "@typescript-eslint/no-extraneous-class": [2],
+      "@typescript-eslint/no-invalid-void-type": [2],
+      "@typescript-eslint/no-misused-new": [2],
+      "@typescript-eslint/no-namespace": [2],
+      "@typescript-eslint/no-non-null-asserted-nullish-coalescing": [2],
+      "@typescript-eslint/no-non-null-asserted-optional-chain": [2],
+      "@typescript-eslint/no-non-null-assertion": [2],
+      "@typescript-eslint/no-require-imports": [2],
+      "@typescript-eslint/no-this-alias": [2],
+      "@typescript-eslint/no-unnecessary-type-constraint": [2],
+      "@typescript-eslint/no-unsafe-declaration-merging": [2],
+      "@typescript-eslint/no-unsafe-function-type": [2],
+      "@typescript-eslint/no-unused-expressions": [
+        2,
+        {
+          "allowShortCircuit": false,
+          "allowTaggedTemplates": false,
+          "allowTernary": false
+        }
+      ],
+      "@typescript-eslint/no-unused-vars": [2],
+      "@typescript-eslint/no-useless-constructor": [2],
+      "@typescript-eslint/no-wrapper-object-types": [2],
+      "@typescript-eslint/prefer-as-const": [2],
+      "@typescript-eslint/prefer-literal-enum-member": [2],
+      "@typescript-eslint/prefer-namespace-keyword": [2],
+      "@typescript-eslint/triple-slash-reference": [2],
+      "@typescript-eslint/unified-signatures": [2]
+    }
+  },
+  "aliases": [
+    "no-array-constructor",
+    "no-unused-expressions",
+    "no-unused-vars",
+    "no-useless-constructor"
+  ],
+  "parserRules": ["no-dupe-args", "no-octal"],
+  "compilerOptions": {
+    "declaration": false,
+    "exactOptionalPropertyTypes": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "ES2022",
+    "moduleResolution": "Bundler",
+    "noEmitOnError": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noUncheckedIndexedAccess": true,
+    "outDir": "web/runtime",
+    "rootDir": "web/src",
+    "strict": true,
+    "target": "ES2022"
+  },
+  "cases": [
+    {
+      "rule": "@typescript-eslint/await-thenable",
+      "language": "ts",
+      "code": "export async function probe() { await 42; }",
+      "diagnostic": "typescript(await-thenable)"
+    },
+    {
+      "rule": "@typescript-eslint/no-array-delete",
+      "language": "ts",
+      "code": "export function probe(values: string[]) { delete values[0]; }",
+      "diagnostic": "typescript(no-array-delete)"
+    },
+    {
+      "rule": "@typescript-eslint/no-base-to-string",
+      "language": "ts",
+      "code": "export const probe = String({ value: 1 });",
+      "diagnostic": "typescript(no-base-to-string)"
+    },
+    {
+      "rule": "@typescript-eslint/no-confusing-void-expression",
+      "language": "ts",
+      "code": "export function probe(callback: () => void) { return callback(); }",
+      "diagnostic": "typescript(no-confusing-void-expression)"
+    },
+    {
+      "rule": "@typescript-eslint/no-deprecated",
+      "language": "ts",
+      "code": "/** @deprecated Use replacement. */\nfunction obsolete() { return 1; }\nexport const probe = obsolete();",
+      "diagnostic": "typescript(no-deprecated)"
+    },
+    {
+      "rule": "@typescript-eslint/no-duplicate-type-constituents",
+      "language": "ts",
+      "code": "export type Probe = string | string;",
+      "diagnostic": "typescript(no-duplicate-type-constituents)"
+    },
+    {
+      "rule": "@typescript-eslint/no-floating-promises",
+      "language": "ts",
+      "code": "Promise.resolve('probe');",
+      "diagnostic": "typescript(no-floating-promises)"
+    },
+    {
+      "rule": "@typescript-eslint/no-for-in-array",
+      "language": "ts",
+      "code": "export function probe(values: string[]) { for (const key in values) { values[key]; } }",
+      "diagnostic": "typescript(no-for-in-array)"
+    },
+    {
+      "rule": "@typescript-eslint/no-generated-empty-object-type",
+      "language": "ts",
+      "code": "export type Probe = Omit<{ value: string }, 'value'>;",
+      "diagnostic": "typescript(no-generated-empty-object-type)"
+    },
+    {
+      "rule": "@typescript-eslint/no-implied-eval",
+      "language": "ts",
+      "code": "declare const code: string; setTimeout(code, 1);",
+      "diagnostic": "typescript(no-implied-eval)"
+    },
+    {
+      "rule": "@typescript-eslint/no-meaningless-void-operator",
+      "language": "ts",
+      "code": "export function probe(callback: () => void) { void callback(); }",
+      "diagnostic": "typescript(no-meaningless-void-operator)"
+    },
+    {
+      "rule": "@typescript-eslint/no-misused-promises",
+      "language": "ts",
+      "code": "export function probe(callback: () => Promise<void>) { if (callback()) { return 1; } return 0; }",
+      "diagnostic": "typescript(no-misused-promises)"
+    },
+    {
+      "rule": "@typescript-eslint/no-misused-spread",
+      "language": "ts",
+      "code": "export const probe = { ...Promise.resolve(1) };",
+      "diagnostic": "typescript(no-misused-spread)"
+    },
+    {
+      "rule": "@typescript-eslint/no-mixed-enums",
+      "language": "ts",
+      "code": "export enum Probe { A = 'a', B = 1 }",
+      "diagnostic": "typescript(no-mixed-enums)"
+    },
+    {
+      "rule": "@typescript-eslint/no-redundant-type-constituents",
+      "language": "ts",
+      "code": "export type Probe = string | unknown;",
+      "diagnostic": "typescript(no-redundant-type-constituents)"
+    },
+    {
+      "rule": "@typescript-eslint/no-unnecessary-boolean-literal-compare",
+      "language": "ts",
+      "code": "export function probe(value: boolean) { return value === true; }",
+      "diagnostic": "typescript(no-unnecessary-boolean-literal-compare)"
+    },
+    {
+      "rule": "@typescript-eslint/no-unnecessary-condition",
+      "language": "ts",
+      "code": "export function probe(value: string) { return value !== null; }",
+      "diagnostic": "typescript(no-unnecessary-condition)"
+    },
+    {
+      "rule": "@typescript-eslint/no-unnecessary-template-expression",
+      "language": "ts",
+      "code": "export function probe(value: string) { return `${value}`; }",
+      "diagnostic": "typescript(no-unnecessary-template-expression)"
+    },
+    {
+      "rule": "@typescript-eslint/no-unnecessary-type-arguments",
+      "language": "ts",
+      "code": "export type Box<T = string> = { value: T }; export type Probe = Box<string>;",
+      "diagnostic": "typescript(no-unnecessary-type-arguments)"
+    },
+    {
+      "rule": "@typescript-eslint/no-unnecessary-type-assertion",
+      "language": "ts",
+      "code": "export function probe(value: string) { return value as string; }",
+      "diagnostic": "typescript(no-unnecessary-type-assertion)"
+    },
+    {
+      "rule": "@typescript-eslint/no-unnecessary-type-conversion",
+      "language": "ts",
+      "code": "export function probe(value: string) { return String(value); }",
+      "diagnostic": "typescript(no-unnecessary-type-conversion)"
+    },
+    {
+      "rule": "@typescript-eslint/no-unnecessary-type-parameters",
+      "language": "ts",
+      "code": "export function probe<T>(value: T): void { console.log(value); }",
+      "diagnostic": "typescript(no-unnecessary-type-parameters)"
+    },
+    {
+      "rule": "@typescript-eslint/no-unsafe-argument",
+      "language": "ts",
+      "code": "export function probe(value: any) { return Math.max(value, 1); }",
+      "diagnostic": "typescript(no-unsafe-argument)"
+    },
+    {
+      "rule": "@typescript-eslint/no-unsafe-assignment",
+      "language": "ts",
+      "code": "export const probe: string = JSON.parse('\"x\"');",
+      "diagnostic": "typescript(no-unsafe-assignment)"
+    },
+    {
+      "rule": "@typescript-eslint/no-unsafe-call",
+      "language": "ts",
+      "code": "export function probe(value: any) { value(); }",
+      "diagnostic": "typescript(no-unsafe-call)"
+    },
+    {
+      "rule": "@typescript-eslint/no-unsafe-enum-assignment",
+      "language": "ts",
+      "code": "export enum Mode { A = 1 } export const probe: Mode = 1;",
+      "diagnostic": "typescript(no-unsafe-enum-assignment)"
+    },
+    {
+      "rule": "@typescript-eslint/no-unsafe-enum-comparison",
+      "language": "ts",
+      "code": "export enum Mode { A = 1 } export function probe(value: Mode) { return value === 1; }",
+      "diagnostic": "typescript(no-unsafe-enum-comparison)"
+    },
+    {
+      "rule": "@typescript-eslint/no-unsafe-member-access",
+      "language": "ts",
+      "code": "export function probe(value: any) { return value.field; }",
+      "diagnostic": "typescript(no-unsafe-member-access)"
+    },
+    {
+      "rule": "@typescript-eslint/no-unsafe-return",
+      "language": "ts",
+      "code": "export function probe(): string { return JSON.parse('\"x\"'); }",
+      "diagnostic": "typescript(no-unsafe-return)"
+    },
+    {
+      "rule": "@typescript-eslint/no-unsafe-unary-minus",
+      "language": "ts",
+      "code": "export function probe(value: string) { return -value; }",
+      "diagnostic": "typescript(no-unsafe-unary-minus)"
+    },
+    {
+      "rule": "@typescript-eslint/no-useless-default-assignment",
+      "language": "ts",
+      "code": "export function probe({ value = 'fallback' }: { value: string }) { return value; }",
+      "diagnostic": "typescript(no-useless-default-assignment)"
+    },
+    {
+      "rule": "@typescript-eslint/only-throw-error",
+      "language": "ts",
+      "code": "export function probe() { throw 'broken'; }",
+      "diagnostic": "typescript(only-throw-error)"
+    },
+    {
+      "rule": "@typescript-eslint/prefer-promise-reject-errors",
+      "language": "ts",
+      "code": "export const probe = Promise.reject('broken');",
+      "diagnostic": "typescript(prefer-promise-reject-errors)"
+    },
+    {
+      "rule": "@typescript-eslint/prefer-reduce-type-parameter",
+      "language": "ts",
+      "code": "export const probe = [1].reduce((values, value) => { values.push(value); return values; }, [] as number[]);",
+      "diagnostic": "typescript(prefer-reduce-type-parameter)"
+    },
+    {
+      "rule": "@typescript-eslint/prefer-return-this-type",
+      "language": "ts",
+      "code": "export class Probe { chain(): Probe { return this; } }",
+      "diagnostic": "typescript(prefer-return-this-type)"
+    },
+    {
+      "rule": "@typescript-eslint/related-getter-setter-pairs",
+      "language": "ts",
+      "code": "export class Probe { get value(): number { return 1; } set value(value: string) { console.log(value); } }",
+      "diagnostic": "typescript(related-getter-setter-pairs)"
+    },
+    {
+      "rule": "@typescript-eslint/require-await",
+      "language": "ts",
+      "code": "export async function probe() { return 1; }",
+      "diagnostic": "typescript(require-await)"
+    },
+    {
+      "rule": "@typescript-eslint/restrict-plus-operands",
+      "language": "ts",
+      "code": "export function probe(value: boolean) { return value + 1; }",
+      "diagnostic": "typescript(restrict-plus-operands)"
+    },
+    {
+      "rule": "@typescript-eslint/restrict-template-expressions",
+      "language": "ts",
+      "code": "export function probe(value: number) { return `value:${value}`; }",
+      "diagnostic": "typescript(restrict-template-expressions)"
+    },
+    {
+      "rule": "@typescript-eslint/return-await",
+      "language": "ts",
+      "code": "export async function probe(value: Promise<string>) { try { return value; } catch { return 'caught'; } }",
+      "diagnostic": "typescript(return-await)"
+    },
+    {
+      "rule": "@typescript-eslint/unbound-method",
+      "language": "ts",
+      "code": "export class Probe { run() { return this; } } export const probe = new Probe().run;",
+      "diagnostic": "typescript(unbound-method)"
+    },
+    {
+      "rule": "@typescript-eslint/use-unknown-in-catch-callback-variable",
+      "language": "ts",
+      "code": "export const probe = Promise.reject(new Error()).catch(error => String(error));",
+      "diagnostic": "typescript(use-unknown-in-catch-callback-variable)"
+    },
+    {
+      "rule": "for-direction",
+      "language": "mjs",
+      "code": "export function probe() { for (let i = 0; i < 5; i--) { console.log(i); } }",
+      "diagnostic": "eslint(for-direction)"
+    },
+    {
+      "rule": "no-async-promise-executor",
+      "language": "mjs",
+      "code": "export const probe = new Promise(async resolve => { resolve(1); });",
+      "diagnostic": "eslint(no-async-promise-executor)"
+    },
+    {
+      "rule": "no-case-declarations",
+      "language": "mjs",
+      "code": "export function probe(value) { switch(value) { case 1: let answer = 1; return answer; default: return 0; } }",
+      "diagnostic": "eslint(no-case-declarations)"
+    },
+    {
+      "rule": "no-compare-neg-zero",
+      "language": "mjs",
+      "code": "export function probe(value) { return value === -0; }",
+      "diagnostic": "eslint(no-compare-neg-zero)"
+    },
+    {
+      "rule": "no-cond-assign",
+      "language": "mjs",
+      "code": "export function probe(value) { if (value = 1) { return value; } return 0; }",
+      "diagnostic": "eslint(no-cond-assign)"
+    },
+    {
+      "rule": "no-constant-binary-expression",
+      "language": "mjs",
+      "code": "export const probe = [] || 'fallback';",
+      "diagnostic": "eslint(no-constant-binary-expression)"
+    },
+    {
+      "rule": "no-constant-condition",
+      "language": "mjs",
+      "code": "export function probe() { if (false) { return 1; } return 0; }",
+      "diagnostic": "eslint(no-constant-condition)"
+    },
+    {
+      "rule": "no-control-regex",
+      "language": "mjs",
+      "code": "export const probe = /\\x01/;",
+      "diagnostic": "eslint(no-control-regex)"
+    },
+    {
+      "rule": "no-debugger",
+      "language": "mjs",
+      "code": "debugger;",
+      "diagnostic": "eslint(no-debugger)"
+    },
+    {
+      "rule": "no-delete-var",
+      "language": "mjs",
+      "code": "export function probe(value) { delete value; }",
+      "diagnostic": "eslint(no-delete-var)",
+      "parserMessage": "Delete of an unqualified identifier in strict mode."
+    },
+    {
+      "rule": "no-dupe-else-if",
+      "language": "mjs",
+      "code": "export function probe(value) { if (value === 1) { return 1; } else if (value === 1) { return 2; } return 0; }",
+      "diagnostic": "eslint(no-dupe-else-if)"
+    },
+    {
+      "rule": "no-duplicate-case",
+      "language": "mjs",
+      "code": "export function probe(value) { switch(value) { case 1: return 1; case 1: return 2; default: return 0; } }",
+      "diagnostic": "eslint(no-duplicate-case)"
+    },
+    {
+      "rule": "no-empty",
+      "language": "mjs",
+      "code": "if (Math.random()) {}",
+      "diagnostic": "eslint(no-empty)"
+    },
+    {
+      "rule": "no-empty-character-class",
+      "language": "mjs",
+      "code": "export const probe = /[]/;",
+      "diagnostic": "eslint(no-empty-character-class)"
+    },
+    {
+      "rule": "no-empty-pattern",
+      "language": "mjs",
+      "code": "export const {} = {};",
+      "diagnostic": "eslint(no-empty-pattern)"
+    },
+    {
+      "rule": "no-empty-static-block",
+      "language": "mjs",
+      "code": "export class Probe { static {} }",
+      "diagnostic": "eslint(no-empty-static-block)"
+    },
+    {
+      "rule": "no-ex-assign",
+      "language": "mjs",
+      "code": "try { throw new Error(); } catch (error) { error = new Error('replacement'); }",
+      "diagnostic": "eslint(no-ex-assign)"
+    },
+    {
+      "rule": "no-extra-boolean-cast",
+      "language": "mjs",
+      "code": "export function probe(value) { if (!!value) { return 1; } return 0; }",
+      "diagnostic": "eslint(no-extra-boolean-cast)"
+    },
+    {
+      "rule": "no-fallthrough",
+      "language": "mjs",
+      "code": "export function probe(value) { switch(value) { case 1: console.log(value); case 2: return 2; default: return 0; } }",
+      "diagnostic": "eslint(no-fallthrough)"
+    },
+    {
+      "rule": "no-global-assign",
+      "language": "mjs",
+      "code": "undefined = 1;",
+      "diagnostic": "eslint(no-global-assign)"
+    },
+    {
+      "rule": "no-invalid-regexp",
+      "language": "mjs",
+      "code": "export const probe = new RegExp('[');",
+      "diagnostic": "eslint(no-invalid-regexp)"
+    },
+    {
+      "rule": "no-irregular-whitespace",
+      "language": "mjs",
+      "code": "export const probe = 1;",
+      "diagnostic": "eslint(no-irregular-whitespace)"
+    },
+    {
+      "rule": "no-loss-of-precision",
+      "language": "mjs",
+      "code": "export const probe = 9007199254740993;",
+      "diagnostic": "eslint(no-loss-of-precision)"
+    },
+    {
+      "rule": "no-misleading-character-class",
+      "language": "mjs",
+      "code": "export const probe = /[a\\u0301]/u;",
+      "diagnostic": "eslint(no-misleading-character-class)"
+    },
+    {
+      "rule": "no-nonoctal-decimal-escape",
+      "language": "mjs",
+      "code": "export const probe = '\\8';",
+      "diagnostic": "eslint(no-nonoctal-decimal-escape)",
+      "parserMessage": "Invalid escape sequence"
+    },
+    {
+      "rule": "no-octal",
+      "language": "mjs",
+      "code": "export const probe = 0123;",
+      "diagnostic": "eslint(no-octal)",
+      "parserMessage": "'0'-prefixed octal literals and octal escape sequences are deprecated"
+    },
+    {
+      "rule": "no-prototype-builtins",
+      "language": "mjs",
+      "code": "export function probe(value) { return value.hasOwnProperty('x'); }",
+      "diagnostic": "eslint(no-prototype-builtins)"
+    },
+    {
+      "rule": "no-regex-spaces",
+      "language": "mjs",
+      "code": "export const probe = /a  b/;",
+      "diagnostic": "eslint(no-regex-spaces)"
+    },
+    {
+      "rule": "no-self-assign",
+      "language": "mjs",
+      "code": "export function probe(value) { value = value; return value; }",
+      "diagnostic": "eslint(no-self-assign)"
+    },
+    {
+      "rule": "no-shadow-restricted-names",
+      "language": "mjs",
+      "code": "export function probe(undefined) { return undefined; }",
+      "diagnostic": "eslint(no-shadow-restricted-names)"
+    },
+    {
+      "rule": "no-sparse-arrays",
+      "language": "mjs",
+      "code": "export const probe = [1,,2];",
+      "diagnostic": "eslint(no-sparse-arrays)"
+    },
+    {
+      "rule": "no-unassigned-vars",
+      "language": "mjs",
+      "code": "let value; export const probe = value;",
+      "diagnostic": "eslint(no-unassigned-vars)"
+    },
+    {
+      "rule": "no-unexpected-multiline",
+      "language": "mjs",
+      "code": "export function probe(value) { const list = value\n[0].forEach(() => {}); return list; }",
+      "diagnostic": "eslint(no-unexpected-multiline)"
+    },
+    {
+      "rule": "no-unsafe-finally",
+      "language": "mjs",
+      "code": "export function probe() { try { return 1; } finally { return 2; } }",
+      "diagnostic": "eslint(no-unsafe-finally)"
+    },
+    {
+      "rule": "no-unsafe-optional-chaining",
+      "language": "mjs",
+      "code": "export function probe(value) { return (value?.run)(); }",
+      "diagnostic": "eslint(no-unsafe-optional-chaining)"
+    },
+    {
+      "rule": "no-unused-labels",
+      "language": "mjs",
+      "code": "unused: for (let i = 0; i < 3; i++) { break; }",
+      "diagnostic": "eslint(no-unused-labels)"
+    },
+    {
+      "rule": "no-unused-private-class-members",
+      "language": "mjs",
+      "code": "export class Probe { #unused = 1; }",
+      "diagnostic": "eslint(no-unused-private-class-members)"
+    },
+    {
+      "rule": "no-useless-assignment",
+      "language": "mjs",
+      "code": "export function probe() { let value = 1; value = 2; return value; }",
+      "diagnostic": "eslint(no-useless-assignment)"
+    },
+    {
+      "rule": "no-useless-backreference",
+      "language": "mjs",
+      "code": "export const probe = /(a\\1)/;",
+      "diagnostic": "eslint(no-useless-backreference)"
+    },
+    {
+      "rule": "no-useless-catch",
+      "language": "mjs",
+      "code": "export function probe(callback) { try { callback(); } catch (error) { throw error; } }",
+      "diagnostic": "eslint(no-useless-catch)"
+    },
+    {
+      "rule": "no-useless-escape",
+      "language": "mjs",
+      "code": "export const probe = '\\q';",
+      "diagnostic": "eslint(no-useless-escape)"
+    },
+    {
+      "rule": "preserve-caught-error",
+      "language": "mjs",
+      "code": "export function probe(callback) { try { callback(); } catch (error) { throw new Error('replacement'); } }",
+      "diagnostic": "eslint(preserve-caught-error)"
+    },
+    {
+      "rule": "require-yield",
+      "language": "mjs",
+      "code": "export function* probe() { return 1; }",
+      "diagnostic": "eslint(require-yield)"
+    },
+    {
+      "rule": "use-isnan",
+      "language": "mjs",
+      "code": "export function probe(value) { return value === NaN; }",
+      "diagnostic": "eslint(use-isnan)"
+    },
+    {
+      "rule": "valid-typeof",
+      "language": "mjs",
+      "code": "export function probe(value) { return typeof value === 'strnig'; }",
+      "diagnostic": "eslint(valid-typeof)"
+    },
+    {
+      "rule": "no-var",
+      "language": "ts",
+      "code": "export var probe = 1;",
+      "diagnostic": "eslint(no-var)"
+    },
+    {
+      "rule": "prefer-const",
+      "language": "ts",
+      "code": "export function probe() { let value = 1; return value; }",
+      "diagnostic": "eslint(prefer-const)"
+    },
+    {
+      "rule": "prefer-rest-params",
+      "language": "ts",
+      "code": "export function probe() { return arguments[0]; }",
+      "diagnostic": "eslint(prefer-rest-params)"
+    },
+    {
+      "rule": "prefer-spread",
+      "language": "ts",
+      "code": "export function probe(fn, values) { return fn.apply(undefined, values); }",
+      "diagnostic": "eslint(prefer-spread)"
+    },
+    {
+      "rule": "constructor-super",
+      "language": "mjs",
+      "code": "export class Probe extends Error { constructor() {} }",
+      "diagnostic": "eslint(constructor-super)"
+    },
+    {
+      "rule": "getter-return",
+      "language": "mjs",
+      "code": "export class Probe { get value() { if (Math.random()) { return 1; } } }",
+      "diagnostic": "eslint(getter-return)"
+    },
+    {
+      "rule": "no-class-assign",
+      "language": "mjs",
+      "code": "export class Probe {} Probe = 1;",
+      "diagnostic": "eslint(no-class-assign)"
+    },
+    {
+      "rule": "no-const-assign",
+      "language": "mjs",
+      "code": "export const probe = 1; probe = 2;",
+      "diagnostic": "eslint(no-const-assign)"
+    },
+    {
+      "rule": "no-dupe-args",
+      "language": "mjs",
+      "code": "export function probe(value, value) { return value; }",
+      "diagnostic": "eslint(no-dupe-args)",
+      "parserMessage": "Identifier `value` has already been declared"
+    },
+    {
+      "rule": "no-dupe-class-members",
+      "language": "mjs",
+      "code": "export class Probe { run() {} run() {} }",
+      "diagnostic": "eslint(no-dupe-class-members)"
+    },
+    {
+      "rule": "no-dupe-keys",
+      "language": "mjs",
+      "code": "export const probe = { value: 1, value: 2 };",
+      "diagnostic": "eslint(no-dupe-keys)"
+    },
+    {
+      "rule": "no-func-assign",
+      "language": "mjs",
+      "code": "export function probe() {} probe = 1;",
+      "diagnostic": "eslint(no-func-assign)"
+    },
+    {
+      "rule": "no-import-assign",
+      "language": "mjs",
+      "code": "import * as probe from 'node:fs'; probe = 1;",
+      "diagnostic": "eslint(no-import-assign)"
+    },
+    {
+      "rule": "no-new-native-nonconstructor",
+      "language": "mjs",
+      "code": "export const probe = new Symbol('probe');",
+      "diagnostic": "eslint(no-new-native-nonconstructor)"
+    },
+    {
+      "rule": "no-obj-calls",
+      "language": "mjs",
+      "code": "export const probe = Math();",
+      "diagnostic": "eslint(no-obj-calls)"
+    },
+    {
+      "rule": "no-redeclare",
+      "language": "mjs",
+      "code": "export var probe; var probe;",
+      "diagnostic": "eslint(no-redeclare)"
+    },
+    {
+      "rule": "no-setter-return",
+      "language": "mjs",
+      "code": "export class Probe { set value(value) { return value; } }",
+      "diagnostic": "eslint(no-setter-return)"
+    },
+    {
+      "rule": "no-this-before-super",
+      "language": "mjs",
+      "code": "export class Probe extends Error { constructor() { this.value = 1; super(); } }",
+      "diagnostic": "eslint(no-this-before-super)"
+    },
+    {
+      "rule": "no-undef",
+      "language": "mjs",
+      "code": "export const probe = missingValue;",
+      "diagnostic": "eslint(no-undef)"
+    },
+    {
+      "rule": "no-unreachable",
+      "language": "mjs",
+      "code": "export function probe(callback) { return 1; callback(); }",
+      "diagnostic": "eslint(no-unreachable)"
+    },
+    {
+      "rule": "no-unsafe-negation",
+      "language": "mjs",
+      "code": "export function probe(value, other) { return !value in other; }",
+      "diagnostic": "eslint(no-unsafe-negation)"
+    },
+    {
+      "rule": "no-with",
+      "language": "mjs",
+      "code": "with ({}) {}",
+      "diagnostic": "eslint(no-with)",
+      "parserMessage": "'with' statements are not allowed"
+    },
+    {
+      "rule": "@typescript-eslint/ban-ts-comment",
+      "language": "ts",
+      "code": "// @ts-ignore\nexport const probe = 1;",
+      "diagnostic": "typescript(ban-ts-comment)"
+    },
+    {
+      "rule": "@typescript-eslint/no-array-constructor",
+      "language": "ts",
+      "code": "export const probe = new Array(1, 2);",
+      "diagnostic": "eslint(no-array-constructor)"
+    },
+    {
+      "rule": "@typescript-eslint/no-duplicate-enum-values",
+      "language": "ts",
+      "code": "export enum Probe { A = 1, B = 1 }",
+      "diagnostic": "typescript(no-duplicate-enum-values)"
+    },
+    {
+      "rule": "@typescript-eslint/no-dynamic-delete",
+      "language": "ts",
+      "code": "export function probe(value: Record<string, number>, key: string) { delete value[key]; }",
+      "diagnostic": "typescript(no-dynamic-delete)"
+    },
+    {
+      "rule": "@typescript-eslint/no-empty-object-type",
+      "language": "ts",
+      "code": "export type Probe = {};",
+      "diagnostic": "typescript(no-empty-object-type)"
+    },
+    {
+      "rule": "@typescript-eslint/no-explicit-any",
+      "language": "ts",
+      "code": "export type Probe = any;",
+      "diagnostic": "typescript(no-explicit-any)"
+    },
+    {
+      "rule": "@typescript-eslint/no-extra-non-null-assertion",
+      "language": "ts",
+      "code": "export function probe(value: string | null) { return value!!; }",
+      "diagnostic": "typescript(no-extra-non-null-assertion)"
+    },
+    {
+      "rule": "@typescript-eslint/no-extraneous-class",
+      "language": "ts",
+      "code": "export class Probe { static value = 1; }",
+      "diagnostic": "typescript(no-extraneous-class)"
+    },
+    {
+      "rule": "@typescript-eslint/no-invalid-void-type",
+      "language": "ts",
+      "code": "export type Probe = void | string;",
+      "diagnostic": "typescript(no-invalid-void-type)"
+    },
+    {
+      "rule": "@typescript-eslint/no-misused-new",
+      "language": "ts",
+      "code": "export interface Probe { new(): Probe; }",
+      "diagnostic": "typescript(no-misused-new)"
+    },
+    {
+      "rule": "@typescript-eslint/no-namespace",
+      "language": "ts",
+      "code": "export namespace Probe { export const value = 1; }",
+      "diagnostic": "typescript(no-namespace)"
+    },
+    {
+      "rule": "@typescript-eslint/no-non-null-asserted-nullish-coalescing",
+      "language": "ts",
+      "code": "export function probe(value: { name?: string }) { return value.name! ?? 'fallback'; }",
+      "diagnostic": "typescript(no-non-null-asserted-nullish-coalescing)"
+    },
+    {
+      "rule": "@typescript-eslint/no-non-null-asserted-optional-chain",
+      "language": "ts",
+      "code": "export function probe(value?: { name: string }) { return value?.name!; }",
+      "diagnostic": "typescript(no-non-null-asserted-optional-chain)"
+    },
+    {
+      "rule": "@typescript-eslint/no-non-null-assertion",
+      "language": "ts",
+      "code": "export function probe(value: string | null) { return value!; }",
+      "diagnostic": "typescript(no-non-null-assertion)"
+    },
+    {
+      "rule": "@typescript-eslint/no-require-imports",
+      "language": "ts",
+      "code": "export const probe = require('node:fs');",
+      "diagnostic": "typescript(no-require-imports)"
+    },
+    {
+      "rule": "@typescript-eslint/no-this-alias",
+      "language": "ts",
+      "code": "export class Probe { run() { const self = this; return self; } }",
+      "diagnostic": "typescript(no-this-alias)"
+    },
+    {
+      "rule": "@typescript-eslint/no-unnecessary-type-constraint",
+      "language": "ts",
+      "code": "export type Probe<T extends unknown> = T;",
+      "diagnostic": "typescript(no-unnecessary-type-constraint)"
+    },
+    {
+      "rule": "@typescript-eslint/no-unsafe-declaration-merging",
+      "language": "ts",
+      "code": "export interface Probe { value: string; } export class Probe {}",
+      "diagnostic": "typescript(no-unsafe-declaration-merging)"
+    },
+    {
+      "rule": "@typescript-eslint/no-unsafe-function-type",
+      "language": "ts",
+      "code": "export type Probe = Function;",
+      "diagnostic": "typescript(no-unsafe-function-type)"
+    },
+    {
+      "rule": "@typescript-eslint/no-unused-expressions",
+      "language": "ts",
+      "code": "true;",
+      "diagnostic": "eslint(no-unused-expressions)"
+    },
+    {
+      "rule": "@typescript-eslint/no-unused-vars",
+      "language": "ts",
+      "code": "const unused = 1;",
+      "diagnostic": "eslint(no-unused-vars)"
+    },
+    {
+      "rule": "@typescript-eslint/no-useless-constructor",
+      "language": "ts",
+      "code": "export class Probe { constructor() {} }",
+      "diagnostic": "eslint(no-useless-constructor)"
+    },
+    {
+      "rule": "@typescript-eslint/no-wrapper-object-types",
+      "language": "ts",
+      "code": "export type Probe = String;",
+      "diagnostic": "typescript(no-wrapper-object-types)"
+    },
+    {
+      "rule": "@typescript-eslint/prefer-as-const",
+      "language": "ts",
+      "code": "export const probe = 'value' as 'value';",
+      "diagnostic": "typescript(prefer-as-const)"
+    },
+    {
+      "rule": "@typescript-eslint/prefer-literal-enum-member",
+      "language": "ts",
+      "code": "export enum Probe { A = Math.random() }",
+      "diagnostic": "typescript(prefer-literal-enum-member)"
+    },
+    {
+      "rule": "@typescript-eslint/prefer-namespace-keyword",
+      "language": "ts",
+      "code": "export module Probe { export const value = 1; }",
+      "diagnostic": "typescript(prefer-namespace-keyword)"
+    },
+    {
+      "rule": "@typescript-eslint/triple-slash-reference",
+      "language": "ts",
+      "code": "/// <reference path='./missing.ts' />\nexport const probe = 1;",
+      "diagnostic": "typescript(triple-slash-reference)"
+    },
+    {
+      "rule": "@typescript-eslint/unified-signatures",
+      "language": "ts",
+      "code": "export function probe(value: string): void; export function probe(value: number): void; export function probe(value: string | number): void { console.log(value); }",
+      "diagnostic": "typescript(unified-signatures)"
+    }
+  ]
+}

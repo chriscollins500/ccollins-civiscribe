@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Refreshed Python dependencies, including the compatible pytest 9.2 and
+  pytest-benchmark 5.3.1 pair. Updated the CI Node security patch and Comfy CLI
+  publishing pin. Removed the old pytest and TypeScript update exclusions.
+- Switched frontend development checks to TypeScript 7 and type-aware Oxlint.
+  Added regression cases for every retained lint check and strict compiler
+  settings. Generated runtime JavaScript is unchanged.
 - Hardened development-tool URL construction, streamed response limits,
   resolved-path containment, Windows junction handling, and package staging.
   The save node's image and metadata behavior is unchanged.

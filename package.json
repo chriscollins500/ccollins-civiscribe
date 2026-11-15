@@ -3,18 +3,13 @@
   "private": true,
   "version": "2.0.10",
   "type": "module",
-  "overrides": {
-    "@typescript-eslint/typescript-estree@8.72.2": {
-      "minimatch": "11.0.8"
-    }
-  },
   "engines": {
     "node": "^24.22.2 || >=26.12.1"
   },
   "scripts": {
     "build": "tsc --project tsconfig.json",
-    "format:check": "prettier --check \"web/src/**/*.ts\" \"tests/frontend/**/*.mjs\" \"tests/e2e/**/*.mjs\" \"*.json\" \"*.mjs\"",
-    "lint": "eslint web/src tests/frontend tests/e2e",
+    "format:check": "prettier --check \".oxlintrc.json\" \"web/src/**/*.ts\" \"tests/frontend/**/*.mjs\" \"tests/e2e/**/*.mjs\" \"tests/fixtures/frontend-lint/*.json\" \"*.json\" \"*.mjs\"",
+    "lint": "oxlint --deny-warnings web/src tests/frontend tests/e2e",
     "test": "npm run build && node --test tests/frontend/*.test.mjs",
     "test:e2e": "playwright test",
     "typecheck": "tsc --project tsconfig.json --noEmit",
@@ -22,11 +17,10 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",
-    "@eslint/js": "^10.0.1",
-    "@playwright/test": "^1.64.1",
-    "eslint": "^10.13.0",
-    "prettier": "^3.9.10",
-    "typescript": "~6.0.3",
-    "typescript-eslint": "^8.72.1"
+    "@playwright/test": "^1.65.1",
+    "oxlint": "1.93.0",
+    "oxlint-tsgolint": "7.0.2007",
+    "prettier": "^3.10.1",
+    "typescript": "7.0.2"
   }
 }
