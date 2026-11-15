@@ -117,11 +117,12 @@ jobs:
           python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
           python -m pip install -r .tmp/comfy/requirements.txt
           python -m pip install --require-hashes -r dist/runtime-requirements.txt
-          python -m pip install "comfy-mcp==0.10.0" "comfy-cli==1.26.0"
+          python -m venv .tmp/mcp-tooling
+          .tmp/mcp-tooling/bin/python -m pip install "comfy-mcp==0.10.0" "comfy-cli==1.26.0"
           npm ci
           npx playwright install --with-deps chromium
       - name: Verify current V3, native widgets, serialization, resizing, locales, and Axe
-        run: python -m tools.test_comfy_artifact --comfy .tmp/comfy --python "$(which python)" --mcp-python "$(which python)" --commit "$GITHUB_SHA"
+        run: python -m tools.test_comfy_artifact --comfy .tmp/comfy --python "$(which python)" --mcp-python .tmp/mcp-tooling/bin/python --commit "$GITHUB_SHA"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         if: always()
         with:

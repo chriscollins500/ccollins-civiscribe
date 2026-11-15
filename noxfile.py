@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 import sys
 import tempfile
-from pathlib import Path
+from pathlib import Path, PurePath
 from shutil import which
 
 import nox
@@ -131,10 +131,11 @@ def e2e(session: nox.Session) -> None:
         if value := os.environ.get(name):
             environment[name] = value
     if mcp_python := os.environ.get("CIVISCRIBE_E2E_MCP_PYTHON"):
-        if not os.path.isabs(mcp_python):
+        mcp_coordinate = PurePath(mcp_python)
+        if not mcp_coordinate.is_absolute():
             session.error("CIVISCRIBE_E2E_MCP_PYTHON must be an absolute interpreter path")
         environment["PATH"] = os.pathsep.join(
-            (os.path.dirname(mcp_python), os.environ.get("PATH", os.defpath))
+            (str(mcp_coordinate.parent), os.environ.get("PATH", os.defpath))
         )
     session.run("npm", "ci", external=True, env=environment)
     session.run("npm", "run", "test:e2e", external=True, env=environment)

@@ -26,6 +26,8 @@ def run(  # noqa: PLR0913 - explicit isolated runtime and artifact coordinates
     mcp_python: Path,
     working_tree: bool = False,
 ) -> None:
+    # Preserve a virtualenv's launcher directory rather than resolving its Python symlink.
+    mcp_coordinate = mcp_python.absolute()
     main_file = comfy.resolve() / "main.py"
     if not main_file.is_file() or (comfy / "extra_model_paths.yaml").exists():
         raise ValueError("use a clean ComfyUI checkout without personal model-path configuration")
@@ -67,9 +69,9 @@ def run(  # noqa: PLR0913 - explicit isolated runtime and artifact coordinates
                     **os.environ,
                     "CIVISCRIBE_E2E_BASE_URL": url,
                     "CIVISCRIBE_E2E_CHANNEL": channel,
-                    "CIVISCRIBE_E2E_MCP_PYTHON": str(mcp_python.resolve()),
+                    "CIVISCRIBE_E2E_MCP_PYTHON": str(mcp_coordinate),
                     "PATH": os.pathsep.join(
-                        (str(mcp_python.resolve().parent), os.environ.get("PATH", os.defpath))
+                        (str(mcp_coordinate.parent), os.environ.get("PATH", os.defpath))
                     ),
                 }
                 subprocess.run(  # noqa: S603

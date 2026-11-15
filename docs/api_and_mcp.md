@@ -220,6 +220,11 @@ It stops its own processes when testing finishes. Hosted validation pins
 `comfy-mcp==0.10.0` and `comfy-cli==1.26.0` as test tooling; neither becomes a
 CiviScribe runtime dependency.
 
+The hosted MCP tooling has its own virtual environment. The harness preserves
+that environment's interpreter path and scripts directory, including on Unix
+where the interpreter is normally a symlink. The test launches the fixed
+official `comfy-mcp` command from that selected environment.
+
 On November 15, 2026, the local Windows exact-ZIP gate passed all 11 browser,
 HTTP, accessibility, and real MCP tests with ComfyUI 0.44.2, frontend 1.57.6,
 Comfy MCP 0.10.0, and Comfy CLI 1.26.0. The same gate is required in hosted
