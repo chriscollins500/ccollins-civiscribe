@@ -68,9 +68,11 @@ Development compatibility checks are deliberate:
   enabled lint checks, severities, and options.
 - pytest 9.2 is paired with pytest-benchmark 5.3.1, which fixes access to the
   removed private `Node._nodeid` attribute. The old pytest cap is removed.
-- The latest check-wheel-contents 0.6.3 requires wheel-filename 1.x. Version
-  2.1.0 removes parser and exception names that the checker imports, so the
-  lock retains 1.4.2. No upstream requirements are overridden.
+- The wheel checker uses upstream 0.7.0.dev1 at the reviewed immutable commit
+  `ab1f393c85c30538898fa1f4c73abc13898b0d65`, with wheel-filename 2.1.0.
+  This is a development-only Git pin. Its provenance and all existing checks
+  are guarded by the [wheel-checker regression contract](docs/wheel_checker_migration.md).
+  Review source changes and rerun the complete gate before moving the pin.
 
 The November 14 refresh upgrades all other locked dependencies to their latest
 compatible stable releases, including 22 Python packages. The publishing

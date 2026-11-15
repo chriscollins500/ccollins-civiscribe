@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Pinned the reviewed upstream wheel checker with wheel-filename 2.1.0.
+  Added valid and malformed wheel regressions covering all 14 checker rules,
+  archive structure, and the installed checker's exact source commit.
 - Refreshed Python dependencies, including the compatible pytest 9.2 and
   pytest-benchmark 5.3.1 pair. Updated the CI Node security patch and Comfy CLI
   publishing pin. Removed the old pytest and TypeScript update exclusions.

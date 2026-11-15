@@ -91,10 +91,10 @@ Registry configuration and method signature without calling publication.
 All pinned GitHub Actions already matched their latest official releases.
 CI uses the Node 24.22.3 security release.
 
-One transitive build dependency remains on its supported line:
-check-wheel-contents 0.6.3 requires wheel-filename 1.x and imports APIs removed
-in wheel-filename 2.x. The lock retains 1.4.2 rather than overriding that
-requirement. This package is excluded from the node's runtime dependencies.
+At that refresh, check-wheel-contents 0.6.3 still required wheel-filename 1.x,
+so the lock retained 1.4.2. The November 15 [wheel-checker migration](wheel_checker_migration.md)
+resolved that constraint using a tested upstream source pin and wheel-filename
+2.1.0. Both packages remain development-only dependencies.
 
 ## Primary references
 

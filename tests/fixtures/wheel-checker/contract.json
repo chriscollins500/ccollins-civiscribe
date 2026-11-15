@@ -1,0 +1,228 @@
+{
+  "schemaVersion": 1,
+  "baselineCommit": "2287b7a5444e0be6a737234b4895daa1937c475f",
+  "baseline": {
+    "checker": "0.6.3",
+    "wheelFilename": "1.4.2"
+  },
+  "reviewedUpstream": {
+    "repository": "https://github.com/jwodder/check-wheel-contents",
+    "commit": "ab1f393c85c30538898fa1f4c73abc13898b0d65",
+    "version": "0.7.0.dev1",
+    "wheelFilename": "2.1.0"
+  },
+  "outcomes": {
+    "valid_pure_python": {
+      "exitCode": 0,
+      "checks": [],
+      "category": "pass"
+    },
+    "valid_build_tag": {
+      "exitCode": 0,
+      "checks": [],
+      "category": "pass"
+    },
+    "valid_platform_root": {
+      "exitCode": 0,
+      "checks": [],
+      "category": "pass"
+    },
+    "valid_relocated_library": {
+      "exitCode": 0,
+      "checks": [],
+      "category": "pass"
+    },
+    "valid_empty_duplicates": {
+      "exitCode": 0,
+      "checks": [],
+      "category": "pass"
+    },
+    "valid_stubs": {
+      "exitCode": 0,
+      "checks": [],
+      "category": "pass"
+    },
+    "valid_package_tree": {
+      "exitCode": 0,
+      "checks": [],
+      "category": "pass"
+    },
+    "valid_toplevel": {
+      "exitCode": 0,
+      "checks": [],
+      "category": "pass"
+    },
+    "valid_intentional_common_name": {
+      "exitCode": 0,
+      "checks": [],
+      "category": "pass"
+    },
+    "W001_bytecode": {
+      "exitCode": 1,
+      "checks": [
+        "W001"
+      ],
+      "category": "checks"
+    },
+    "W002_duplicate_contents": {
+      "exitCode": 1,
+      "checks": [
+        "W002"
+      ],
+      "category": "checks"
+    },
+    "W003_root_data": {
+      "exitCode": 1,
+      "checks": [
+        "W003",
+        "W009"
+      ],
+      "category": "checks"
+    },
+    "W004_unimportable_path": {
+      "exitCode": 1,
+      "checks": [
+        "W004"
+      ],
+      "category": "checks"
+    },
+    "W005_common_name": {
+      "exitCode": 1,
+      "checks": [
+        "W005",
+        "W009"
+      ],
+      "category": "checks"
+    },
+    "W006_root_initializer": {
+      "exitCode": 1,
+      "checks": [
+        "W006"
+      ],
+      "category": "checks"
+    },
+    "W007_no_library": {
+      "exitCode": 1,
+      "checks": [
+        "W007"
+      ],
+      "category": "checks"
+    },
+    "W008_empty_wheel": {
+      "exitCode": 1,
+      "checks": [
+        "W007",
+        "W008"
+      ],
+      "category": "checks"
+    },
+    "W009_multiple_packages": {
+      "exitCode": 1,
+      "checks": [
+        "W009"
+      ],
+      "category": "checks"
+    },
+    "W010_nonmodule_directory": {
+      "exitCode": 1,
+      "checks": [
+        "W009",
+        "W010"
+      ],
+      "category": "checks"
+    },
+    "W101_missing_source_file": {
+      "exitCode": 1,
+      "checks": [
+        "W101"
+      ],
+      "category": "checks"
+    },
+    "W102_extra_library_file": {
+      "exitCode": 1,
+      "checks": [
+        "W102"
+      ],
+      "category": "checks"
+    },
+    "W201_missing_toplevel": {
+      "exitCode": 1,
+      "checks": [
+        "W201"
+      ],
+      "category": "checks"
+    },
+    "W202_extra_toplevel": {
+      "exitCode": 1,
+      "checks": [
+        "W202"
+      ],
+      "category": "checks"
+    },
+    "missing_wheel_metadata": {
+      "exitCode": 1,
+      "checks": [],
+      "category": "structure"
+    },
+    "missing_record": {
+      "exitCode": 1,
+      "checks": [],
+      "category": "structure"
+    },
+    "invalid_root_header": {
+      "exitCode": 1,
+      "checks": [],
+      "category": "structure"
+    },
+    "missing_root_header": {
+      "exitCode": 1,
+      "checks": [],
+      "category": "structure"
+    },
+    "mismatched_dist_info": {
+      "exitCode": 1,
+      "checks": [],
+      "category": "structure"
+    },
+    "multiple_dist_info": {
+      "exitCode": 1,
+      "checks": [],
+      "category": "structure"
+    },
+    "mismatched_data_directory": {
+      "exitCode": 1,
+      "checks": [],
+      "category": "structure"
+    },
+    "record_parent_escape": {
+      "exitCode": 1,
+      "checks": [],
+      "category": "structure"
+    },
+    "record_absolute_path": {
+      "exitCode": 1,
+      "checks": [],
+      "category": "structure"
+    },
+    "record_invalid_size": {
+      "exitCode": 1,
+      "checks": [],
+      "category": "structure"
+    },
+    "record_duplicate_entry": {
+      "exitCode": 1,
+      "checks": [],
+      "category": "structure"
+    },
+    "invalid_filename": {
+      "exitCode": 1,
+      "checks": [],
+      "category": "filename"
+    },
+    "invalid_zip_archive": {
+      "exitCode": 1,
+      "checks": [],
+      "category": "archive"
+    }
+  }
+}
