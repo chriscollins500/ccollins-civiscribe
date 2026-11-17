@@ -45,6 +45,7 @@ The release timeline uses actual publication dates for shipped versions.
 
 | Release | Highlights |
 | --- | --- |
+| [2.0.12](https://github.com/chriscollins500/ccollins-civiscribe/releases/tag/v2.0.12) | Resolved development-tool path findings while preserving security checks and save-node behavior. |
 | [2.0.11](https://github.com/chriscollins500/ccollins-civiscribe/releases/tag/v2.0.11) | Native read-only API and Comfy MCP integration; refreshed development and package checks. |
 | [2.0.10](https://github.com/chriscollins500/ccollins-civiscribe/releases/tag/v2.0.10) | More precise resource identities, a complete wiki, and verified release artifacts. |
 | [2.0.9](https://github.com/chriscollins500/ccollins-civiscribe/releases/tag/v2.0.9) | Model-name and counter filename tokens; updated Civitai hash-contract checks. |

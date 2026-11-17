@@ -3,7 +3,7 @@
   "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
   "info": {
     "title": "CiviScribe native ComfyUI integration",
-    "version": "2.0.11",
+    "version": "2.0.12",
     "description": "Versioned read-only discovery and metadata preflight. Use ComfyUI /prompt, /history, /view and /ws for execution. SaveResult is emitted as strict JSON in native ui.text and official Comfy MCP job.text_outputs. This API inherits the host ComfyUI server's access controls; it adds no listener or authentication service."
   },
   "paths": {
