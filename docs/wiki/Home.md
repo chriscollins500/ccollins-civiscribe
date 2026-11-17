@@ -4,7 +4,7 @@ CiviScribe saves your ComfyUI images with the prompts, settings, and model
 resources used to make them. Choose PNG, JPEG, or WebP, save the image, and
 upload it to Civitai when you are ready.
 
-This guide covers CiviScribe **2.0.11**. Start with the quick start, then use
+This guide covers CiviScribe **2.0.12**. Start with the quick start, then use
 the task guides when you need more control.
 
 ## Start here
@@ -43,6 +43,12 @@ Optional JSON sidecars explain the saved image and any unresolved details.
 For a first save, connect your final `IMAGE`, keep PNG and the default metadata
 settings, and press **Run**. Civitai lookup starts disabled, so ordinary saving
 works offline.
+
+## What changed in 2.0.12
+
+This maintenance release resolves the development tools' path-validation
+security findings while keeping all checks enabled. Image saving, metadata,
+and the node's controls work the same way as before.
 
 ## What changed in 2.0.11
 
