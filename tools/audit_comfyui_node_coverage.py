@@ -1214,10 +1214,14 @@ def _discover_workflow_files(
     observation: _RootObservation,
     limits: WorkflowAuditLimits,
 ) -> list[Path]:
-    if _is_link_like(root):
-        observation.issue_counts["workflow_root_symlink_rejected"] += 1
-        return []
     try:
+        # Resolve intermediate links before inspecting the final component;
+        # collapsing '..' lexically could otherwise inspect a different path.
+        parent = scoped_path(root.parent, root.parent)
+        link_path = scoped_path(parent, parent / root.name, resolve_links=False)
+        if _is_link_like(link_path):
+            observation.issue_counts["workflow_root_symlink_rejected"] += 1
+            return []
         root = scoped_path(root.parent, root)
     except ValueError:
         observation.issue_counts["workflow_root_escape_rejected"] += 1

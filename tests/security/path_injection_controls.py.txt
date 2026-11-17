@@ -1,0 +1,50 @@
+"""Analyzer fixtures: extract and analyze this file; never execute it.
+
+The .txt suffix keeps intentional vulnerabilities out of production scans.
+Materialize as controls.py in an isolated source tree alongside tools/audit_paths.py.
+Use the stock py/path-injection query with remote and local sources enabled.
+Every UNSAFE line must be reported; every SAFE line must remain unreported.
+"""
+
+import argparse
+import os
+from pathlib import Path
+
+from tools.audit_paths import scoped_path
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--selected-root", type=Path)
+parser.add_argument("--child", type=Path)
+args = parser.parse_args()
+
+# Direct access without validation must remain visible.
+Path(args.child).read_bytes()  # UNSAFE: raw-read
+Path(args.child).is_symlink()  # UNSAFE: raw-link-probe
+Path(args.child).mkdir()  # UNSAFE: raw-mkdir
+Path(args.child).open("xb")  # UNSAFE: raw-exclusive-write
+
+# Normalization alone does not establish containment.
+normalized = Path(os.path.realpath(args.child))
+normalized.read_bytes()  # UNSAFE: normalization-only
+
+# A child added after the scope was checked is still untrusted.
+root = scoped_path(args.selected_root, args.selected_root)
+(root / args.child).read_bytes()  # UNSAFE: unchecked-child
+
+# Bypassing the helper's actual component and prefix checks remains unsafe.
+def unchecked_scope(root, candidate):
+    return Path(os.path.realpath(candidate))
+
+unchecked_scope(args.selected_root, args.child).read_bytes()  # UNSAFE: missing-containment
+
+# Validated paths are safe for the originally reported operations.
+selected = scoped_path(args.selected_root, args.child)
+selected.read_bytes()  # SAFE: scoped-read
+selected.mkdir()  # SAFE: scoped-mkdir
+selected.open("xb")  # SAFE: scoped-exclusive-write
+
+# Lexical selection authorizes link inspection without resolving the link.
+absolute = Path(os.path.abspath(args.child))
+link = scoped_path(absolute.parent, absolute, resolve_links=False)
+link.is_symlink()  # SAFE: selected-link-probe

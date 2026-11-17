@@ -4,6 +4,12 @@ All notable CiviScribe changes are documented here.
 
 ## Unreleased
 
+- Refactored development-tool path validation so CodeQL recognizes the existing
+  containment boundary before file operations. Preserved external directory
+  selection, link and junction rejection, sanitized errors, and exclusive
+  staging. Added real filesystem regressions and unsafe analyzer controls.
+  The save node's image, metadata, and lookup behavior is unchanged.
+
 ## 2.0.11 - 2026-11-15
 
 - Added native ComfyUI API discovery, OpenAPI documentation, and bounded

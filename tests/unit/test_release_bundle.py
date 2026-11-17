@@ -24,14 +24,18 @@ from tools.release_bundle import (
 COMMIT = "a" * 40
 
 
+@pytest.mark.parametrize(
+    "name", ["../outside.py", "../installed-other/outside.py", "../../outside.py"]
+)
 def test_staging_checks_payload_paths_before_writing_outside_destination(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, name: str
 ) -> None:
     monkeypatch.setattr(release_bundle, "verify_bundle", lambda *args, **kwargs: None)
-    monkeypatch.setattr(release_bundle, "_runtime_payload", lambda _: {"../outside.py": b"unsafe"})
+    monkeypatch.setattr(release_bundle, "_runtime_payload", lambda _: {name: b"unsafe"})
     with pytest.raises(ValueError, match="audit_path_outside_selected_root"):
         stage_node(tmp_path, COMMIT, tmp_path / "installed")
     assert not (tmp_path / "outside.py").exists()
+    assert not (tmp_path / "installed-other").exists()
 
 
 def _bundle(tmp_path: Path, *, change_sdist: bool = False) -> None:

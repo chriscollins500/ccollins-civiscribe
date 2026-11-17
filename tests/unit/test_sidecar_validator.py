@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 from typing import cast
@@ -72,6 +73,27 @@ def test_validator_rejects_links_outside_the_selected_parent(
     result = validate_sidecar(sidecar, schema_path=schema)
     assert result.errors == (f"{linked_input}_unreadable:ValueError",)
     assert str(tmp_path) not in repr(result)
+
+
+@pytest.mark.skipif(os.name == "nt", reason="Windows symbolic links require an OS privilege")
+@pytest.mark.parametrize("linked_input", ["sidecar", "schema"])
+def test_validator_rejects_real_file_links_outside_selected_parent(
+    tmp_path: Path, linked_input: str
+) -> None:
+    selected = tmp_path / "selected"
+    selected.mkdir()
+    sidecar = selected / "image.json"
+    schema = selected / "schema.json"
+    _write_json(sidecar, _projection_payload())
+    _write_json(schema, {})
+    linked = sidecar if linked_input == "sidecar" else schema
+    linked.unlink()
+    outside = tmp_path / "DO_NOT_READ.json"
+    outside.write_text("DO_NOT_READ", encoding="utf-8")
+    linked.symlink_to(outside)
+    result = validate_sidecar(sidecar, schema_path=schema)
+    assert result.errors == (f"{linked_input}_unreadable:ValueError",)
+    assert "DO_NOT_READ" not in repr(result)
 
 
 def test_validator_rejects_duplicate_keys_and_malformed_json(tmp_path: Path) -> None:

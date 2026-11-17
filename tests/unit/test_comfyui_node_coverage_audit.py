@@ -10,6 +10,7 @@ from typing import Any, cast
 import httpx
 import pytest
 
+from tests.path_support import directory_link
 from tools import audit_comfyui_node_coverage as audit
 
 EXPECTED_TWO = 2
@@ -111,6 +112,54 @@ def test_workflow_audit_excludes_windows_junction_directories_and_roots(
     assert roots[1]["filesDiscovered"] == 0
     assert roots[1]["issueCounts"] == {"workflow_root_symlink_rejected": 1}
     assert "DO_NOT_RECORD" not in json.dumps(report)
+
+
+def test_workflow_audit_rejects_real_link_roots_and_skips_linked_directories(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "selected"
+    outside = tmp_path / "outside"
+    _write_json(root / "safe.json", {"1": {"class_type": "KSampler", "inputs": {}}})
+    _write_json(outside / "private.json", {"1": {"class_type": "DO_NOT_RECORD"}})
+    directory_link(outside, root / "outside-link")
+    directory_link(root, tmp_path / "root-link")
+    report = audit.analyze_workflow_roots([root, tmp_path / "root-link"])
+    roots = _roots(report)
+    assert roots[0]["filesDiscovered"] == 1
+    assert roots[0]["issueCounts"] == {"workflow_directory_symlink_skipped": 1}
+    assert roots[1]["filesDiscovered"] == 0
+    assert roots[1]["issueCounts"] == {"workflow_root_symlink_rejected": 1}
+    assert "DO_NOT_RECORD" not in json.dumps(report)
+
+
+def test_workflow_audit_preserves_parent_scope_for_dotdot_root(tmp_path: Path) -> None:
+    root = tmp_path / "selected"
+    _write_json(root / "safe.json", {"1": {"class_type": "KSampler", "inputs": {}}})
+    (root / "nested").mkdir()
+    report = audit.analyze_workflow_roots([root / "nested" / ".."])
+    assert _roots(report)[0]["filesDiscovered"] == 0
+    assert _roots(report)[0]["issueCounts"] == {"workflow_root_escape_rejected": 1}
+
+
+def test_workflow_audit_inspects_the_real_final_component_after_link_and_dotdot(
+    tmp_path: Path,
+) -> None:
+    parent = tmp_path / "target-parent"
+    nested = parent / "nested"
+    nested.mkdir(parents=True)
+    _write_json(parent / "safe/workflow.json", {"1": {"class_type": "KSampler", "inputs": {}}})
+    directory_link(nested, tmp_path / "alias")
+    directory_link(parent / "safe", parent / "root-link")
+    # Windows collapses '..' before following intermediate junctions; POSIX
+    # resolves it against the linked directory. Both final links must be rejected.
+    _write_json(tmp_path / "safe/workflow.json", {"1": {"class_type": "KSampler", "inputs": {}}})
+    directory_link(tmp_path / "safe", tmp_path / "root-link")
+    prefix = tmp_path / "alias" / ".."
+    report = audit.analyze_workflow_roots([prefix / "root-link", prefix / "safe"])
+    roots = _roots(report)
+    assert roots[0]["filesDiscovered"] == 0
+    assert roots[0]["issueCounts"] == {"workflow_root_symlink_rejected": 1}
+    assert roots[1]["filesDiscovered"] == 1
 
 
 def _write_json(path: Path, payload: object) -> None:

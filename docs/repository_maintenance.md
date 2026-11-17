@@ -132,11 +132,15 @@ cleared the three request-related warnings. It still reports ten path findings,
 including the defensive `resolve()` and link checks themselves. The scan job
 completed successfully; that result does not mean there are zero findings.
 
-The file tools intentionally accept operator-selected local paths, including
-folders outside this repository. The remaining local-input findings require a
-reviewed trust model or a narrower CLI input contract before they can be
-considered resolved. The extended suite and local-input analysis remain enabled.
-This change leaves the findings visible without dismissals or source exclusions.
+The November 16, 2026 follow-up expresses the path boundary through standard
+normalization and component-aware checks before filesystem probes. It retains
+the final resolved-path containment check and inspects links without following
+their final component. Operator-selected folders outside this repository remain
+supported. The unchanged stock Python extended suite reports zero repository
+findings locally, while detecting all seven deliberately unsafe control cases.
+The extended suite and local-input analysis remain enabled, with no dismissals,
+custom sanitizer models, or source exclusions. See the
+[path validation evidence and reproduction steps](codeql_path_validation.md).
 
 ## Documentation checks
 
