@@ -28,6 +28,7 @@ MAX_COMPRESSED_CLIENT_BYTES = 25_000
 
 @pytest.fixture(scope="module")
 def built_site() -> Iterator[Path]:
+    (ROOT / ".tmp").mkdir(exist_ok=True)
     with TemporaryDirectory(prefix="site-check-", dir=ROOT / ".tmp") as temporary:
         output = Path(temporary)
         build_site(output)

@@ -58,3 +58,9 @@ Primary deployment references checked 2026-11-24:
 - [Deploy Pages v5.0.1](https://github.com/actions/deploy-pages/releases/tag/v5.0.1)
 
 The workflow pins exact commits, not moving major-version tags.
+
+On Ubuntu 24.04, the browser job installs an AppArmor profile for the exact
+Playwright Chromium executable. It allows that binary to create its sandbox
+without changing the runner's global user-namespace restriction. Chromium
+sandboxing remains enabled. See the [Chromium sandbox guidance](https://chromium.googlesource.com/chromium/src/+/main/docs/security/apparmor-userns-restrictions.md),
+checked 2026-11-24. This setup affects only the disposable hosted runner.

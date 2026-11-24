@@ -80,6 +80,18 @@ jobs:
         run: node --test tests/site/lab.test.mjs
       - name: Install the test browser
         run: npx --no-install playwright install --with-deps chromium
+      - name: Allow the exact test browser to create its sandbox
+        run: |
+          browser_path="$(node --input-type=module -e 'import { chromium } from "@playwright/test"; console.log(chromium.executablePath())')"
+          test -x "$browser_path"
+          cat <<EOF | sudo tee /etc/apparmor.d/civiscribe-playwright >/dev/null
+          abi <abi/4.0>,
+          include <tunables/global>
+          profile civiscribe-playwright "$browser_path" flags=(unconfined) {
+            userns,
+          }
+          EOF
+          sudo apparmor_parser -r /etc/apparmor.d/civiscribe-playwright
       - name: Check desktop, mobile, keyboard, and accessibility behavior
         run: npx --no-install playwright test --config tests/site/playwright.config.mjs
       - name: Upload the tested Pages artifact

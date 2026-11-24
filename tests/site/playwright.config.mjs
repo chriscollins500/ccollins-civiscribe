@@ -28,7 +28,7 @@ export default defineConfig({
   outputDir: path.join(root, ".tmp/site-test-results"),
   use: {
     baseURL: publishedURL || "http://127.0.0.1:8793/ccollins-civiscribe/",
-    channel: process.env.CI ? undefined : "msedge",
+    channel: process.env.CI ? "chromium" : "msedge",
     launchOptions: { chromiumSandbox: true },
     trace: "retain-on-failure",
   },
