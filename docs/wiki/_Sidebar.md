@@ -1,5 +1,8 @@
 **CiviScribe guide**
 
+- [Website and playground](https://chriscollins500.github.io/ccollins-civiscribe/)
+- [Project hub](https://github.com/chriscollins500/ccollins-civiscribe/wiki/Project-hub)
+
 - [Home](https://github.com/chriscollins500/ccollins-civiscribe/wiki)
 - [Installation and updates](https://github.com/chriscollins500/ccollins-civiscribe/wiki/Installation-and-updates)
 - [Quick start](https://github.com/chriscollins500/ccollins-civiscribe/wiki/Quick-start)
@@ -18,3 +21,11 @@
 - [Troubleshooting](https://github.com/chriscollins500/ccollins-civiscribe/wiki/Troubleshooting)
 - [Verify a release](https://github.com/chriscollins500/ccollins-civiscribe/wiki/Verify-a-release)
 - [Development and feedback](https://github.com/chriscollins500/ccollins-civiscribe/wiki/Development-and-feedback)
+
+**Around the project**
+
+- [Roadmap](https://github.com/chriscollins500/ccollins-civiscribe/blob/main/ROADMAP.md)
+- [Public board](https://github.com/users/chriscollins500/projects/2)
+- [Get help](https://github.com/chriscollins500/ccollins-civiscribe/blob/main/SUPPORT.md)
+- [Releases](https://github.com/chriscollins500/ccollins-civiscribe/releases/latest)
+- [Discussions](https://github.com/chriscollins500/ccollins-civiscribe/discussions)

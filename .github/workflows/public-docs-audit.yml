@@ -1,0 +1,49 @@
+name: Public documentation audit
+
+on:
+  schedule:
+    - cron: '17 14 * * 2'
+  gollum:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: public-docs-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      (github.event_name != 'gollum' || github.actor != 'github-actions[bot]')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '24.22.3'
+      - name: Build and validate current reviewed sources
+        run: |
+          python -m pip install --only-binary=:all: --require-hashes -r docs/site/requirements.txt
+          python -m tools.validate_repository_docs
+          python -m tools.validate_public_project
+          python -m tools.build_site
+          python -m tools.validate_site
+      - name: Check repository entry points
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          test "$(gh api "repos/$GITHUB_REPOSITORY" --jq '.homepage == "https://chriscollins500.github.io/ccollins-civiscribe/" and .has_pages and .has_wiki and .has_issues and .has_discussions and .has_projects')" = true
+          test "$(gh api "repos/$GITHUB_REPOSITORY/labels?per_page=100" --jq '[.[].name] | contains(["bug","documentation","enhancement","needs-triage"])')" = true
+      - name: Verify the published website byte for byte
+        run: node tools/audit_public_docs.mjs
+      - name: Verify the published wiki against source
+        run: |
+          git clone --depth 1 --no-tags "https://github.com/$GITHUB_REPOSITORY.wiki.git" .tmp/wiki-audit
+          python -m tools.sync_wiki --wiki-root .tmp/wiki-audit

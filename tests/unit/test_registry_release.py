@@ -37,7 +37,11 @@ def test_registry_metadata_uses_permanent_release_identity() -> None:
     assert metadata["project"]["description"] == REGISTRY_DESCRIPTION
     assert metadata["project"]["urls"] == {
         "Repository": "https://github.com/chriscollins500/ccollins-civiscribe",
-        "Documentation": "https://github.com/chriscollins500/ccollins-civiscribe/wiki",
+        "Homepage": "https://chriscollins500.github.io/ccollins-civiscribe/",
+        "Documentation": "https://chriscollins500.github.io/ccollins-civiscribe/guides/",
+        "Wiki": "https://github.com/chriscollins500/ccollins-civiscribe/wiki",
+        "Discussions": "https://github.com/chriscollins500/ccollins-civiscribe/discussions",
+        "Roadmap": "https://chriscollins500.github.io/ccollins-civiscribe/roadmap/",
         "Bug Tracker": "https://github.com/chriscollins500/ccollins-civiscribe/issues",
     }
     assert metadata["tool"]["comfy"] == {

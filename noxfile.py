@@ -92,6 +92,7 @@ def python(session: nox.Session) -> None:
         session,
         "tools.validate_repository_docs",
     )
+    _run_python_module(session, "tools.validate_public_project")
     _run_python_module(
         session,
         "pytest",

@@ -1,0 +1,16 @@
+body:
+  - type: markdown
+    attributes:
+      value: Share a creation, workflow recipe, or useful CiviScribe tip. Review attachments and embedded metadata for private information and respect resource licenses.
+  - type: textarea
+    id: story
+    attributes:
+      label: What did you make or discover?
+      description: Tell us the idea, result, and what worked well.
+    validations:
+      required: true
+  - type: textarea
+    id: recipe
+    attributes:
+      label: Workflow or naming recipe
+      description: Optional. Include the CiviScribe version and relevant custom-node requirements so others can follow along.

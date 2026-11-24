@@ -1,5 +1,8 @@
 blank_issues_enabled: true
 contact_links:
+  - name: Explore the website and interactive examples
+    url: https://chriscollins500.github.io/ccollins-civiscribe/guides/project-hub/
+    about: Find guides, the playground, downloads, roadmap, and contribution paths.
   - name: Read the CiviScribe guide
     url: https://github.com/chriscollins500/ccollins-civiscribe/wiki
     about: Installation, every setting, filename recipes, workflow examples, and troubleshooting.
@@ -9,3 +12,9 @@ contact_links:
   - name: Report a security vulnerability privately
     url: https://github.com/chriscollins500/ccollins-civiscribe/security/advisories/new
     about: Send a confidential report through GitHub private vulnerability reporting.
+  - name: Follow the public roadmap
+    url: https://github.com/users/chriscollins500/projects/2
+    about: Accepted priorities, considered ideas, and completed work; ideas are not release promises.
+  - name: Read the security policy
+    url: https://chriscollins500.github.io/ccollins-civiscribe/security/
+    about: Understand privacy boundaries and verify signed releases and website builds.

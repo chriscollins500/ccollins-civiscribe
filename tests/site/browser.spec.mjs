@@ -39,6 +39,7 @@ test("homepage is readable, local, and free of console errors", async ({
 test("representative pages pass Axe in dark and light themes", async ({
   page,
 }) => {
+  test.setTimeout(120_000);
   for (const theme of ["dark", "light"]) {
     for (const route of [
       "./",
@@ -47,6 +48,12 @@ test("representative pages pass Axe in dark and light themes", async ({
       "playground/",
       "reference/api-and-mcp/",
       "changelog/",
+      "guides/project-hub/",
+      "roadmap/",
+      "support/",
+      "security/",
+      "contributing/",
+      "community/",
     ]) {
       await page.goto(route);
       await page.evaluate((value) => {
@@ -85,6 +92,35 @@ test("search works by button and keyboard, and closes with Escape", async ({
   await page.getByRole("searchbox").fill('<img src=x onerror="alert(1)">');
   await expect(page.locator(".search-status")).toContainText("No matches");
   await expect(page.locator(".search-results img")).toHaveCount(0);
+});
+
+test("the project hub connects guides, roadmap, support, and private reporting", async ({
+  page,
+}) => {
+  await page.goto("guides/project-hub/");
+  const article = page.locator(".prose");
+  await expect(
+    article.getByRole("link", { name: "Roadmap guide", exact: true }),
+  ).toHaveAttribute("href", "/ccollins-civiscribe/roadmap/");
+  await expect(
+    article.getByRole("link", {
+      name: "Private security reporting",
+      exact: true,
+    }),
+  ).toHaveAttribute(
+    "href",
+    "https://github.com/chriscollins500/ccollins-civiscribe/security/advisories/new",
+  );
+  await article
+    .getByRole("link", { name: "Roadmap guide", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/roadmap\//);
+  await expect(page.locator(".prose")).toContainText("Under consideration");
+  await page
+    .locator(".prose")
+    .getByRole("link", { name: "support guide", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/support\//);
 });
 
 test("filename recipes, counter growth, format change, and unsafe paths", async ({

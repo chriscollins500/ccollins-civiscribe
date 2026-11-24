@@ -8,6 +8,7 @@ import html
 import json
 import re
 from collections import Counter
+from collections.abc import Iterator
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
@@ -109,6 +110,38 @@ GUIDES = {
         "Testing, translations, feedback, ideas, and the best places to ask for help.",
         "Trust & support",
     ),
+    "Project-hub": (
+        "The project hub",
+        "Downloads, roadmap, discussions, support, security, and contribution paths.",
+        "Trust & support",
+    ),
+}
+PROJECT_PAGES = {
+    "ROADMAP.md": (
+        "roadmap",
+        "Where CiviScribe goes next",
+        "Current priorities, considered ideas, and completed work.",
+    ),
+    "SUPPORT.md": (
+        "support",
+        "Let's get you unstuck",
+        "Find the right guide, ask a question, or report a reproducible problem.",
+    ),
+    "SECURITY.md": (
+        "security",
+        "Trust, privacy & verification",
+        "Security boundaries, private reporting, and signed software and website builds.",
+    ),
+    "CONTRIBUTING.md": (
+        "contributing",
+        "Make CiviScribe better",
+        "Contribute code, documentation, translations, and carefully tested improvements.",
+    ),
+    "CODE_OF_CONDUCT.md": (
+        "community",
+        "A welcoming place to create",
+        "The community guidelines shared by CiviScribe's project spaces.",
+    ),
 }
 REFERENCES = {
     "api_and_mcp.md": (
@@ -189,6 +222,7 @@ def public_paths() -> frozenset[str]:
         | frozenset(f"examples/{name}" for name in EXAMPLES)
         | frozenset(f"guides/{key.lower()}/index.html" for key in GUIDES)
         | frozenset(f"reference/{value[0]}/index.html" for value in REFERENCES.values())
+        | frozenset(f"{value[0]}/index.html" for value in PROJECT_PAGES.values())
     )
 
 
@@ -253,11 +287,21 @@ def _mapping() -> dict[Path, str]:
         {ROOT / f"docs/{key}": f"/reference/{value[0]}/" for key, value in REFERENCES.items()}
     )
     mappings[ROOT / "CHANGELOG.md"] = "/changelog/"
+    mappings.update({ROOT / key: f"/{value[0]}/" for key, value in PROJECT_PAGES.items()})
     return {path.resolve(): route for path, route in mappings.items()}
 
 
 def _link(href: str, source: Path, mappings: dict[Path, str]) -> str:
     parsed = urlsplit(href)
+    if f"{parsed.scheme}://{parsed.netloc}" == ORIGIN and (
+        parsed.path == BASE or parsed.path.startswith(BASE + "/")
+    ):
+        site_path = BASE + "/" if parsed.path == BASE else parsed.path
+        return (
+            site_path
+            + (f"?{parsed.query}" if parsed.query else "")
+            + (f"#{parsed.fragment}" if parsed.fragment else "")
+        )
     wiki_prefix = f"{REPOSITORY}/wiki"
     path: Path | None = None
     if href.split("#", maxsplit=1)[0] == wiki_prefix or href.startswith(f"{wiki_prefix}/"):
@@ -338,7 +382,12 @@ def _sidebar(current: str) -> str:
         active = ' aria-current="page"' if route == current else ""
         parts.append(f'<a href="{BASE}{route}"{active}>{html.escape(title)}</a>')
     parts.append(
-        "<h2>Under the hood</h2>"
+        "<h2>About the project</h2>"
+        + "".join(
+            f'<a href="{BASE}/{slug}/">{html.escape(title)}</a>'
+            for slug, title, _ in PROJECT_PAGES.values()
+        )
+        + "<h2>Under the hood</h2>"
         f'<a href="{BASE}/reference/api-and-mcp/">API reference</a>'
         f'<a href="{BASE}/reference/architecture/">Architecture</a>'
         f'<a href="{BASE}/guides/#under-the-hood">All technical references</a></nav></aside>'
@@ -391,6 +440,17 @@ def _library() -> str:
         "their recorded dates and limits.</p></div>"
         f'<div class="guide-group-links">{technical}</div></section>'
     )
+    project_links = "".join(
+        f'<a href="{BASE}/{slug}/"><h3>{html.escape(title)}</h3>'
+        f"<p>{html.escape(description)}</p></a>"
+        for slug, title, description in PROJECT_PAGES.values()
+    )
+    sections.append(
+        '<section class="guide-group" id="about-the-project"><div class="guide-group-intro">'
+        "<h2>About the project</h2><p>One shared set of priorities, support routes, "
+        "and community agreements.</p></div>"
+        f'<div class="guide-group-links">{project_links}</div></section>'
+    )
     return _template("library.html", {"SECTIONS": "".join(sections)})
 
 
@@ -430,6 +490,17 @@ def _copy_assets(output: Path, version: str) -> None:
         "warnings": [],
     }
     _write(output, "examples/save-report.json", json.dumps(example_report, indent=2) + "\n")
+
+
+def _document_pages(mappings: dict[Path, str]) -> Iterator[tuple[Path, str, str, str, str]]:
+    for key, (title, description, _) in GUIDES.items():
+        source = ROOT / f"docs/wiki/{key}.md"
+        yield source, title, description, mappings[source.resolve()], "guides"
+    for key, (_, title, description) in REFERENCES.items():
+        source = ROOT / f"docs/{key}"
+        yield source, title, description, mappings[source.resolve()], "guides"
+    for key, (slug, title, description) in PROJECT_PAGES.items():
+        yield ROOT / key, title, description, f"/{slug}/", "project"
 
 
 def build_site(output: Path) -> dict[str, object]:
@@ -504,26 +575,13 @@ def build_site(output: Path) -> dict[str, object]:
         _read(SOURCE / "playground.html"),
         "playground",
     )
-    for key, (title, description, _) in GUIDES.items():
-        source = ROOT / f"docs/wiki/{key}.md"
-        route = mappings[source.resolve()]
+    for source, title, description, route, category in _document_pages(mappings):
         page(
             route,
             f"{title} · CiviScribe",
             description,
             _guide(source, title, description, route, mappings),
-            "guides",
-        )
-        search[-1]["text"] = re.sub(r"\s+", " ", _read(source)).strip()[:24000]
-    for key, (_, title, description) in REFERENCES.items():
-        source = ROOT / f"docs/{key}"
-        route = mappings[source.resolve()]
-        page(
-            route,
-            f"{title} · CiviScribe",
-            description,
-            _guide(source, title, description, route, mappings),
-            "guides",
+            category,
         )
         search[-1]["text"] = re.sub(r"\s+", " ", _read(source)).strip()[:24000]
     changelog, _ = _render_markdown(ROOT / "CHANGELOG.md", mappings)
@@ -562,6 +620,7 @@ def build_site(output: Path) -> dict[str, object]:
         "searchablePages": len(search),
         "guideSources": len(GUIDES),
         "technicalReferences": len(REFERENCES),
+        "projectPages": len(PROJECT_PAGES),
         "files": {
             path.relative_to(output).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
             for path in sorted(output.rglob("*"))

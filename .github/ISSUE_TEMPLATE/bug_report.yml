@@ -13,7 +13,7 @@ body:
     attributes:
       label: CiviScribe and ComfyUI versions
       description: Include the installed CiviScribe version and ComfyUI/Desktop version. Enter unknown if you cannot find one.
-      placeholder: CiviScribe 2.0.10, ComfyUI Desktop with ComfyUI 0.44.2
+      placeholder: Installed CiviScribe version, ComfyUI version, and Desktop version when used
     validations:
       required: true
   - type: dropdown

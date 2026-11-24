@@ -23,7 +23,7 @@ from tools.build_site import (
 )
 from tools.validate_site import validate_site
 
-EXPECTED_PAGE_COUNT = 30
+EXPECTED_PAGE_COUNT = 36
 MAX_COMPRESSED_CLIENT_BYTES = 25_000
 
 

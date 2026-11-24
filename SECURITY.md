@@ -44,16 +44,36 @@ See the [API contract](docs/api_and_mcp.md) for exact limits and boundaries.
 ## Verify a release download
 
 CiviScribe publishes signed build provenance for the GitHub release assets,
-including the ZIP sent to the ComfyUI Registry. To check the 2.0.11 Registry
+including the ZIP sent to the ComfyUI Registry. To check the 2.0.12 Registry
 ZIP, run this in its download folder with GitHub CLI. Resolve the release tag's
 commit independently of the downloaded artifact:
 
 ```powershell
-$releaseCommit = gh api repos/chriscollins500/ccollins-civiscribe/commits/v2.0.11 --jq .sha
-gh attestation verify ccollins-civiscribe-2.0.11-registry.zip --repo chriscollins500/ccollins-civiscribe --signer-workflow chriscollins500/ccollins-civiscribe/.github/workflows/publish.yml --source-ref refs/heads/main --source-digest $releaseCommit --deny-self-hosted-runners
+$releaseCommit = gh api repos/chriscollins500/ccollins-civiscribe/commits/v2.0.12 --jq .sha
+gh attestation verify ccollins-civiscribe-2.0.12-registry.zip --repo chriscollins500/ccollins-civiscribe --signer-workflow chriscollins500/ccollins-civiscribe/.github/workflows/publish.yml --source-ref refs/heads/main --source-digest $releaseCommit --deny-self-hosted-runners
 ```
 
 For other releases, use the asset filename and the full commit for the
 expected release tag. A successful check ties those bytes to this repository,
 commit, and publication workflow on a GitHub-hosted runner. See the
 [GitHub CLI verification reference](https://cli.github.com/manual/gh_attestation_verify).
+
+## Website and documentation
+
+The [website](https://chriscollins500.github.io/ccollins-civiscribe/) and wiki
+render reviewed documentation from this repository. The website is static;
+its educational demos do not contact ComfyUI or Civitai. It uses no analytics,
+external scripts, fonts, or runtime CDNs. Optional theme preferences stay in
+browser-local storage. GitHub provides hosting and applies its own access
+logging and privacy policy.
+
+The Website workflow tests the generated pages, synchronizes the wiki, and
+attests the exact Pages artifact before deployment. Its provenance is separate
+from node-release attestations and uses `.github/workflows/pages.yml`.
+The artifact's source commit identifies the documentation build; it is not
+necessarily a software release tag. See the
+[website verification instructions](docs/site/README.md#verify-a-deployment).
+
+Use [private reporting](https://github.com/chriscollins500/ccollins-civiscribe/security/advisories/new)
+for vulnerabilities. Ordinary documentation corrections belong in the
+[documentation form](https://github.com/chriscollins500/ccollins-civiscribe/issues/new?template=documentation.yml).

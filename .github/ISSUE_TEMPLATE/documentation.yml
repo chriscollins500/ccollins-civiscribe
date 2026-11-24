@@ -1,0 +1,29 @@
+name: Improve a guide or website page
+description: Report a broken link, unclear example, outdated instruction, or accessibility problem.
+labels: [documentation, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The website and wiki share reviewed source in this repository. A correction can improve both.
+        Usage questions fit [Q&A](https://github.com/chriscollins500/ccollins-civiscribe/discussions/categories/q-a).
+        Report vulnerabilities through [private security reporting](https://github.com/chriscollins500/ccollins-civiscribe/security/advisories/new).
+  - type: input
+    id: page
+    attributes:
+      label: Page or link
+      description: Include the website, wiki, repository page, or form where you found the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What needs improving?
+      description: Describe what was unclear, incorrect, inaccessible, or broken.
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested correction or example
+      description: Optional. Include the browser and screen size for a layout problem. Review attachments for private content.

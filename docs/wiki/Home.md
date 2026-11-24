@@ -1,5 +1,10 @@
 # CiviScribe
 
+[Website and playground](https://chriscollins500.github.io/ccollins-civiscribe/)
+· [Project hub](https://github.com/chriscollins500/ccollins-civiscribe/wiki/Project-hub)
+· [Roadmap](https://github.com/chriscollins500/ccollins-civiscribe/blob/main/ROADMAP.md)
+· [Get help](https://github.com/chriscollins500/ccollins-civiscribe/blob/main/SUPPORT.md)
+
 CiviScribe saves your ComfyUI images with the prompts, settings, and model
 resources used to make them. Choose PNG, JPEG, or WebP, save the image, and
 upload it to Civitai when you are ready.

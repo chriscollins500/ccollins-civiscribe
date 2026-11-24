@@ -1,0 +1,28 @@
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Start with the [field guide](https://chriscollins500.github.io/ccollins-civiscribe/guides/) or [troubleshooting](https://github.com/chriscollins500/ccollins-civiscribe/wiki/Troubleshooting).
+        Use [issue forms](https://github.com/chriscollins500/ccollins-civiscribe/issues/new/choose) for reproducible bugs and [private reporting](https://github.com/chriscollins500/ccollins-civiscribe/security/advisories/new) for vulnerabilities.
+  - type: textarea
+    id: goal
+    attributes:
+      label: What are you trying to do?
+      description: Describe the workflow and the result you want.
+    validations:
+      required: true
+  - type: textarea
+    id: tried
+    attributes:
+      label: What have you tried, and what happened?
+      description: Helpful context includes the image format, relevant node names, and any sanitized diagnostic code.
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: CiviScribe and ComfyUI versions
+      description: Optional. Enter unknown if you cannot find a version.
+  - type: markdown
+    attributes:
+      value: Review attachments for private prompts, workflows, images, model paths, and credentials. Mark a helpful reply as the answer when it resolves your question.

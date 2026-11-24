@@ -61,6 +61,18 @@ includes local preview, pure JavaScript tests, desktop/mobile browser checks,
 accessibility checks, and deployment details. The Website workflow tests and
 attests the exact artifact before publishing it from `main`.
 
+The same tested commit synchronizes reviewed Markdown to the GitHub wiki before
+website deployment. Edit `docs/wiki`, including `_Sidebar.md` and `_Footer.md`,
+through a repository change rather than editing the published wiki directly.
+The publisher changes only named source pages, preserves attachments, and
+fails on unreviewed extra pages. It never deletes unknown wiki content.
+
+The normal Python gate also checks public navigation, package-version identity,
+guide coverage, and full commit pins for workflow actions. Discussion forms
+and issue forms route questions, ideas, documentation fixes, and private
+vulnerability reports consistently. The [project hub](https://chriscollins500.github.io/ccollins-civiscribe/guides/project-hub/)
+explains how the public spaces fit together.
+
 ### Dependency update baseline
 
 The 2026-10-28 refresh uses Pillow 13, NumPy 2.5.4, truststore 0.10.5, and a

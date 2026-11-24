@@ -12,13 +12,14 @@ Update the underlying documents rather than creating a second copy of a guide.
 
 ## Build and preview
 
-Use the project's locked Python environment, which includes markdown-it-py
-4.3.0 and mdurl 0.1.2. No frontend framework or new runtime dependency is added.
+Use the project's locked Python environment. The CI documentation requirements
+pin the same renderer wheel versions and SHA-256 values recorded in `uv.lock`.
+No frontend framework or new node runtime dependency is added.
 
 ```powershell
 .\.venv\Scripts\python.exe -m tools.build_site
 .\.venv\Scripts\python.exe -m tools.validate_site
-python -m http.server 8792 --bind 127.0.0.1 --directory .tmp/site-preview
+.\.venv\Scripts\python.exe -m http.server 8792 --bind 127.0.0.1 --directory .tmp/site-preview
 ```
 
 Open <http://127.0.0.1:8792/ccollins-civiscribe/>. Preserve the project URL prefix
@@ -44,6 +45,39 @@ The Pages workflow builds from source, validates the exact output, runs the
 browser suite, and uploads only the generated public site. Deployment is limited
 to `main`. It attests the Pages artifact before deploying it; it does not build
 or publish a new ComfyUI node release. Existing release signing stays separate.
+
+After browser validation, a separate job uses a short-lived `GITHUB_TOKEN`
+with `contents: write` to synchronize `docs/wiki` to the existing wiki. It
+uses no personal token and stores no credential in the Git remote. A fresh
+clone verifies the published Markdown. Website deployment depends on that
+readback. Pull requests run validation without publishing to either surface.
+The wiki publisher never removes attachments or unknown pages.
+
+`ROADMAP.md`, `SUPPORT.md`, `SECURITY.md`, `CONTRIBUTING.md`, and
+`CODE_OF_CONDUCT.md` are rendered directly as website project pages. The
+shared project hub routes visitors to the appropriate GitHub or Registry space.
+`python -m tools.validate_public_project` checks cross-surface navigation,
+package versions, guide coverage, and workflow pins. A scheduled read-only
+documentation audit detects published site or wiki drift.
+
+## Verify a deployment
+
+Select a successful Website run on `main` in the repository's Actions tab.
+Use its run ID and full source commit from GitHub, then download the exact
+artifact into an empty folder:
+
+```powershell
+$runId = "RUN_ID_FROM_GITHUB"
+$sourceCommit = "FULL_SOURCE_COMMIT_FROM_GITHUB"
+gh run download $runId --repo chriscollins500/ccollins-civiscribe --name github-pages
+gh attestation verify artifact.tar --repo chriscollins500/ccollins-civiscribe --signer-workflow chriscollins500/ccollins-civiscribe/.github/workflows/pages.yml --source-ref refs/heads/main --source-digest $sourceCommit --deny-self-hosted-runners
+```
+
+The signature binds those archive bytes to the workflow and commit. The
+archive's `site-manifest.json` records SHA-256 values for every other public
+file. The read-only drift audit compares the live manifest and all public
+files with a fresh source build. Website provenance is separate from node
+release provenance; a website update does not create a software release.
 
 All browser scripts, styles, and images are served from the same origin. There
 are no analytics, advertising scripts, external fonts, or runtime CDNs. Theme

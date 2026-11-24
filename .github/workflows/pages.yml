@@ -13,6 +13,19 @@ on:
       - civiscribe/version.py
       - civiscribe/schemas/api-v1.openapi.json
       - CHANGELOG.md
+      - README.md
+      - ROADMAP.md
+      - SUPPORT.md
+      - SECURITY.md
+      - CONTRIBUTING.md
+      - CODE_OF_CONDUCT.md
+      - .github/ISSUE_TEMPLATE/**
+      - .github/DISCUSSION_TEMPLATE/**
+      - .github/pull_request_template.md
+      - tools/sync_wiki.py
+      - tools/validate_public_project.py
+      - tools/validate_repository_docs.py
+      - tools/audit_public_docs.mjs
       - tools/build_site.py
       - tools/validate_site.py
       - tests/site/**
@@ -32,6 +45,19 @@ on:
       - civiscribe/version.py
       - civiscribe/schemas/api-v1.openapi.json
       - CHANGELOG.md
+      - README.md
+      - ROADMAP.md
+      - SUPPORT.md
+      - SECURITY.md
+      - CONTRIBUTING.md
+      - CODE_OF_CONDUCT.md
+      - .github/ISSUE_TEMPLATE/**
+      - .github/DISCUSSION_TEMPLATE/**
+      - .github/pull_request_template.md
+      - tools/sync_wiki.py
+      - tools/validate_public_project.py
+      - tools/validate_repository_docs.py
+      - tools/audit_public_docs.mjs
       - tools/build_site.py
       - tools/validate_site.py
       - tests/site/**
@@ -63,21 +89,23 @@ jobs:
           node-version: '24.22.3'
           cache: npm
       - name: Install pinned documentation tools
-        run: python -m pip install markdown-it-py==4.3.0 mdurl==0.1.2
+        run: 'python -m pip install --only-binary=:all: --require-hashes -r docs/site/requirements.txt'
       - name: Install locked browser-test tools
         run: npm ci
       - name: Check site source formatting
-        run: npx --no-install prettier --check 'docs/site/**/*.{html,css,js}' 'tests/site/*.mjs' docs/site/.oxlintrc.json tests/site/.oxlintrc.json
+        run: npx --no-install prettier --check 'docs/site/**/*.{html,css,js}' 'tests/site/*.mjs' tools/audit_public_docs.mjs docs/site/.oxlintrc.json tests/site/.oxlintrc.json
       - name: Lint browser code and website tests
         run: |
           npx --no-install oxlint --deny-warnings -c docs/site/.oxlintrc.json docs/site/assets
-          npx --no-install oxlint --deny-warnings -c tests/site/.oxlintrc.json tests/site
+          npx --no-install oxlint --deny-warnings -c tests/site/.oxlintrc.json tests/site tools/audit_public_docs.mjs
       - name: Build reviewed documents and audit public output
         run: |
+          python -m tools.validate_repository_docs
+          python -m tools.validate_public_project
           python -m tools.build_site
           python -m tools.validate_site
       - name: Test educational models
-        run: node --test tests/site/lab.test.mjs
+        run: node --test tests/site/*.test.mjs
       - name: Install the test browser
         run: npx --no-install playwright install --with-deps chromium
       - name: Allow the exact test browser to create its sandbox
@@ -102,9 +130,50 @@ jobs:
           include-hidden-files: true
           retention-days: 7
 
-  deploy:
+  wiki:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with:
+          python-version: '3.12'
+      - name: Check out the existing wiki using the job-scoped token
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p .tmp
+          git -c credential.helper= -c 'credential.helper=!gh auth git-credential' clone --depth 1 --no-tags "https://github.com/$GITHUB_REPOSITORY.wiki.git" .tmp/wiki-publish
+      - name: Synchronize only reviewed pages and verify the result
+        run: |
+          python -m tools.sync_wiki --wiki-root .tmp/wiki-publish --write
+          python -m tools.sync_wiki --wiki-root .tmp/wiki-publish
+      - name: Publish a fast-forward wiki update
+        working-directory: .tmp/wiki-publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- '*.md'
+          if ! git diff --cached --quiet; then
+            git commit -m "Publish reviewed guides from $GITHUB_SHA"
+            git -c credential.helper= -c 'credential.helper=!gh auth git-credential' push origin HEAD
+          fi
+      - name: Verify the published wiki from a fresh read
+        run: |
+          git clone --depth 1 --no-tags "https://github.com/$GITHUB_REPOSITORY.wiki.git" .tmp/wiki-readback
+          python -m tools.sync_wiki --wiki-root .tmp/wiki-readback
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: [build, wiki]
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     environment:
@@ -131,3 +200,36 @@ jobs:
       - name: Deploy the tested artifact
         id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+
+  verify-publication:
+    needs: deploy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+      attestations: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '24.22.3'
+      - name: Rebuild reviewed documentation with locked wheel hashes
+        run: |
+          python -m pip install --only-binary=:all: --require-hashes -r docs/site/requirements.txt
+          python -m tools.build_site
+      - name: Verify every live website file
+        run: node tools/audit_public_docs.mjs
+      - name: Compare the published wiki with the same source commit
+        run: |
+          git clone --depth 1 --no-tags "https://github.com/$GITHUB_REPOSITORY.wiki.git" .tmp/wiki-verify
+          python -m tools.sync_wiki --wiki-root .tmp/wiki-verify
+      - name: Verify the exact deployed artifact provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name github-pages --dir .tmp/pages-provenance
+          gh attestation verify .tmp/pages-provenance/artifact.tar --repo "$GITHUB_REPOSITORY" --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/pages.yml" --source-ref refs/heads/main --source-digest "$GITHUB_SHA" --deny-self-hosted-runners

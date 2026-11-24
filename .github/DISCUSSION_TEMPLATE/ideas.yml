@@ -1,0 +1,25 @@
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Check the [roadmap](https://github.com/users/chriscollins500/projects/2) and [project hub](https://chriscollins500.github.io/ccollins-civiscribe/guides/project-hub/) for existing ideas and product boundaries.
+        Suggestions are welcome; a discussion does not promise a release or delivery date.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What would this make easier?
+      description: Explain the task or workflow and what currently gets in the way.
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: What behavior would help?
+      description: Describe the result in your own words. Code is optional.
+    validations:
+      required: true
+  - type: textarea
+    id: examples
+    attributes:
+      label: Examples or related discussions
+      description: Optional. Use synthetic or reviewed examples and remove private content.

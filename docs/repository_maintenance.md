@@ -2,12 +2,16 @@
 
 The public repository, wiki, issue forms, contributor pages, and automated
 checks are maintained together. This guide records the GitHub configuration
-reviewed on November 14, 2026.
+reviewed on November 24, 2026. Historical security and dependency snapshots
+retain their own dates.
 
 ## Public entry points
 
 The repository About description explains CiviScribe's purpose. Its website
-link opens the wiki. Topics cover ComfyUI, Civitai, image generation, metadata,
+link opens the [website](https://chriscollins500.github.io/ccollins-civiscribe/).
+The [project hub](wiki/Project-hub.md) connects the website, wiki, repository,
+downloads, Registry, roadmap, Discussions, Issues, and contribution routes.
+Topics cover ComfyUI, Civitai, image generation, metadata,
 EXIF, PNG, JPEG, WebP, Python, and TypeScript.
 
 The README uses the existing project banner and links to quick start, user
@@ -32,8 +36,8 @@ release timeline uses actual publication dates for completed versions.
 Future ideas remain undated until a maintainer approves a delivery plan.
 
 Use Planned for accepted maintenance priorities, In progress for started work,
-Under consideration for uncommitted ideas, and Done for released work with
-release-note evidence. Deferred output-location controls and possible adapters
+Under consideration for uncommitted ideas, and Done for released software or
+deployed documentation with evidence links. Deferred output-location controls and possible adapters
 for other applications remain under consideration; they do not change the
 current product or filesystem boundaries.
 
@@ -42,12 +46,20 @@ artificial bug reports. Link or convert an item to an issue when there is a
 specific implementation task. Review the public board and roadmap guide when
 priorities or release status change.
 
+The board's introduction is maintained in `docs/project_board.md`. Publish a
+reviewed update through GitHub's Projects API and read it back. Project access
+uses the account's approved CLI `project` scope; deployment jobs do not receive
+that account token. Release dates use America/New_York, matching the changelog.
+
 ## Issues and pull requests
 
 The bug form asks for versions, steps, expected/actual behavior, and optional
 diagnostic context. The improvement form asks about the task and proposed
 behavior. Both apply `needs-triage` with the appropriate issue-type label.
-Blank issues remain available for reports that do not fit a form.
+The documentation form accepts broken links, unclear examples, and website
+accessibility issues. Blank issues remain available for reports that do not fit
+a form. Discussion forms for Q&A, Ideas, and Show and tell point to the same
+guides, roadmap, private reporting route, and community expectations.
 
 Keep the existing GitHub labels. Additional area labels help route metadata,
 filenames, image saving, frontend, packaging, and public security-hardening work.
@@ -89,6 +101,9 @@ record and catalog pointer when determining availability.
   and JavaScript/TypeScript, with local and remote input sources.
 - Actions' default token permissions are read-only. Workflows declare the
   additional permissions their individual jobs require.
+- Repository settings require workflow actions to use full commit SHAs. The
+  offline public-project check enforces the same rule in source before changes
+  reach GitHub.
 - Dependency review checks introduced dependency changes for moderate-or-higher
   known vulnerabilities. It runs on pull requests and supports manual ref
   comparisons through its workflow-dispatch inputs.
@@ -146,6 +161,7 @@ custom sanitizer models, or source exclusions. See the
 
 ```powershell
 python -m tools.validate_repository_docs
+python -m tools.validate_public_project
 ```
 
 The offline check validates relative repository links, links to versioned wiki
@@ -153,9 +169,28 @@ pages and anchors, documented schema input names, and JSON examples. Nox's
 Python session includes it. The runnable save example is also exercised by
 the isolated ComfyUI browser tests.
 
-Wiki Markdown lives in `docs/wiki`. Publish reviewed changes to the separate
-wiki Git repository and verify the rendered page. Keep its source and published
-content aligned.
+Wiki Markdown lives in `docs/wiki`. The Website workflow tests the generated
+site, then publishes those reviewed pages to the existing wiki with a job-scoped
+`GITHUB_TOKEN`. Only that job receives `contents: write`; pull requests cannot
+publish. It preserves attachments, rejects unmanaged extra Markdown, uses a
+fast-forward push, and verifies the published pages from a fresh clone.
+The signed Pages deployment depends on that wiki readback.
+
+The website renders the five standard project pages directly from root Markdown.
+Changing the roadmap, support, security, contributor, or community source triggers
+the same website checks. The offline integration validator checks navigation,
+package-version identity, guide inventories, and complete action commit pins.
+The scheduled **Public documentation audit** compares live website bytes and
+wiki pages with their reviewed source and checks public repository entry points.
+It reports drift through a failed check; it does not alter content or create
+issues or messages.
+
+The November 24 website scan at
+[`9a8a1ad`](https://github.com/chriscollins500/ccollins-civiscribe/commit/9a8a1adf78563f621ab808a5459954d9faf51385)
+reports zero findings for all configured languages. The website build and audit
+tools use the existing containment helper; the seventeen initial website path
+findings cleared through source fixes. No alerts were dismissed and the stock
+extended suite and local-input analysis remained enabled.
 
 ## Settings references
 
@@ -168,3 +203,9 @@ The following primary references were checked on November 14, 2026.
 - [Actions permissions](https://docs.github.com/en/rest/actions/permissions)
 - [Immutable releases](https://docs.github.com/en/code-security/concepts/supply-chain-security/immutable-releases)
 - [GitHub CLI release creation](https://cli.github.com/manual/gh_release_create)
+
+Additional primary references checked November 24, 2026:
+
+- [Wiki Git publishing](https://docs.github.com/en/communities/documenting-your-project-with-wikis/adding-or-editing-wiki-pages)
+- [GitHub's wiki-token guidance](https://github.com/orgs/community/discussions/25929)
+- [Actions security and token permissions](https://docs.github.com/en/actions/reference/security/secure-use)

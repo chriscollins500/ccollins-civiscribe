@@ -1,5 +1,9 @@
 # CiviScribe roadmap
 
+[Website and project hub](https://chriscollins500.github.io/ccollins-civiscribe/guides/project-hub/)
+· [User guide](https://github.com/chriscollins500/ccollins-civiscribe/wiki)
+· [Contribute](CONTRIBUTING.md)
+
 Follow the [public roadmap board](https://github.com/users/chriscollins500/projects/2/views/4)
 for current priorities, ideas under consideration, and released improvements.
 It is also linked from this repository's **Projects** tab.
@@ -36,10 +40,19 @@ promised version or delivery date until it is explicitly scheduled.
 | Planned | An accepted maintenance priority or scoped piece of upcoming work. |
 | In progress | Work has started. |
 | Under consideration | An idea being evaluated; implementation is not committed. |
-| Done | Released work, with links to its release notes. |
+| Done | Released software or deployed documentation, with links to the result and validation evidence. |
 
 The roadmap board shows priorities without requiring made-up deadlines.
 The release timeline uses actual publication dates for shipped versions.
+Release dates use America/New_York, matching the dated changelog sections.
+
+## Website and documentation
+
+The [website](https://chriscollins500.github.io/ccollins-civiscribe/) includes
+the complete guide and interactive examples. Website and wiki updates can
+deploy independently of a node release. Their source lives in this repository;
+the publishing workflow validates the guides and synchronizes the wiki before
+deploying the signed website artifact.
 
 ## Recent releases
 

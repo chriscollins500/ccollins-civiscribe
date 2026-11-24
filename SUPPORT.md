@@ -1,5 +1,11 @@
 # Getting help with CiviScribe
 
+Start at the [project hub](https://chriscollins500.github.io/ccollins-civiscribe/guides/project-hub/)
+for downloads, guides, the roadmap, and community spaces. The
+[searchable field guide](https://chriscollins500.github.io/ccollins-civiscribe/guides/)
+and [interactive playground](https://chriscollins500.github.io/ccollins-civiscribe/playground/)
+can help you explore a setting before changing a workflow.
+
 The [CiviScribe wiki](https://github.com/chriscollins500/ccollins-civiscribe/wiki)
 covers installation, every setting, filenames, counters, workflow connections,
 dynamic prompts, resource identities, metadata, and troubleshooting.

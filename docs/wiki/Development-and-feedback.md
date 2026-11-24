@@ -43,8 +43,11 @@ Civitai parser observations separately when testing catalog recognition.
 
 The wiki's reviewed Markdown source is versioned in `docs/wiki` in the main
 repository. `_Sidebar.md` and `_Footer.md` provide navigation. API examples
-live in `docs/examples`. Publish the reviewed pages to the wiki Git repository
-and check the rendered links after an update.
+live in `docs/examples`. The Website workflow validates the shared sources,
+synchronizes the wiki, and deploys the signed website build from the same
+commit. Submit changes to the repository source so both published guides stay
+in agreement. Unknown extra wiki pages are preserved and block synchronization
+until reviewed; they are never silently deleted.
 
 The [repository maintenance guide](https://github.com/chriscollins500/ccollins-civiscribe/blob/main/docs/repository_maintenance.md)
 records issue forms, labels, ownership, history protection, dependency review,

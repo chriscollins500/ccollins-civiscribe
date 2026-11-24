@@ -4,6 +4,11 @@ All notable CiviScribe changes are documented here.
 
 ## Unreleased
 
+- Integrated the website, wiki, roadmap, support, contributor and security
+  pages, package links, and GitHub forms. Added automatic wiki synchronization
+  before website deployment and cross-surface drift checks. Software releases
+  and documentation deployments retain separate provenance.
+
 - Added a GitHub Pages website with the complete user guide, technical
   references, searchable documentation, and interactive filename, workflow,
   format, and metadata examples. Includes light and dark themes, mobile and

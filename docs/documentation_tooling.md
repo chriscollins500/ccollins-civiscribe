@@ -2,13 +2,20 @@
 
 Status: accepted for V2 implementation.
 
+Current publishing decision, November 24, 2026: the requested public website
+uses the project's small Markdown renderer and locally served assets. The
+website, wiki, and repository share reviewed Markdown rather than separate
+guide copies. See the [website build and verification guide](site/README.md).
+The generator comparisons below retain their original versions and measured
+results as historical evidence; they are not the current deployment stack.
+
 This audit selects documentation tools by correctness, accessibility, privacy,
 maintenance cost, and fit with CiviScribe. It does not add documentation tools
 to the end-user runtime or installable custom-node package.
 
 ## 1. Documentation Contract
 
-CiviScribe has two documentation surfaces:
+CiviScribe keeps two documentation authorities:
 
 1. ComfyUI-native Markdown help is the primary in-application user surface.
 2. Repository Markdown is the source of design, contributor, security, and
@@ -108,8 +115,11 @@ tested viewports.
 
 ### Decision
 
-Do not add a static-site generator merely because one is available. Native
-ComfyUI help and repository Markdown meet the V2 product need today.
+The original audit deferred a public site and favored native ComfyUI help and
+repository Markdown. The November 24 user-requested website now renders the
+same reviewed Markdown, with a tested accessible theme and no external runtime
+dependencies. That publishing decision supersedes the earlier deployment
+recommendation; the requirements below remain useful acceptance criteria.
 
 If a standalone public site becomes a real release requirement,
 Sphinx/MyST/Furo is the preferred starting point because it had the strongest

@@ -22,6 +22,9 @@ DOCUMENTS = (
     "docs/README.md",
     "docs/repository_maintenance.md",
     "docs/api_and_mcp.md",
+    "docs/site/README.md",
+    "docs/project_board.md",
+    "docs/documentation_tooling.md",
 )
 _LINK = re.compile(r"!?\[[^\]\n]*\]\((<[^>]+>|[^\s)]+)\s*\)")
 _JSON_BLOCK = re.compile(r"^```json\s*\n(.*?)^```\s*$", re.MULTILINE | re.DOTALL)
@@ -109,6 +112,8 @@ def validate_repository_docs(root: Path = PROJECT_ROOT) -> tuple[str, ...]:
     root = root.resolve()
     documents = [root / name for name in DOCUMENTS]
     documents.extend(sorted((root / "docs/wiki").glob("*.md")))
+    documents.extend(sorted((root / ".github/ISSUE_TEMPLATE").glob("*.yml")))
+    documents.extend(sorted((root / ".github/DISCUSSION_TEMPLATE").glob("*.yml")))
     issues = []
     for document in documents:
         label = document.relative_to(root).as_posix()

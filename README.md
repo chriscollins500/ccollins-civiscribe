@@ -25,6 +25,7 @@ understand your image.**
 · [Releases](https://github.com/chriscollins500/ccollins-civiscribe/releases)
 · [ComfyUI Registry](https://registry.comfy.org/nodes/ccollins-civiscribe)
 · [Roadmap](ROADMAP.md)
+· [Project hub](https://chriscollins500.github.io/ccollins-civiscribe/guides/project-hub/)
 · [Get help](SUPPORT.md)
 
 ---

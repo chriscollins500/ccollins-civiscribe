@@ -1,10 +1,13 @@
 # CiviScribe V2 Design Authority
 
 For the user guide, start with the
-[CiviScribe wiki](https://github.com/chriscollins500/ccollins-civiscribe/wiki).
-Its reviewed source pages are in [`wiki/`](wiki/). Publish these Markdown
-pages unchanged to the GitHub wiki repository after reviewing their links
-and examples. `_Sidebar.md` and `_Footer.md` provide wiki navigation.
+[website and project hub](https://chriscollins500.github.io/ccollins-civiscribe/guides/project-hub/)
+or [CiviScribe wiki](https://github.com/chriscollins500/ccollins-civiscribe/wiki).
+Their reviewed source pages are in [`wiki/`](wiki/). The Website workflow tests
+the shared sources, synchronizes the wiki, and deploys the signed website build.
+`_Sidebar.md` and `_Footer.md` provide wiki navigation. The standard roadmap,
+support, security, contributor, and community pages are rendered directly from
+root Markdown. See the [website publishing guide](site/README.md).
 
 The [repository maintenance guide](repository_maintenance.md) records the
 community pages, issue forms, labels, security checks, and history protection.
