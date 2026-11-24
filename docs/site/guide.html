@@ -1,0 +1,27 @@
+<div class="guide-shell">
+  {{SIDEBAR}}
+  <article class="guide-content">
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <a href="{{BASE}}/">CiviScribe</a> /
+      <a href="{{BASE}}/guides/">The field guide</a>
+    </nav>
+    <h1>{{GUIDE_TITLE}}</h1>
+    <p class="guide-summary">{{GUIDE_DESCRIPTION}}</p>
+    <div class="prose">{{GUIDE_CONTENT}}</div>
+    <div class="guide-meta">
+      <span>Built from the project’s reviewed documentation.</span
+      ><a href="{{SOURCE_URL}}">View the source for this guide</a>
+    </div>
+    <div class="guide-next">
+      <a href="{{BASE}}/guides/"
+        ><small>KEEP EXPLORING</small>Browse the complete field guide</a
+      ><a href="{{BASE}}/playground/"
+        ><small>MAKE IT CLICK</small>Try the browser playground</a
+      >
+    </div>
+  </article>
+  <aside class="guide-toc" aria-label="On this page">
+    <p>ON THIS PAGE</p>
+    {{TOC}}
+  </aside>
+</div>

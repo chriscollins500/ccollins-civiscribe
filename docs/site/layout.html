@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="{{DESCRIPTION}}" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#10151b" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'"
+    />
+    <link rel="canonical" href="{{CANONICAL}}" />
+    <meta property="og:title" content="{{TITLE}}" />
+    <meta property="og:description" content="{{DESCRIPTION}}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="{{CANONICAL}}" />
+    <meta
+      property="og:image"
+      content="{{ORIGIN}}{{BASE}}/assets/social-preview.jpg"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>{{TITLE}}</title>
+    <link rel="icon" href="{{BASE}}/assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="{{BASE}}/assets/styles.css" />
+    <script src="{{BASE}}/assets/theme.js"></script>
+    <script type="module" src="{{BASE}}/assets/app.js"></script>
+  </head>
+  <body data-base="{{BASE}}" data-page="{{PAGE}}">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <a class="wordmark" href="{{BASE}}/" aria-label="CiviScribe home"
+        ><span class="brand-mark" aria-hidden="true">C<span>✦</span></span
+        ><span
+          >CiviScribe<span class="wordmark-caption"
+            >THE STORY STAYS.</span
+          ></span
+        ></a
+      >
+      <nav class="desktop-nav" aria-label="Main navigation">
+        <a href="{{BASE}}/guides/" {{GUIDES_CURRENT}}>The field guide</a>
+        <a href="{{BASE}}/playground/" {{PLAY_CURRENT}}>Playground</a>
+        <a href="{{BASE}}/changelog/" {{CHANGELOG_CURRENT}}>What’s new</a>
+        <a href="{{BASE}}/guides/troubleshooting/">Get help</a>
+      </nav>
+      <div class="header-actions">
+        <button
+          class="icon-button search-trigger"
+          type="button"
+          aria-label="Search the site"
+        >
+          <span aria-hidden="true">⌕</span
+          ><span class="search-label">Search</span><kbd>Ctrl K</kbd>
+        </button>
+        <button
+          class="icon-button theme-toggle"
+          type="button"
+          aria-label="Switch to light theme"
+          aria-pressed="false"
+        >
+          <span aria-hidden="true">◐</span>
+        </button>
+        <a
+          class="button button-small header-install"
+          href="{{BASE}}/guides/quick-start/"
+          >Start saving</a
+        >
+      </div>
+      <details class="mobile-nav">
+        <summary>Menu</summary>
+        <nav aria-label="Mobile navigation">
+          <a href="{{BASE}}/guides/">The field guide</a
+          ><a href="{{BASE}}/playground/">Playground</a
+          ><a href="{{BASE}}/changelog/">What’s new</a
+          ><a href="{{BASE}}/guides/troubleshooting/">Get help</a
+          ><a href="{{BASE}}/guides/quick-start/">Start saving</a>
+        </nav>
+      </details>
+    </header>
+    <main id="main" tabindex="-1">{{CONTENT}}</main>
+    <footer class="site-footer">
+      <div class="footer-top">
+        <div>
+          <a class="wordmark" href="{{BASE}}/"
+            >CiviScribe<span class="footer-star" aria-hidden="true">✦</span></a
+          >
+          <p>Better metadata. Honest resources.<br />Your pixels come first.</p>
+        </div>
+        <div>
+          <h2>Make something</h2>
+          <a href="{{BASE}}/guides/quick-start/">Your first save</a
+          ><a href="{{BASE}}/playground/">Try the playground</a
+          ><a href="{{BASE}}/guides/workflow-examples/">Workflow recipes</a>
+        </div>
+        <div>
+          <h2>Go deeper</h2>
+          <a href="{{BASE}}/guides/settings-reference/">Every setting</a
+          ><a href="{{BASE}}/reference/api-and-mcp/">API &amp; AI agents</a
+          ><a href="{{BASE}}/guides/verify-a-release/">Verify a release</a>
+        </div>
+        <div>
+          <h2>Make it better</h2>
+          <a
+            href="https://github.com/chriscollins500/ccollins-civiscribe/discussions"
+            >Feedback &amp; ideas</a
+          ><a
+            href="https://github.com/chriscollins500/ccollins-civiscribe/issues/new/choose"
+            >Report a bug</a
+          ><a href="https://github.com/chriscollins500/ccollins-civiscribe"
+            >Source on GitHub</a
+          >
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>
+          CCollins’ CiviScribe · v{{VERSION}} ·
+          <a
+            href="https://github.com/chriscollins500/ccollins-civiscribe/blob/main/LICENSE"
+            >MIT licensed</a
+          >
+        </p>
+        <p>No analytics or external scripts. Demos stay in your browser.</p>
+        <a
+          href="https://github.com/chriscollins500/ccollins-civiscribe/blob/main/SECURITY.md"
+          >Security &amp; privacy</a
+        >
+      </div>
+    </footer>
+    <dialog class="search-dialog" aria-labelledby="search-title">
+      <div class="search-dialog-head">
+        <h2 id="search-title">Find your next answer.</h2>
+        <button
+          class="icon-button"
+          data-close-search
+          type="button"
+          aria-label="Close search"
+        >
+          ✕
+        </button>
+      </div>
+      <label class="sr-only" for="site-search"
+        >Search guides, settings, and examples</label
+      ><input
+        id="site-search"
+        type="search"
+        placeholder="Try “counter”, “LoRA”, or “missing prompt”…"
+        autocomplete="off"
+        maxlength="160"
+      />
+      <p class="search-hint">
+        Search runs locally. <kbd>Esc</kbd> closes this window.
+      </p>
+      <p class="search-status" role="status" aria-live="polite">
+        Type a word to explore the guides.
+      </p>
+      <ul class="search-results"></ul>
+    </dialog>
+    <div class="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>

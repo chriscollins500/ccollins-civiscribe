@@ -4,6 +4,12 @@ All notable CiviScribe changes are documented here.
 
 ## Unreleased
 
+- Added a GitHub Pages website with the complete user guide, technical
+  references, searchable documentation, and interactive filename, workflow,
+  format, and metadata examples. Includes light and dark themes, mobile and
+  keyboard support, automated accessibility checks, and signed deployment
+  artifacts. The save node and published package version are unchanged.
+
 ## 2.0.12 - 2026-11-16
 
 - Refactored development-tool path validation so CodeQL recognizes the existing

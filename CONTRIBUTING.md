@@ -48,6 +48,19 @@ pairing. The Python lock retains upstream dependency compatibility bounds.
 The [repository maintenance guide](docs/repository_maintenance.md) records
 labels, history protection, security settings, and the publication process.
 
+### Website and interactive examples
+
+The [GitHub Pages site](https://chriscollins500.github.io/ccollins-civiscribe/)
+renders the reviewed wiki and technical documents directly. Update those source
+documents so the website and wiki stay consistent. The homepage, educational
+playground, and static assets live in `docs/site`.
+
+Run `python -m tools.build_site` and `python -m tools.validate_site` to build
+and audit the public output. The [website development guide](docs/site/README.md)
+includes local preview, pure JavaScript tests, desktop/mobile browser checks,
+accessibility checks, and deployment details. The Website workflow tests and
+attests the exact artifact before publishing it from `main`.
+
 ### Dependency update baseline
 
 The 2026-10-28 refresh uses Pillow 13, NumPy 2.5.4, truststore 0.10.5, and a

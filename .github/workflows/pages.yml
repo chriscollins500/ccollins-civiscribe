@@ -1,0 +1,121 @@
+name: Website
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - docs/site/**
+      - docs/wiki/**
+      - docs/examples/**
+      - docs/*.md
+      - docs/dev/*.md
+      - assets/branding/**
+      - civiscribe/version.py
+      - civiscribe/schemas/api-v1.openapi.json
+      - CHANGELOG.md
+      - tools/build_site.py
+      - tools/validate_site.py
+      - tests/site/**
+      - package-lock.json
+      - package.json
+      - uv.lock
+      - .oxlintrc.json
+      - .github/workflows/pages.yml
+  pull_request:
+    paths:
+      - docs/site/**
+      - docs/wiki/**
+      - docs/examples/**
+      - docs/*.md
+      - docs/dev/*.md
+      - assets/branding/**
+      - civiscribe/version.py
+      - civiscribe/schemas/api-v1.openapi.json
+      - CHANGELOG.md
+      - tools/build_site.py
+      - tools/validate_site.py
+      - tests/site/**
+      - package-lock.json
+      - package.json
+      - uv.lock
+      - .oxlintrc.json
+      - .github/workflows/pages.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: website-${{ github.event_name == 'pull_request' && github.ref || 'production' }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '24.22.3'
+          cache: npm
+      - name: Install pinned documentation tools
+        run: python -m pip install markdown-it-py==4.3.0 mdurl==0.1.2
+      - name: Install locked browser-test tools
+        run: npm ci
+      - name: Check site source formatting
+        run: npx --no-install prettier --check 'docs/site/**/*.{html,css,js}' 'tests/site/*.mjs' docs/site/.oxlintrc.json tests/site/.oxlintrc.json
+      - name: Lint browser code and website tests
+        run: |
+          npx --no-install oxlint --deny-warnings -c docs/site/.oxlintrc.json docs/site/assets
+          npx --no-install oxlint --deny-warnings -c tests/site/.oxlintrc.json tests/site
+      - name: Build reviewed documents and audit public output
+        run: |
+          python -m tools.build_site
+          python -m tools.validate_site
+      - name: Test educational models
+        run: node --test tests/site/lab.test.mjs
+      - name: Install the test browser
+        run: npx --no-install playwright install --with-deps chromium
+      - name: Check desktop, mobile, keyboard, and accessibility behavior
+        run: npx --no-install playwright test --config tests/site/playwright.config.mjs
+      - name: Upload the tested Pages artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: .tmp/site-preview/ccollins-civiscribe
+          include-hidden-files: true
+          retention-days: 7
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      contents: read
+      actions: read
+      pages: write
+      id-token: write
+      attestations: write
+    steps:
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+      - name: Retrieve the exact tested artifact
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          name: github-pages
+          path: site-artifact
+      - name: Sign the tested website artifact
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6
+        with:
+          subject-path: site-artifact/artifact.tar
+      - name: Deploy the tested artifact
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

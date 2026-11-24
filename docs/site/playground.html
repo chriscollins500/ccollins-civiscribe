@@ -1,0 +1,298 @@
+<section class="section-shell page-intro">
+  <p class="eyebrow">THE CIVISCRIBE PLAYGROUND</p>
+  <h1>Less “wait, what?”<br /><em>More “oh, nice.”</em></h1>
+  <p class="large-copy">
+    A few hands-on ways to understand what happens after Save.
+  </p>
+  <p>
+    These are educational simulations with synthetic examples. They run in your
+    browser, don’t contact ComfyUI or Civitai, and don’t generate or save real
+    images.
+  </p>
+  <nav class="section-jumps" aria-label="Playground sections">
+    <a href="#filenames">Filename studio</a
+    ><a href="#workflow">Follow the pixels</a
+    ><a href="#formats">Format finder</a
+    ><a href="#metadata">Metadata passport</a>
+  </nav>
+</section>
+<noscript
+  ><p class="section-shell notice">
+    JavaScript enables the interactive simulations. The examples and
+    <a href="{{BASE}}/guides/">complete guides</a> remain available without it.
+  </p></noscript
+>
+<section
+  class="section-shell lab-section"
+  id="filenames"
+  aria-labelledby="filename-title"
+>
+  <div class="lab-heading">
+    <p class="eyebrow">FILENAME STUDIO</p>
+    <h2 id="filename-title">
+      Give your files<br /><em>a little direction.</em>
+    </h2>
+    <p>
+      Try a recipe or invent your own. The preview uses the example values below
+      and assumes the chosen counter is free.
+    </p>
+  </div>
+  <div class="lab-panel">
+    <div class="preset-row" role="group" aria-label="Filename recipes">
+      <button type="button" data-pattern="ComfyUI">The classic</button
+      ><button
+        type="button"
+        data-pattern="%date:yyyy-MM-dd%/%model_noext%_%counter:4%"
+      >
+        Daily notebook</button
+      ><button type="button" data-pattern="%counter:3%_%seed%_%sampler%">
+        Counter first</button
+      ><button
+        type="button"
+        data-pattern="%model_noext%/%width%x%height%_%counter%"
+      >
+        Model folders
+      </button>
+    </div>
+    <label class="field-label" for="filename-pattern"
+      >Filename / subfolder pattern</label
+    >
+    <div class="input-with-button">
+      <input
+        id="filename-pattern"
+        value="%date:yyyy-MM-dd%/%model_noext%_%counter:4%"
+        spellcheck="false"
+        maxlength="500"
+        aria-describedby="filename-note filename-error"
+      /><button
+        class="button button-small button-quiet"
+        type="button"
+        data-copy-input="filename-pattern"
+      >
+        Copy pattern
+      </button>
+    </div>
+    <div class="lab-fields">
+      <label
+        >Example model<input
+          id="filename-model"
+          value="DreamModel.v2.safetensors"
+          maxlength="160"
+          spellcheck="false" /></label
+      ><label
+        >Seed<input
+          id="filename-seed"
+          value="123"
+          maxlength="20"
+          inputmode="numeric" /></label
+      ><label
+        >Counter<input
+          id="filename-counter"
+          type="number"
+          min="1"
+          max="999999999"
+          value="1" /></label
+      ><label
+        >Format<select id="filename-format">
+          <option value="png">PNG</option>
+          <option value="jpeg">JPEG</option>
+          <option value="webp">WebP</option>
+        </select></label
+      >
+    </div>
+    <div class="filename-result">
+      <span class="code-label">PREVIEW · BENEATH COMFYUI’S OUTPUT ROOT</span
+      ><output id="filename-output" aria-live="polite"
+        >2026-11-14/DreamModel.v2_0001.png</output
+      >
+      <p id="filename-error" class="form-error" role="status"></p>
+    </div>
+    <p id="filename-note" class="lab-note">
+      Example clock: November 14, 2026, 15:04:05 · 1024 × 768 · euler · batch
+      index 0. Widget tokens need ComfyUI to resolve them. The real node
+      additionally validates the filesystem and allocates a free filename.
+    </p>
+    <details>
+      <summary>What can I put in a pattern?</summary>
+      <div class="token-list">
+        <code>%model%</code><code>%model_noext%</code><code>%seed%</code
+        ><code>%sampler%</code><code>%width%</code><code>%height%</code
+        ><code>%batch_num%</code><code>%date:yyyy-MM-dd%</code
+        ><code>%counter%</code><code>%counter:4%</code>
+      </div>
+      <p>
+        <code>%model%</code> keeps the model extension.
+        <code>%model_noext%</code> removes one recognized model extension.
+        Without a counter token, the familiar <code>_00001_</code> suffix stays.
+        Use one counter token in the filename, with a minimum width of 1–9.
+      </p>
+      <a href="{{BASE}}/guides/filenames-and-folders/"
+        >Full token and path reference</a
+      >
+    </details>
+  </div>
+</section>
+<section
+  class="section-shell lab-section"
+  id="workflow"
+  aria-labelledby="branch-title"
+>
+  <div class="lab-heading">
+    <p class="eyebrow">FOLLOW THE PIXELS</p>
+    <h2 id="branch-title">Same canvas.<br /><em>Different backstories.</em></h2>
+    <p>
+      Select a save branch. Watch its example metadata follow its own active
+      path.
+    </p>
+  </div>
+  <div class="lab-panel">
+    <div
+      class="branch-controls"
+      role="group"
+      aria-label="Example workflow branch"
+    >
+      <button type="button" data-branch="portrait" aria-pressed="true">
+        Portrait branch</button
+      ><button type="button" data-branch="landscape" aria-pressed="false">
+        Landscape branch</button
+      ><button type="button" data-branch="experiment" aria-pressed="false">
+        Mystery-resource branch
+      </button>
+    </div>
+    <div class="branch-diagram">
+      <div class="branch-row" data-branch-row="portrait">
+        <span class="branch-model">PortraitModel.safetensors</span
+        ><span class="branch-link" aria-hidden="true"></span
+        ><span>Sampler · seed 123</span
+        ><span class="branch-link" aria-hidden="true"></span
+        ><span class="branch-save">CiviScribe A</span>
+      </div>
+      <div class="branch-row" data-branch-row="landscape">
+        <span class="branch-model">LandscapeModel.gguf</span
+        ><span class="branch-link" aria-hidden="true"></span
+        ><span>Sampler · seed 456</span
+        ><span class="branch-link" aria-hidden="true"></span
+        ><span class="branch-save">CiviScribe B</span>
+      </div>
+      <div class="branch-row" data-branch-row="experiment">
+        <span class="branch-model">CustomModel.safetensors</span
+        ><span class="branch-link" aria-hidden="true"></span
+        ><span>Sampler · seed 789</span
+        ><span class="branch-link" aria-hidden="true"></span
+        ><span class="branch-save">CiviScribe C</span>
+      </div>
+      <div class="unused-branch">
+        <span>Disconnected loader</span
+        ><span>Not on the active image path</span>
+      </div>
+    </div>
+    <div class="branch-readout" aria-live="polite">
+      <div>
+        <span class="code-label">THIS SAVE’S STORY</span>
+        <h3 id="branch-name">Portrait branch</h3>
+        <p id="branch-prompt">A softly lit portrait in a sunlit studio.</p>
+      </div>
+      <dl id="branch-facts"></dl>
+    </div>
+    <p class="lab-note">
+      Illustrative graph, not a live scanner. Supported active connections
+      supply evidence; a disconnected loader does not. An unknown identity stays
+      unresolved rather than becoming a guessed Civitai listing.
+    </p>
+    <a href="{{BASE}}/guides/workflow-examples/"
+      >Real wiring examples and multi-branch guidance</a
+    >
+  </div>
+</section>
+<section
+  class="section-shell lab-section"
+  id="formats"
+  aria-labelledby="format-title"
+>
+  <div class="lab-heading">
+    <p class="eyebrow">THE FORMAT FINDER</p>
+    <h2 id="format-title">Pack for<br /><em>your kind of trip.</em></h2>
+    <p>
+      Choose what matters most. This suggests a starting point, not a measured
+      file-size prediction.
+    </p>
+  </div>
+  <div class="lab-panel format-finder">
+    <fieldset>
+      <legend>Your priorities</legend>
+      <label
+        ><input type="checkbox" id="format-workflow" checked /> I want to reload
+        a ComfyUI workflow from the image.</label
+      ><label
+        ><input type="checkbox" id="format-alpha" /> I need transparency.</label
+      ><label
+        ><input type="checkbox" id="format-lossless" checked /> I want decoded
+        8-bit samples preserved.</label
+      ><label
+        ><input type="checkbox" id="format-compact" /> I prefer a compact,
+        widely shareable file.</label
+      >
+    </fieldset>
+    <div class="format-recommendation" aria-live="polite">
+      <span class="code-label">A GOOD STARTING POINT</span
+      ><output id="format-choice">PNG</output>
+      <p id="format-reason">
+        PNG is the workflow-friendly choice and preserves pixels losslessly.
+      </p>
+      <a href="{{BASE}}/guides/image-formats/"
+        >Compare the complete format contracts</a
+      >
+    </div>
+  </div>
+</section>
+<section
+  class="section-shell lab-section"
+  id="metadata"
+  aria-labelledby="metadata-title"
+>
+  <div class="lab-heading">
+    <p class="eyebrow">THE METADATA PASSPORT</p>
+    <h2 id="metadata-title">
+      A file can carry<br /><em>a lot of context.</em>
+    </h2>
+    <p>
+      Explore a deliberately synthetic example. These representations illustrate
+      different views of the same generation facts.
+    </p>
+  </div>
+  <div class="lab-panel">
+    <div class="metadata-controls">
+      <label
+        >View<select id="metadata-view">
+          <option value="parameters">A1111-style parameters</option>
+          <option value="record">Generation record concept</option>
+          <option value="report">Native save report</option>
+        </select></label
+      ><button
+        type="button"
+        class="button button-small button-quiet"
+        data-copy-output="metadata-code"
+      >
+        Copy example
+      </button>
+    </div>
+    <pre
+      class="metadata-code"
+      tabindex="0"
+    ><code id="metadata-code">A softly lit portrait in a sunlit studio.
+Negative prompt: blurry, low detail
+Steps: 28, Sampler: Euler, CFG scale: 7, Seed: 123, Size: 1024x768, Model: PortraitModel</code></pre>
+    <p id="metadata-explanation" class="lab-note">
+      A1111-style text helps compatible image tools read common generation
+      facts. This example contains no Civitai identity claim.
+    </p>
+    <a href="{{BASE}}/guides/metadata-and-sidecars/"
+      >Actual sidecar structure, inclusion rules, and examples</a
+    >
+  </div>
+</section>
+<section class="section-shell final-invitation compact">
+  <p class="eyebrow">READY FOR THE REAL THING?</p>
+  <h2>Make the next save<br /><em>a better save.</em></h2>
+  <a class="button" href="{{BASE}}/guides/quick-start/">Open the quick start</a>
+</section>
