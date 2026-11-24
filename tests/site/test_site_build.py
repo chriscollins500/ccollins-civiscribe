@@ -18,6 +18,7 @@ from tools.build_site import (
     _mapping,
     _render_markdown,
     _safe_output,
+    _write,
     build_site,
 )
 from tools.validate_site import validate_site
@@ -57,6 +58,11 @@ def test_no_private_or_development_files_are_published(built_site: Path) -> None
 def test_output_cannot_target_source_or_escape_the_project(relative: str) -> None:
     with pytest.raises(ValueError, match="output"):
         _safe_output(ROOT / relative)
+
+
+def test_generated_names_cannot_escape_the_output(built_site: Path) -> None:
+    with pytest.raises(ValueError, match="outside_selected_root"):
+        _write(built_site, "../outside.html", "synthetic test only")
 
 
 def test_search_indexes_documents_without_shared_navigation(built_site: Path) -> None:

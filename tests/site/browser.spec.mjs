@@ -59,6 +59,7 @@ test("representative pages pass Axe in dark and light themes", async ({
         result.violations.map((v) => ({
           id: v.id,
           nodes: v.nodes.map((n) => n.target),
+          details: v.nodes.map((n) => n.failureSummary),
         })),
         `${theme} ${route}`,
       ).toEqual([]);

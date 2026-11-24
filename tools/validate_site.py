@@ -10,6 +10,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
+from tools.audit_paths import scoped_path
 from tools.build_site import BASE, ROOT, _safe_output, public_paths
 
 
@@ -76,8 +77,12 @@ def _link_errors(output: Path, path: Path, page: _Page, pages: dict[Path, _Page]
         else:
             errors.append(f"{label}: link missing the project base path")
             continue
-        target = target.resolve()
-        if not target.is_relative_to(output) or not target.is_file():
+        try:
+            target = scoped_path(output, target)
+        except ValueError:
+            errors.append(f"{label}: link escaped the public output")
+            continue
+        if not target.is_file():
             errors.append(f"{label}: missing local link target {parsed.path}")
         elif (
             parsed.fragment
@@ -97,8 +102,12 @@ def _manifest_errors(output: Path) -> list[str]:
     if set(manifest["files"]) != public_paths() - {"site-manifest.json"}:
         errors.append("manifest: incomplete or unexpected file inventory")
     for name, digest in manifest["files"].items():
-        target = output / name
-        if not target.resolve().is_relative_to(output) or not target.is_file():
+        try:
+            target = scoped_path(output, output / name)
+        except ValueError:
+            errors.append("manifest: invalid file path")
+            continue
+        if not target.is_file():
             errors.append("manifest: invalid file path")
         elif hashlib.sha256(target.read_bytes()).hexdigest() != digest:
             errors.append(f"manifest: changed file {name}")

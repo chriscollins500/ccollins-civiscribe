@@ -14,6 +14,8 @@ from urllib.parse import unquote, urlsplit
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
 
+from tools.audit_paths import scoped_path
+
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "docs/site"
 REPOSITORY = "https://github.com/chriscollins500/ccollins-civiscribe"
@@ -202,7 +204,10 @@ def _check_existing_output(output: Path) -> None:
 
 
 def _safe_output(output: Path) -> Path:
-    output = output.absolute()
+    try:
+        output = scoped_path(ROOT, output, resolve_links=False)
+    except ValueError as error:
+        raise ValueError("Site output must be a child of the repository.") from error
     if not output.is_relative_to(ROOT) or output == ROOT:
         raise ValueError("Site output must be a child of the repository.")
     relative = output.relative_to(ROOT)
@@ -213,13 +218,14 @@ def _safe_output(output: Path) -> Path:
             break
         if path.is_symlink() or path.is_junction():
             raise ValueError("Site output cannot cross a link or junction.")
-    resolved = output.resolve()
-    if resolved.relative_to(ROOT).parts[0] not in {".tmp", "_site"}:
+    resolved = scoped_path(ROOT, output)
+    if resolved == ROOT or resolved.relative_to(ROOT).parts[0] not in {".tmp", "_site"}:
         raise ValueError("Site output cannot escape its approved build directory.")
     return resolved
 
 
 def _read(path: Path) -> str:
+    path = scoped_path(ROOT, path, resolve_links=False)
     if path.is_symlink() or path.is_junction() or not path.resolve().is_relative_to(ROOT):
         raise ValueError("Site inputs must be ordinary project files.")
     return path.read_text(encoding="utf-8")
@@ -233,7 +239,7 @@ def _template(name: str, values: dict[str, str]) -> str:
 
 
 def _write(output: Path, name: str, content: str | bytes) -> None:
-    path = output / name
+    path = scoped_path(output, output / name, resolve_links=False)
     if not path.resolve().is_relative_to(output) or path.is_symlink() or path.is_junction():
         raise ValueError("Generated file escaped the site output.")
     path.parent.mkdir(parents=True, exist_ok=True)
