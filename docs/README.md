@@ -19,6 +19,12 @@ Comfy MCP.
 These documents define the clean V2 rewrite of the unreleased
 `comfyui-civitai-save-node` prototype.
 
+Start with the [governing engineering principles](dev/engineering_principles.md).
+Maximum technical ambition governs the entire project: investigate the
+strongest plausible alternatives, pursue promising research through working
+implementations and meaningful evaluation, and support improvement claims with
+evidence. These principles apply to every authority below.
+
 Read them in this order:
 
 - `final_prompt_overrides.md` - user guide for preserving the exact final text

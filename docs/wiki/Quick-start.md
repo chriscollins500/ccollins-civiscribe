@@ -40,6 +40,9 @@ Try this filename pattern for a dated folder and a model name.
 For a model named `DreamModel.v2.safetensors` on November 14, 2026, the first
 available PNG could be `2026-11-14/DreamModel.v2_0001.png`.
 
+[Try this pattern in the playground](https://chriscollins500.github.io/ccollins-civiscribe/playground/#filenames)
+with those example values already filled in.
+
 More recipes cover seeds, image size, custom node widgets, and counter placement.
 [Filenames and folders](https://github.com/chriscollins500/ccollins-civiscribe/wiki/Filenames-and-folders)
 

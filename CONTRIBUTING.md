@@ -15,6 +15,25 @@ focused synthetic regression when it catches a bug or preserves an important
 contract. Review fixtures, logs, screenshots, and examples for private content.
 The pull-request template provides space to record validation and limitations.
 
+## Governing engineering principles
+
+Maximum technical ambition is a governing requirement of CiviScribe. Read the
+[engineering principles](docs/dev/engineering_principles.md) before making
+consequential decisions. They cover the entire project, including architecture,
+algorithms, protocols, implementation, tooling, design, and capabilities.
+
+Investigate the strongest plausible alternatives, including recent research,
+experimental implementations, theory, unconventional combinations, and original
+methods. Speculative R&D may begin at TRL 1 where appropriate. Uncertainty
+calls for investigation and experimentation, and promising approaches should
+progress through implementation and meaningful evaluation.
+
+Use the principles' [decision evidence](docs/dev/engineering_principles.md#decision-evidence)
+requirements in design documents and reviews. Explain concrete constraints,
+evidence, or tradeoffs when selecting a conventional approach. Clearly separate
+demonstrated capability, theoretical support, and speculative assumptions, and
+support improvement claims with comparable baselines and reproducible results.
+
 ## Development
 
 Create or update the locked environment with `uv sync`, install frontend

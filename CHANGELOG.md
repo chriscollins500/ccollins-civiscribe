@@ -4,6 +4,10 @@ All notable CiviScribe changes are documented here.
 
 ## Unreleased
 
+- Established maximum technical ambition as a governing project requirement,
+  with frontier R&D, consequential decision evidence, meaningful evaluation,
+  and explicit separation of demonstrated, theoretical, and speculative claims.
+
 - Integrated the website, wiki, roadmap, support, contributor and security
   pages, package links, and GitHub forms. Added automatic wiki synchronization
   before website deployment and cross-surface drift checks. Software releases

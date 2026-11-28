@@ -7,14 +7,17 @@ test("homepage is readable, local, and free of console errors", async ({
 }, testInfo) => {
   const errors = [];
   const external = [];
+  const heroRequests = [];
   page.on("pageerror", (error) => errors.push(error.message));
   page.on("console", (message) => {
     if (message.type() === "error")
       errors.push(`${message.text()} (${message.location().url})`);
   });
   page.on("request", (request) => {
-    if (new URL(request.url()).origin !== new URL(baseURL).origin)
-      external.push(request.url());
+    const url = new URL(request.url());
+    if (url.origin !== new URL(baseURL).origin) external.push(request.url());
+    if (/\/assets\/quill\.(png|webp)$/.test(url.pathname))
+      heroRequests.push(url.href);
   });
   await page.goto("./");
   await expect(page.getByRole("heading", { level: 1 })).toContainText(
@@ -23,6 +26,14 @@ test("homepage is readable, local, and free of console errors", async ({
   await expect(
     page.getByRole("link", { name: "Make your first save" }),
   ).toBeVisible();
+  const selectedHero = await page
+    .locator(".quill-art")
+    .evaluate(async (art) => {
+      await art.decode();
+      return art.currentSrc;
+    });
+  expect(selectedHero).toBe(new URL("assets/quill.webp", baseURL).href);
+  expect(heroRequests).toEqual([selectedHero]);
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,
@@ -121,6 +132,29 @@ test("the project hub connects guides, roadmap, support, and private reporting",
     .getByRole("link", { name: "support guide", exact: true })
     .click();
   await expect(page).toHaveURL(/\/support\//);
+});
+
+test("first save opens the matching filename exercise by keyboard", async ({
+  page,
+  baseURL,
+}) => {
+  await page.goto("./");
+  await page.getByRole("link", { name: "Make your first save" }).press("Enter");
+  await expect(page).toHaveURL(new URL("guides/quick-start/", baseURL).href);
+  await page
+    .getByRole("link", { name: "Try this pattern in the playground" })
+    .press("Enter");
+  await expect(page).toHaveURL(new URL("playground/#filenames", baseURL).href);
+  await expect(page.locator("#filenames")).toBeFocused();
+  await expect(page.locator("#filename-output")).toHaveText(
+    "2026-11-14/DreamModel.v2_0001.png",
+  );
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("button", { name: "The classic" })).toBeFocused();
+  await page.getByRole("spinbutton", { name: "Counter" }).press("ArrowUp");
+  await expect(page.locator("#filename-output")).toHaveText(
+    "2026-11-14/DreamModel.v2_0002.png",
+  );
 });
 
 test("filename recipes, counter growth, format change, and unsafe paths", async ({
@@ -247,6 +281,18 @@ test("guides remain usable without JavaScript", async ({
     await page.goto(`${baseURL}guides/quick-start/`);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await expect(page.locator(".prose")).toContainText("Images input");
+    await page
+      .getByRole("link", { name: "Try this pattern in the playground" })
+      .click();
+    await expect(page).toHaveURL(/playground\/#filenames$/);
+    await expect(page.locator("html")).not.toHaveAttribute(
+      "data-interactive",
+      "true",
+    );
+    await expect(page.locator("#filename-output")).toHaveText(
+      "2026-11-14/DreamModel.v2_0001.png",
+    );
+    await page.goBack();
     await page
       .locator(".prose")
       .getByRole("link", { name: "Filenames and folders", exact: true })

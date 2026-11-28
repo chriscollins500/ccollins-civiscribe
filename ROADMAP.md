@@ -11,6 +11,21 @@ It is also linked from this repository's **Projects** tab.
 CiviScribe remains a focused image-save node for current ComfyUI Desktop,
 with accurate generation metadata, high-quality images, and safe saving.
 
+## Research and technical ambition
+
+The [governing engineering principles](docs/dev/engineering_principles.md)
+require maximum technical ambition across the project. Current best practice
+and the state of the art are starting points to challenge and exceed.
+Investigate consequential choices through the strongest plausible alternatives,
+including speculative R&D beginning at TRL 1 where appropriate.
+
+Carry promising approaches through implementation and meaningful evaluation.
+Record experiments, results, and concrete constraints or tradeoffs behind a
+selection. Distinguish demonstrated capability, theoretical support, and
+speculative assumptions; completed research alone does not establish a shipped
+feature. Research proposals use the same reviewed scope and evidence rules as
+other work on the board.
+
 ## Current priorities
 
 - Keep up with current ComfyUI Desktop and native V3 changes.

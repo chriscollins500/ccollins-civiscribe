@@ -144,6 +144,11 @@ PROJECT_PAGES = {
     ),
 }
 REFERENCES = {
+    "dev/engineering_principles.md": (
+        "engineering-principles",
+        "Our governing engineering principles",
+        "Maximum technical ambition, frontier R&D, decision evidence, and demonstrated results.",
+    ),
     "api_and_mcp.md": (
         "api-and-mcp",
         "Native API & MCP reference",
@@ -214,6 +219,7 @@ def public_paths() -> frozenset[str]:
                 "robots.txt",
                 ".nojekyll",
                 "assets/quill.png",
+                "assets/quill.webp",
                 "assets/social-preview.jpg",
                 "examples/save-report.json",
             )
@@ -388,6 +394,7 @@ def _sidebar(current: str) -> str:
             for slug, title, _ in PROJECT_PAGES.values()
         )
         + "<h2>Under the hood</h2>"
+        f'<a href="{BASE}/reference/engineering-principles/">Engineering principles</a>'
         f'<a href="{BASE}/reference/api-and-mcp/">API reference</a>'
         f'<a href="{BASE}/reference/architecture/">Architecture</a>'
         f'<a href="{BASE}/guides/#under-the-hood">All technical references</a></nav></aside>'
@@ -457,11 +464,11 @@ def _library() -> str:
 def _copy_assets(output: Path, version: str) -> None:
     for name in CLIENT_ASSETS:
         _write(output, f"assets/{name}", _read(SOURCE / f"assets/{name}"))
-    for name, destination in (
-        ("civiscribe-icon.png", "quill.png"),
-        ("civiscribe-social-preview.jpg", "social-preview.jpg"),
+    for source, destination in (
+        (ROOT / "assets/branding/civiscribe-icon.png", "quill.png"),
+        (SOURCE / "assets/quill.webp", "quill.webp"),
+        (ROOT / "assets/branding/civiscribe-social-preview.jpg", "social-preview.jpg"),
     ):
-        source = ROOT / f"assets/branding/{name}"
         if source.is_symlink() or not source.resolve().is_relative_to(ROOT):
             raise ValueError("Brand asset escaped the repository.")
         _write(output, f"assets/{destination}", source.read_bytes())

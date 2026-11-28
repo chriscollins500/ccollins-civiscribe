@@ -7,6 +7,13 @@ compatibility freeze. Measurements are development-machine observations, not
 product performance guarantees. Product behavior remains governed by
 `product_contract.md`.
 
+The [governing engineering principles](dev/engineering_principles.md) require
+maximum technical ambition and evidence for consequential choices. These
+recorded decisions establish measured baselines. Reevaluate them when new
+evidence or stronger plausible approaches could advance the project's goals;
+record concrete constraints and tradeoffs when retaining a conventional
+implementation. Distinguish demonstrated results from theory and speculation.
+
 ## 1. Runtime Dependency Boundary
 
 The V2 runtime is intentionally small:

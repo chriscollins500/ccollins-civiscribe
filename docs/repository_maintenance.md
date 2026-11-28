@@ -2,7 +2,7 @@
 
 The public repository, wiki, issue forms, contributor pages, and automated
 checks are maintained together. This guide records the GitHub configuration
-reviewed on November 24, 2026. Historical security and dependency snapshots
+reviewed on November 28, 2026. Historical security and dependency snapshots
 retain their own dates.
 
 ## Public entry points
@@ -92,6 +92,89 @@ assets, verifies their provenance, and uploads the same Registry ZIP. The
 Registry processes new versions asynchronously. Check the public version
 record and catalog pointer when determining availability.
 [Release verification](wiki/Verify-a-release.md)
+
+## Merge verification rollout
+
+Before the November 28, 2026 rollout, the GitHub rules for `main` protected
+against deletion and force pushes. Open PRs had successful validation and
+dependency reviews, and two of the three lacked a website result. Consult the
+[effective rules for `main`](https://github.com/chriscollins500/ccollins-civiscribe/rules)
+for the current enforcement state.
+
+The [versioned merge ruleset](../.github/rulesets/main-merge-checks.json) is an
+import template that starts disabled. It maps the checks to the verified GitHub Actions
+app, requires a PR and resolved review conversations, and requires checks on an
+up-to-date branch. CodeQL is a separate native rule for errors and security
+findings of medium severity or higher. GitHub documents exceptions for
+Dependabot PRs under default CodeQL setup. Validation and dependency review run
+for those PRs. The proposal preserves the existing `main` and release-tag
+rulesets, supports the current merge methods, and allows the sole maintainer to
+merge after checks and conversation resolution.
+
+| PR check | What it verifies |
+| --- | --- |
+| `CiviScribe validation` | Locked Python, frontend, and package gates. Dependency proposals also run release interruption, benchmark, and supply-chain checks. |
+| `review` | Introduced dependencies, with moderate-or-higher known vulnerabilities failing the check. |
+| `Website build and browser checks` | Reviewed docs, exact local build, educational examples, browser journeys, and accessibility. |
+| CodeQL results | The native scanning rule evaluates GitHub's CodeQL results using the repository's extended queries. |
+
+Every PR gets a website job. A path-filtered workflow may never report a
+required status when its filter excludes a PR. A separate path classifier
+would add a second site input inventory to maintain. Validation and the
+browser job use standard public runners, ephemeral dependency storage and no
+artifact uploads for PRs. Validation also runs after changes to `main` and
+can be run manually on a topic branch. This removes the duplicate validation
+triggered by pushing to a branch that already has a PR.
+
+Review source and workflow changes in the PR, including changes to checks and
+this policy. An Actions app binding establishes which app reports a result.
+Maintainer review and `CODEOWNERS` cover changes to the workflow itself. Use
+the [project board guide](project_board.md) to connect accepted work with its
+issue, PR, and eventual release or deployed documentation.
+
+When rolling out a rule change, verify the three names and their reporting app
+on fresh hosted PR checks. Import disabled, confirm the saved scope, then
+activate in GitHub and read back the effective rules. Exercise a passing PR and
+a PR with a controlled failing check before relying on enforcement. Require
+a successful post-merge Pages publication and byte audit for website changes.
+Follow the existing protected release workflow for software releases. If
+enforcement blocks valid work, disable only the changed ruleset and keep the
+history and tag rules active while resolving the issue.
+
+## Free GitHub capability coverage
+
+Use public repository capabilities and standard GitHub-hosted runners. Keep
+paid plans, larger runners, and private compute outside the project's zero-cost
+scope. Verify a stop at $0 in the applicable billing scope before enabling any
+metered feature. The API did not return the account plan, required a broader
+account scope for usage, and denied the repository cache-limit read. A personal
+budget or spending stop was therefore unverified. On November 28 the repository
+had 2,072 bytes of active Actions caches and 34,219,150 bytes in its 89 active
+artifacts. These sizes describe current storage only. Existing artifact and
+cache retention still merit review against GitHub's storage allowances.
+
+| Surface | Current use and next decision |
+| --- | --- |
+| README, homepage, discovery, community health | The public site is the repository homepage. Eleven topics aid discovery, and GitHub reports 100% community health. The [project hub](wiki/Project-hub.md) links the release, Registry, support, roadmap, and contribution paths. |
+| Issues, forms, labels, milestones | Bug, feature, and documentation forms use the triage and area labels. GitHub reported zero open issues and zero milestones. Use milestones when work has an accepted release scope and the linked issues exist. |
+| Projects and roadmap | Public Project 2 is enabled and has 13 items. Use the [roadmap guide](project_board.md) for which work belongs on the board and what counts as Done. Review native automation when there is recurring intake from real issues. Its effective configuration was not verified. |
+| Discussions and Wiki | Both are enabled. Discussion forms direct people to community and support routes. Publication synchronizes reviewed wiki sources and checks a fresh readback. |
+| PRs, reviews, rulesets | `CODEOWNERS` and the PR template support maintainer review. History and tag protection are active. The maintained merge policy and current enforcement are linked above. Consider opt-in auto-merge only after the required checks are enforced. GitHub merge queues require organization ownership on public repositories. |
+| Actions and Pages | Repository settings require SHA-pinned actions and default to read-only tokens. Workflows use standard hosted runners. Pages uses HTTPS and a `main`-only environment. The workflow signs the tested archive and checks every published byte. |
+| Deployment and immutable releases | The `release` environment restricts deployment to `main` and has one required reviewer. GitHub reports v2.0.12 immutable. All eight saved assets matched GitHub's digests and passed attestation verification against source commit `6cdf4715f91e97c62254b6688408e07f7f4c33e2`. Use the release guide for downloaded bytes and the matching source revision for bundle comparisons. |
+| Dependency graph, reviews, Dependabot | GitHub exposes an SPDX SBOM and dependency review. Dependabot security updates are enabled and unpaused. Use the existing locked compatibility and supply-chain profiles for update proposals. |
+| CodeQL and secret protection | Extended default CodeQL uses local and remote input sources. Secret scanning, push protection, and private vulnerability reporting are enabled. No open CodeQL, Dependabot, or secret-scanning alerts were returned. Generic patterns warrant a separate false-positive review, and validity checks can send a detected credential to its issuer. Both options are currently disabled. |
+| Insights | Maintainer traffic metrics were readable. Use traffic, contribution, dependency, and Actions evidence to assess adoption and reliability without adding site tracking. |
+| Public Packages, GHCR, dev containers | GitHub public packages are free. CiviScribe's install path is the ComfyUI Registry, with signed wheel and ZIP assets in Releases. An OCI image would add a distribution to support, while a dev container would duplicate the locked setup and could not stand in for native ComfyUI Desktop validation. Revisit with a concrete container workflow. |
+| Codespaces and Copilot code review | These are metered products. The locked local toolchain, existing CI, and maintainer review cover their current CiviScribe use cases. |
+
+GitHub sources checked November 28, 2026.
+
+- [Free plan](https://docs.github.com/en/get-started/learning-about-github/githubs-plans) and [Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions)
+- [Ruleset API schema](https://docs.github.com/en/rest/repos/rules) and [code scanning merge protection](https://docs.github.com/en/code-security/concepts/code-scanning/merge-protection)
+- [Troubleshooting required status checks](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/troubleshooting-required-status-checks) and [merge queue availability](https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/merging-a-pull-request-with-a-merge-queue)
+- [Public security features](https://docs.github.com/en/code-security/getting-started/github-security-features) and [validity checks](https://docs.github.com/en/code-security/concepts/secret-security/validity-checks)
+- [Artifact attestations](https://docs.github.com/en/actions/how-tos/secure-your-work/use-artifact-attestations/use-artifact-attestations), [Packages billing](https://docs.github.com/en/billing/concepts/product-billing/github-packages), and [spending controls](https://docs.github.com/en/billing/how-tos/set-up-budgets)
 
 ## Security and dependency checks
 

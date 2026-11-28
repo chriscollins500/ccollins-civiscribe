@@ -5,6 +5,16 @@ feeds metadata projections, writers, filenames, sidecars, and display facts.
 Development work preserves active-branch selection, exact identity evidence,
 pixel quality, private-data handling, and existing-file protection.
 
+## Governing engineering principles
+
+Maximum technical ambition is a governing requirement across the project.
+Our [engineering principles](https://github.com/chriscollins500/ccollins-civiscribe/blob/main/docs/dev/engineering_principles.md)
+call for the strongest plausible alternatives, frontier-expanding R&D,
+including concepts beginning at TRL 1 where appropriate, and working
+implementations evaluated against meaningful baselines. Conventional choices
+need concrete constraints, evidence, or tradeoffs. Clearly distinguish
+demonstrated capability, theoretical support, and speculative assumptions.
+
 ## Run the normal checks
 
 Use the repository's locked Python environment and frontend dependencies.

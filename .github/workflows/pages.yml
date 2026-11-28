@@ -23,6 +23,7 @@ on:
       - .github/DISCUSSION_TEMPLATE/**
       - .github/pull_request_template.md
       - tools/sync_wiki.py
+      - tools/audit_paths.py
       - tools/validate_public_project.py
       - tools/validate_repository_docs.py
       - tools/audit_public_docs.mjs
@@ -31,41 +32,12 @@ on:
       - tests/site/**
       - package-lock.json
       - package.json
+      - pyproject.toml
       - uv.lock
       - .oxlintrc.json
       - .github/workflows/pages.yml
+  # The required PR job must produce a result for every proposed merge.
   pull_request:
-    paths:
-      - docs/site/**
-      - docs/wiki/**
-      - docs/examples/**
-      - docs/*.md
-      - docs/dev/*.md
-      - assets/branding/**
-      - civiscribe/version.py
-      - civiscribe/schemas/api-v1.openapi.json
-      - CHANGELOG.md
-      - README.md
-      - ROADMAP.md
-      - SUPPORT.md
-      - SECURITY.md
-      - CONTRIBUTING.md
-      - CODE_OF_CONDUCT.md
-      - .github/ISSUE_TEMPLATE/**
-      - .github/DISCUSSION_TEMPLATE/**
-      - .github/pull_request_template.md
-      - tools/sync_wiki.py
-      - tools/validate_public_project.py
-      - tools/validate_repository_docs.py
-      - tools/audit_public_docs.mjs
-      - tools/build_site.py
-      - tools/validate_site.py
-      - tests/site/**
-      - package-lock.json
-      - package.json
-      - uv.lock
-      - .oxlintrc.json
-      - .github/workflows/pages.yml
   workflow_dispatch:
 
 permissions:
@@ -77,17 +49,20 @@ concurrency:
 
 jobs:
   build:
+    name: Website build and browser checks
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
         with:
           python-version: '3.12'
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
           node-version: '24.22.3'
-          cache: npm
+          package-manager-cache: false
       - name: Install pinned documentation tools
         run: 'python -m pip install --only-binary=:all: --require-hashes -r docs/site/requirements.txt'
       - name: Install locked browser-test tools
