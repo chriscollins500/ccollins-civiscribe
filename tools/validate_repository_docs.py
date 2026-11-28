@@ -25,6 +25,10 @@ DOCUMENTS = (
     "docs/site/README.md",
     "docs/project_board.md",
     "docs/documentation_tooling.md",
+    "docs/dev/engineering_principles.md",
+    "docs/product_contract.md",
+    "docs/architecture.md",
+    "docs/technology_decisions.md",
 )
 _LINK = re.compile(r"!?\[[^\]\n]*\]\((<[^>]+>|[^\s)]+)\s*\)")
 _JSON_BLOCK = re.compile(r"^```json\s*\n(.*?)^```\s*$", re.MULTILINE | re.DOTALL)

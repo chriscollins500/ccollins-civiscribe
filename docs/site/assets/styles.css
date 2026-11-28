@@ -456,6 +456,7 @@ legend {
   padding-bottom: 115px;
 }
 .quill-art {
+  display: block;
   width: 370px;
   position: relative;
   z-index: 1;

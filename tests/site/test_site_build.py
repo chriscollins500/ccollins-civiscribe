@@ -10,6 +10,7 @@ from tempfile import TemporaryDirectory
 
 import jsonschema
 import pytest
+from PIL import Image
 
 from tools.build_site import (
     BASE,
@@ -23,7 +24,7 @@ from tools.build_site import (
 )
 from tools.validate_site import validate_site
 
-EXPECTED_PAGE_COUNT = 36
+EXPECTED_PAGE_COUNT = 37
 MAX_COMPRESSED_CLIENT_BYTES = 25_000
 
 
@@ -49,9 +50,17 @@ def test_no_private_or_development_files_are_published(built_site: Path) -> None
     for path in built_site.rglob("*"):
         assert not banned.intersection(path.relative_to(built_site).parts)
         assert not path.is_symlink()
-    assert (built_site / "assets/quill.png").read_bytes() == (
-        ROOT / "assets/branding/civiscribe-icon.png"
-    ).read_bytes()
+
+
+def test_homepage_art_saves_bytes_and_preserves_every_pixel(built_site: Path) -> None:
+    png_path = built_site / "assets/quill.png"
+    webp_path = built_site / "assets/quill.webp"
+    assert png_path.read_bytes() == (ROOT / "assets/branding/civiscribe-icon.png").read_bytes()
+    assert 4 * webp_path.stat().st_size <= 3 * png_path.stat().st_size
+    with Image.open(webp_path) as webp, Image.open(png_path) as png:
+        assert webp.format == "WEBP"
+        assert webp.size == png.size == (400, 400)
+        assert webp.convert("RGBA").tobytes() == png.convert("RGBA").tobytes()
 
 
 @pytest.mark.parametrize("relative", ["../outside-site", ".tmp/../civiscribe", "docs/site"])

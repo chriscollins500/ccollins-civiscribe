@@ -6,9 +6,9 @@
     </p>
     <h1>Your image<br />has a story.<br /><em>Let it travel.</em></h1>
     <p class="hero-description">
-      The prompt. The model. That very particular seed.<br />CiviScribe keeps
-      the useful details with your image—so your next great creation doesn’t
-      lose its backstory.
+      The prompt. The model. That very particular seed.<br />
+      CiviScribe keeps the useful details with your image—so your next great
+      creation doesn't lose its backstory.
     </p>
     <div class="hero-buttons">
       <a class="button" href="{{BASE}}/guides/quick-start/"
@@ -25,14 +25,17 @@
   <div class="hero-art">
     <div class="orbit orbit-one" aria-hidden="true"></div>
     <div class="orbit orbit-two" aria-hidden="true"></div>
-    <img
-      class="quill-art"
-      src="{{BASE}}/assets/quill.png"
-      alt="CiviScribe’s illuminated quill connecting a framed image to its creation details"
-      width="400"
-      height="400"
-      fetchpriority="high"
-    />
+    <picture>
+      <source srcset="{{BASE}}/assets/quill.webp" type="image/webp" />
+      <img
+        class="quill-art"
+        src="{{BASE}}/assets/quill.png"
+        alt="CiviScribe's illuminated quill connecting a framed image to its creation details"
+        width="400"
+        height="400"
+        fetchpriority="high"
+      />
+    </picture>
     <div class="image-ticket">
       <div class="ticket-top">
         <span>THE IMAGE’S PASSPORT</span

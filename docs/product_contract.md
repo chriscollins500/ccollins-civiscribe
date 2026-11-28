@@ -6,10 +6,17 @@ Target runtime: current ComfyUI Desktop
 
 ## 0. Governing Engineering Standard
 
-Every V2 decision follows `docs/dev/engineering_principles.md`: use the most
-correct process and implementation throughout discovery, requirements,
-architecture, implementation, review, verification, packaging, release,
-operation, maintenance, and retirement.
+Every decision follows the
+[governing engineering principles](dev/engineering_principles.md).
+Maximum technical ambition is a governing requirement across the entire
+project lifecycle. Pursue frontier-expanding R&D, including concepts starting
+at TRL 1 where appropriate, and investigate the strongest plausible alternatives
+against actual project goals and constraints.
+
+Carry promising approaches through implementation and meaningful evaluation.
+Conventional selections require concrete constraints, evidence, or tradeoffs.
+Distinguish demonstrated capability, theoretical support, and speculative
+assumptions, and support improvement claims with evidence.
 
 Correctness, safety, privacy, standards compliance, and preservation of user
 data outrank schedule, convenience, metrics, historical code, and stylistic

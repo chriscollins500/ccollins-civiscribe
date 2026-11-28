@@ -5,10 +5,19 @@ Companion authority: `docs/product_contract.md`
 
 ## 0. Decision Standard
 
-Architecture decisions follow `docs/dev/engineering_principles.md`. The target
-is not the fewest modules, lowest complexity score, newest pattern, or shortest
-implementation. The target is the most correct, secure, cohesive, testable, and
-maintainable design supported by evidence.
+Architecture decisions follow the
+[governing engineering principles](dev/engineering_principles.md).
+Maximum technical ambition requires investigation of the strongest plausible
+architectures, algorithms, protocols, experimental implementations, theoretical
+approaches, unconventional combinations, and original methods. Current best
+practice and the state of the art are starting points to challenge and exceed.
+
+Evaluate promising designs through implementation and meaningful experiments
+against the product's actual goals and constraints. Record the evidence and
+concrete tradeoffs behind a selection, including any conventional choice.
+Distinguish demonstrated results, theoretical support, and speculative
+assumptions. Correctness, security, cohesion, testability, maintainability,
+and the pixels-first contracts remain acceptance criteria.
 
 ## 1. Architecture Goals
 

@@ -10,6 +10,10 @@ documents. Those files remain the guide authority. The release history comes
 from `CHANGELOG.md`; the displayed version comes from `civiscribe/version.py`.
 Update the underlying documents rather than creating a second copy of a guide.
 
+The [governing engineering principles](../dev/engineering_principles.md) are
+rendered directly as a searchable technical reference and linked from the
+project's contributor, roadmap, architecture, and development pages.
+
 ## Build and preview
 
 Use the project's locked Python environment. The CI documentation requirements
@@ -38,6 +42,23 @@ the native report example, and no-JavaScript guide access. Axe checks cover
 WCAG A/AA criteria through 2.2; automated scans do not replace human review.
 The output audit checks links, anchors, private-file boundaries, CSP, and exact
 file digests. Lab tests guard the documented naming recipes and unsafe paths.
+The first-save browser test follows the homepage and Quick Start to the
+matching playground exercise and checks the keyboard focus and live preview.
+
+## Homepage artwork
+
+The homepage chooses a lossless WebP derivative using HTML `picture`. The
+original PNG is the fallback and its public URL is also used by the portfolio.
+The site build copies both files into the verified artifact. When the artwork
+changes, regenerate the derivative with the locked Pillow environment.
+
+```powershell
+.\.venv\Scripts\python.exe -c "from PIL import Image; Image.open('assets/branding/civiscribe-icon.png').save('docs/site/assets/quill.webp', lossless=True, quality=100, method=6, exact=True)"
+```
+
+The build tests compare decoded pixels and require the WebP to save at least
+25 percent of the PNG's size. The browser test verifies that Chromium decodes
+the WebP and requests a single hero image.
 
 ## Publish
 

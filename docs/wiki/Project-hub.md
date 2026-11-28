@@ -11,6 +11,7 @@ the same reviewed guides and product boundaries.
 | Download a verified release | [Latest GitHub release](https://github.com/chriscollins500/ccollins-civiscribe/releases/latest) and [verification guide](https://github.com/chriscollins500/ccollins-civiscribe/wiki/Verify-a-release) |
 | See what changed | [Complete changelog](https://github.com/chriscollins500/ccollins-civiscribe/blob/main/CHANGELOG.md) |
 | Follow priorities and ideas | [Roadmap guide](https://github.com/chriscollins500/ccollins-civiscribe/blob/main/ROADMAP.md) and [public project board](https://github.com/users/chriscollins500/projects/2) |
+| Understand how technical decisions are made | [Governing engineering principles](https://github.com/chriscollins500/ccollins-civiscribe/blob/main/docs/dev/engineering_principles.md) |
 | Ask for help | [Support guide](https://github.com/chriscollins500/ccollins-civiscribe/blob/main/SUPPORT.md) and [Q&A](https://github.com/chriscollins500/ccollins-civiscribe/discussions/categories/q-a) |
 | Suggest an improvement | [Ideas](https://github.com/chriscollins500/ccollins-civiscribe/discussions/categories/ideas) |
 | Report a reproducible problem | [Issue forms](https://github.com/chriscollins500/ccollins-civiscribe/issues/new/choose) |
@@ -38,6 +39,12 @@ separate signed build provenance. That signing does not certify generated
 images or guarantee recognition by Civitai's own parser.
 
 ## One shared set of expectations
+
+Maximum technical ambition governs the entire project. Investigate the
+strongest plausible alternatives and carry promising research through
+implementation and meaningful evaluation. Improvement claims require evidence;
+demonstrated results, theoretical support, and speculative assumptions remain
+clearly distinguished.
 
 CiviScribe stays focused on current ComfyUI image saving. PNG, JPEG, and WebP,
 truthful resource identities, image fidelity, safe output paths, and

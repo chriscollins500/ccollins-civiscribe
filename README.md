@@ -342,6 +342,12 @@ supply-chain reports, crash-recovery tests, and advisory performance checks.
 Architecture and implementation documents are available in [`docs/`](docs/).
 Contributor guidance is in [CONTRIBUTING.md](CONTRIBUTING.md).
 
+Our [governing engineering principles](docs/dev/engineering_principles.md)
+require maximum technical ambition across the project. We investigate the
+strongest plausible alternatives, pursue promising research through working
+implementations and meaningful evaluation, and support improvement claims with
+evidence.
+
 </details>
 
 ## Support The Project
